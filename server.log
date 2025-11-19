@@ -1,0 +1,171 @@
+
+> deck-of-capitalist@0.0.0 dev
+> vite --port 5173
+
+
+  VITE v5.4.21  ready in 265 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+Error:   Failed to scan for dependencies from entries:
+  /Users/rzrizaldy/CodeFolder/deck_of_capitalist/index.html
+
+  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mExpected "}" but found "ClassValue"[0m
+
+    src/CapitalistPoker.jsx:17:20:
+[37m      17 │ import { clsx, type [32mClassValue[37m } from 'clsx';
+         │                     [32m~~~~~~~~~~[37m
+         ╵                     [32m}[0m
+
+
+    at failureErrorWithLog (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/esbuild/lib/main.js:1472:15)
+    at /Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/esbuild/lib/main.js:945:25
+    at runOnEndCallbacks (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/esbuild/lib/main.js:1315:45)
+    at buildResponseToResult (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/esbuild/lib/main.js:943:7)
+    at /Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/esbuild/lib/main.js:955:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/esbuild/lib/main.js:954:54)
+    at handleRequest (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/esbuild/lib/main.js:647:17)
+    at handleIncomingPacket (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/esbuild/lib/main.js:672:7)
+    at Socket.readFromStdout (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/esbuild/lib/main.js:600:7)
+6:25:43 PM [vite] Pre-transform error: /Users/rzrizaldy/CodeFolder/deck_of_capitalist/src/CapitalistPoker.jsx: Unexpected token, expected "," (17:20)
+
+  15 |   Lightbulb
+  16 | } from 'lucide-react';
+> 17 | import { clsx, type ClassValue } from 'clsx';
+     |                     ^
+  18 | import { twMerge } from 'tailwind-merge';
+  19 |
+  20 | // --- UTILS ---
+6:25:43 PM [vite] Internal server error: /Users/rzrizaldy/CodeFolder/deck_of_capitalist/src/CapitalistPoker.jsx: Unexpected token, expected "," (17:20)
+
+  15 |   Lightbulb
+  16 | } from 'lucide-react';
+> 17 | import { clsx, type ClassValue } from 'clsx';
+     |                     ^
+  18 | import { twMerge } from 'tailwind-merge';
+  19 |
+  20 | // --- UTILS ---
+  Plugin: vite:react-babel
+  File: /Users/rzrizaldy/CodeFolder/deck_of_capitalist/src/CapitalistPoker.jsx:17:20
+  15 |    Lightbulb
+  16 |  } from 'lucide-react';
+  17 |  import { clsx, type ClassValue } from 'clsx';
+     |                      ^
+  18 |  import { twMerge } from 'tailwind-merge';
+  19 |  
+      at constructor (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:367:19)
+      at JSXParserMixin.raise (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:6624:19)
+      at JSXParserMixin.unexpected (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:6644:16)
+      at JSXParserMixin.expect (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:6924:12)
+      at JSXParserMixin.parseNamedImportSpecifiers (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:14471:14)
+      at JSXParserMixin.parseImportSpecifiersAndAfter (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:14318:37)
+      at JSXParserMixin.parseImport (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:14311:17)
+      at JSXParserMixin.parseStatementContent (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:12952:27)
+      at JSXParserMixin.parseStatementLike (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:12843:17)
+      at JSXParserMixin.parseModuleItem (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:12820:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:13392:36)
+      at JSXParserMixin.parseBlockBody (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:13385:10)
+      at JSXParserMixin.parseProgram (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:12698:10)
+      at JSXParserMixin.parseTopLevel (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:12688:25)
+      at JSXParserMixin.parse (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:14568:25)
+      at parse (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/parser/lib/index.js:14602:38)
+      at parser (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/core/lib/parser/index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/core/lib/transformation/index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/core/lib/transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/gensync/index.js:261:32)
+      at /Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/gensync/index.js:273:13
+      at async.call.result.err.err (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/gensync/index.js:223:11)
+      at /Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/gensync/index.js:189:28
+      at /Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/@babel/core/lib/gensync-utils/async.js:67:7
+      at /Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/gensync/index.js:113:33
+      at step (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/gensync/index.js:287:14)
+      at /Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/gensync/index.js:273:13
+      at async.call.result.err.err (/Users/rzrizaldy/CodeFolder/deck_of_capitalist/node_modules/gensync/index.js:223:11)
+6:25:50 PM [vite] ✨ new dependencies optimized: lucide-react, clsx, tailwind-merge
+6:25:50 PM [vite] ✨ optimized dependencies changed. reloading
+6:27:13 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:27:30 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:36:03 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:36:11 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:36:16 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:36:20 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:36:27 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:36:32 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:37:06 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:39:47 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:39:59 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:40:11 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:40:22 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:40:35 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:43:44 PM [vite] hmr update /src/index.css
+6:44:11 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:44:51 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:45:11 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:45:27 PM [vite] hmr update /src/index.css
+6:45:27 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:50:16 PM [vite] page reload index.html
+6:50:43 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:51:53 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:51:53 PM [vite] page reload index.html
+6:52:53 PM [vite] page reload index.html
+6:53:53 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:54:21 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:54:39 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:54:57 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:55:21 PM [vite] page reload index.html
+6:55:21 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+6:59:08 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:00:19 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:01:29 PM [vite] hmr update /src/index.css
+7:03:08 PM [vite] hmr update /src/index.css
+7:05:36 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:06:17 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:06:27 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:06:58 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:07:18 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:07:39 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:08:35 PM [vite] hmr update /src/index.css
+7:10:43 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:12:07 PM [vite] hmr update /src/index.css
+7:12:07 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:13:21 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:13:44 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:15:08 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:15:43 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:21:27 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:21:27 PM [vite] warning: Duplicate key "imageRendering" in object literal
+574|              style={{
+575|                imageRendering: 'pixelated',
+576|                imageRendering: '-moz-crisp-edges',
+   |                ^
+577|                imageRendering: 'crisp-edges'
+578|              }} />
+
+  Plugin: vite:esbuild
+  File: /Users/rzrizaldy/CodeFolder/deck_of_capitalist/src/CapitalistPoker.jsx
+7:21:27 PM [vite] warning: Duplicate key "imageRendering" in object literal
+575|                imageRendering: 'pixelated',
+576|                imageRendering: '-moz-crisp-edges',
+577|                imageRendering: 'crisp-edges'
+   |                ^
+578|              }} />
+579|  
+
+  Plugin: vite:esbuild
+  File: /Users/rzrizaldy/CodeFolder/deck_of_capitalist/src/CapitalistPoker.jsx
+7:21:50 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:22:20 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:25:51 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:27:08 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:28:22 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:30:05 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:31:09 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
+7:31:20 PM [vite] hmr update /src/index.css
+7:32:16 PM [vite] hmr update /src/index.css
+7:32:16 PM [vite] hmr update /src/CapitalistPoker.jsx, /src/index.css
