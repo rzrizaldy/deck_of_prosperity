@@ -52,3 +52,10 @@ test('mute preference persists', async ({ page }) => {
   await page.reload();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('doc-muted'))).toBe('true');
 });
+
+test('compendium cards open a full-size artwork preview', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /^Cards$/i }).click();
+  await page.getByRole('button', { name: /^Medan, 5 chips/i }).click();
+  await expect(page.getByRole('dialog', { name: /Medan card preview/i })).toBeVisible();
+});

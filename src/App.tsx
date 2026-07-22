@@ -58,7 +58,7 @@ function AssetCard({ card, selected = false, compact = false, departing = false,
       className={`asset-card ${selected ? 'selected' : ''} ${compact ? 'compact' : ''} ${departing ? 'departing' : ''} ${onInspect ? 'inspectable' : ''}`}
       style={{ '--group': group.color, '--group-ink': group.ink, '--card-index': index ?? 0 } as React.CSSProperties}
       onClick={(event) => {
-        if (onInspect && (event.target as HTMLElement).closest('.card-art')) { onInspect(); return; }
+        if (onInspect && (!onClick || (event.target as HTMLElement).closest('.card-art'))) { onInspect(); return; }
         onClick?.();
       }}
       aria-pressed={selected}
@@ -193,11 +193,17 @@ function Guide({ onClose }: { onClose: () => void }) {
 }
 
 function Compendium({ onClose }: { onClose: () => void }) {
+  const [inspectedCard, setInspectedCard] = useState<Card | null>(null);
   return (
     <Modal title="Property Compendium" onClose={onClose}>
+      <p className="compendium-hint">Click a deed illustration to inspect it full size.</p>
       <div className="compendium">
-        {CARD_TEMPLATES.map((template, index) => <AssetCard key={template.id} card={{ ...template, instanceId: `catalog-${index}`, bonus: 0 }} compact />)}
+        {CARD_TEMPLATES.map((template, index) => {
+          const card = { ...template, instanceId: `catalog-${index}`, bonus: 0 };
+          return <AssetCard key={template.id} card={card} compact onInspect={() => setInspectedCard(card)} />;
+        })}
       </div>
+      {inspectedCard && <CardPreview card={inspectedCard} onClose={() => setInspectedCard(null)} />}
     </Modal>
   );
 }

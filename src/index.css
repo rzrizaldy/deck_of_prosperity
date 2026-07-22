@@ -149,6 +149,9 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 .upgrade { position: absolute; right: 4px; top: 26px; background: #2aaf7d; color: #03140e; border-radius: 4px; padding: .12rem .25rem; font: 700 .55rem DM Mono, monospace; }
 .asset-card.compact { width: 88px; height: 128px; pointer-events: none; }
 .asset-card.compact.inspectable { pointer-events: auto; }
+.compendium-hint { margin: 0 0 .7rem; color: #9eafa9; font: .65rem DM Mono, monospace; }
+.compendium .asset-card.inspectable { cursor: zoom-in; }
+.compendium .asset-card.inspectable .inspect-hint { opacity: .86; }
 .play-actions { display: flex; justify-content: center; gap: .55rem; }
 .play-actions button { min-width: 180px; }
 
