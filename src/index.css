@@ -316,6 +316,7 @@ kbd { border: 1px solid #3b4852; background: #121b23; border-radius: 4px; paddin
 .tycoon-preview .preview-details p { margin: .35rem 0; color: #e8ebdb; font-size: .9rem; line-height: 1.42; }
 .tycoon-preview .preview-details small { color: #bac5b2; }
 .shop-grid .tycoon-card { min-width: 0; }
+.shop-grid .tycoon-card > img { object-position: center 18%; }
 
 @media (max-width: 900px) and (orientation: landscape) {
   .table-layout { grid-template-columns: minmax(0,1fr) 86px; }
