@@ -88,14 +88,16 @@ describe('audio settings', () => {
     vi.unstubAllGlobals();
   });
 
-  it('does not play a companion cue while muted or when no licensed local cue exists', async () => {
+  it('uses AntekAsync’s local cue and respects mute', async () => {
     installStorage();
     const play = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal('Audio', vi.fn(() => ({ currentTime: 0, volume: 0, play })));
+    const audioElement = { currentTime: 4, volume: 0, play };
+    vi.stubGlobal('Audio', vi.fn(() => audioElement));
     const audio = await import('../src/game/audio');
     expect(audio.playCompanionSfx('soloman', true)).toBe(false);
-    expect(audio.playCompanionSfx('gemoy', false)).toBe(false);
-    expect(play).not.toHaveBeenCalled();
+    expect(audio.playCompanionSfx('gemoy', false)).toBe(true);
+    expect(audioElement.currentTime).toBe(0);
+    expect(play).toHaveBeenCalledOnce();
     vi.unstubAllGlobals();
   });
 

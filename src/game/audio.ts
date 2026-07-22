@@ -66,6 +66,7 @@ let bgmEnabled = readFlag(BGM_KEY, true);
  * selecting cards, so the table still has a clean Balatro-like rhythm.
  */
 const COMPANION_SFX: Partial<Record<CompanionId, string>> = {
+  gemoy: '/assets/sfx/antekasync-play.mp3',
   soloman: '/assets/sfx/soloman-play.mp3',
 };
 
