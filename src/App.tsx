@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useReducer, useState } from 'react';
 import {
   BookOpen, Bot, Building2, Coins, Crown, RotateCcw,
-  Sparkles, Train, Trash2, Trophy, Volume2, VolumeX, Wrench, X, Zap,
+  Eye, Sparkles, Train, Trash2, Trophy, Volume2, VolumeX, Wrench, X, Zap,
 } from 'lucide-react';
 import { playSound } from './game/audio';
 import { CARD_TEMPLATES, GROUPS, HANDS } from './game/data';
@@ -12,21 +12,25 @@ import type { Card, Difficulty, GameState, ScoreBreakdown, Tycoon } from './game
 
 const money = (value: number) => value.toLocaleString('en-US');
 
-function AssetCard({ card, selected = false, compact = false, onClick, index }: {
-  card: Card; selected?: boolean; compact?: boolean; onClick?: () => void; index?: number;
+function AssetCard({ card, selected = false, compact = false, onClick, onInspect, index }: {
+  card: Card; selected?: boolean; compact?: boolean; onClick?: () => void; onInspect?: () => void; index?: number;
 }) {
   const group = GROUPS[card.group];
   const Icon = card.group === 'RAILROAD' ? Train : card.group === 'UTILITY' ? Zap : Building2;
   return (
     <button
-      className={`asset-card ${selected ? 'selected' : ''} ${compact ? 'compact' : ''}`}
+      className={`asset-card ${selected ? 'selected' : ''} ${compact ? 'compact' : ''} ${onInspect ? 'inspectable' : ''}`}
       style={{ '--group': group.color, '--group-ink': group.ink, '--card-index': index ?? 0 } as React.CSSProperties}
-      onClick={onClick}
+      onClick={(event) => {
+        if (onInspect && (event.target as HTMLElement).closest('.card-art')) { onInspect(); return; }
+        onClick?.();
+      }}
       aria-pressed={selected}
       aria-label={`${index !== undefined ? `${index + 1}. ` : ''}${card.name}, ${card.chips + card.bonus} chips`}
       type="button"
     >
-      <img className="card-art" src={`/assets/cards/${card.id}.webp`} alt="" loading="lazy" />
+      <img className="card-art" src={`/assets/cards/${card.id}.webp`} alt={onInspect ? `Inspect ${card.name} artwork` : ''} loading="lazy" />
+      {onInspect && <span className="inspect-hint" aria-hidden="true"><Eye /></span>}
       <span className="card-stripe">{group.label}</span>
       <Icon aria-hidden="true" />
       <strong>{card.name}</strong>
@@ -34,6 +38,23 @@ function AssetCard({ card, selected = false, compact = false, onClick, index }: 
       {card.bonus > 0 && <span className="upgrade">+{card.bonus}</span>}
     </button>
   );
+}
+
+function CardPreview({ card, onClose }: { card: Card; onClose: () => void }) {
+  const group = GROUPS[card.group];
+  return <div className="card-preview-backdrop" role="presentation" onMouseDown={onClose}>
+    <section className="card-preview" role="dialog" aria-modal="true" aria-label={`${card.name} card preview`} onMouseDown={(event) => event.stopPropagation()}>
+      <button className="icon-button preview-close" onClick={onClose} aria-label="Close card preview"><X /></button>
+      <img src={`/assets/cards/${card.id}.webp`} alt={`${card.name} pixel-noir property illustration`} />
+      <div className="preview-vignette" />
+      <div className="preview-details">
+        <span style={{ '--preview-group': group.color } as React.CSSProperties}>{group.label}</span>
+        <h2>{card.name}</h2>
+        <div><b><Coins /> {card.chips + card.bonus}</b>{card.bonus > 0 && <small>Renovation +{card.bonus}</small>}</div>
+        <p>{group.label} deed · click outside to return to the table</p>
+      </div>
+    </section>
+  </div>;
 }
 
 function TycoonToken({ tycoon }: { tycoon: Tycoon }) {
@@ -223,6 +244,7 @@ function Intro({ dispatch }: { dispatch: React.Dispatch<Parameters<typeof gameRe
 
 function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Dispatch<Parameters<typeof gameReducer>[1]> }) {
   const [busy, setBusy] = useState(false);
+  const [inspectedCard, setInspectedCard] = useState<Card | null>(null);
   const selected = state.player.hand.filter((card) => state.selectedIds.includes(card.instanceId));
   const prediction = useMemo(() => selected.length ? scoreHand(selected, state.player.tycoons) : null, [selected, state.player.tycoons]);
   const rivalName = state.round === 8 ? 'The Chairman' : 'Market Watcher';
@@ -276,7 +298,7 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Disp
           <div className={`played-tray ${state.lastPlayedCards.length ? 'has-cards' : ''}`} aria-live="polite">
             <span className="played-label">{state.lastPlayedCards.length ? 'Last portfolio played' : 'Play your first portfolio'}</span>
             <div className="played-cards">
-              {state.lastPlayedCards.map((card, index) => <AssetCard key={card.instanceId} card={card} compact index={index} />)}
+              {state.lastPlayedCards.map((card, index) => <AssetCard key={card.instanceId} card={card} compact index={index} onInspect={() => setInspectedCard(card)} />)}
             </div>
           </div>
           <div className="last-hands">
@@ -298,13 +320,14 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Disp
 
       <section className="hand-dock" aria-label="Your hand">
         <div className="hand-cards">
-          {state.player.hand.map((card, index) => <AssetCard key={card.instanceId} card={card} index={index} selected={state.selectedIds.includes(card.instanceId)} onClick={() => toggle(card.instanceId)} />)}
+          {state.player.hand.map((card, index) => <AssetCard key={card.instanceId} card={card} index={index} selected={state.selectedIds.includes(card.instanceId)} onClick={() => toggle(card.instanceId)} onInspect={() => setInspectedCard(card)} />)}
         </div>
         <div className="play-actions">
           <button className="secondary" disabled={!selected.length || state.player.discardsLeft < 1 || busy} onClick={discard}><RotateCcw /> Discard <small>{selected.length || ''}</small></button>
           <button className="primary" disabled={!selected.length || busy} onClick={play}><Coins /> {busy ? 'Rival thinking…' : 'Commit portfolio'}</button>
         </div>
       </section>
+      {inspectedCard && <CardPreview card={inspectedCard} onClose={() => setInspectedCard(null)} />}
     </main>
   );
 }
