@@ -496,10 +496,6 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
   padding: calc(6 * var(--u)) 0 0;
 }
 .hand-sort {
-  position: absolute;
-  left: calc(13 * var(--u));
-  top: calc(6 * var(--u));
-  z-index: 6;
   display: inline-flex;
   align-items: center;
   gap: calc(3 * var(--u));
@@ -557,6 +553,8 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
   border-radius: calc(9 * var(--u)); font-size: calc(13 * var(--u)); padding: calc(6 * var(--u)) calc(10 * var(--u));
 }
 .play-actions .primary { background: linear-gradient(180deg, #f5d16f, #c07820); }
+.play-actions .hand-sort { flex: 0 0 auto; align-self: stretch; }
+.play-actions .hand-sort button { min-width: 0; min-height: 0; padding: calc(2 * var(--u)) calc(6 * var(--u)); font-size: calc(8.4 * var(--u)); }
 
 /* ----------------------------------------------------------- asset cards */
 

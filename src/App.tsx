@@ -773,15 +773,15 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
       </section>
 
       <section className="hand-dock" aria-label="Your hand">
-        <div className="hand-sort" role="group" aria-label={tr(locale, 'Sort your hand', 'Urutkan tangan')}>
-          <ArrowDownUp aria-hidden="true" />
-          <button className={handSort === 'class' ? 'active' : ''} onClick={() => setHandSort('class')} type="button">{tr(locale, 'Class', 'Kelas')}</button>
-          <button className={handSort === 'rank' ? 'active' : ''} onClick={() => setHandSort('rank')} type="button">{tr(locale, 'Rank', 'Peringkat')}</button>
-        </div>
         <div className="hand-cards">
           {sortedHand.map((card, index) => <AssetCard key={card.instanceId} card={card} index={index} selected={state.selectedIds.includes(card.instanceId)} departing={discardingIds.includes(card.instanceId)} onClick={() => toggle(card.instanceId)} onInspect={() => setInspectedCard(card)} />)}
         </div>
         <div className="play-actions">
+          <div className="hand-sort" role="group" aria-label={tr(locale, 'Sort your hand', 'Urutkan tangan')}>
+            <ArrowDownUp aria-hidden="true" />
+            <button className={handSort === 'class' ? 'active' : ''} onClick={() => setHandSort('class')} type="button">{tr(locale, 'Class', 'Kelas')}</button>
+            <button className={handSort === 'rank' ? 'active' : ''} onClick={() => setHandSort('rank')} type="button">{tr(locale, 'Rank', 'Peringkat')}</button>
+          </div>
           <button className="secondary" disabled={!selected.length || state.player.discardsLeft < 1 || busy} onClick={discard}><RotateCcw /> {tr(locale, 'Discard', 'Buang')} <small>{selected.length || ''}</small></button>
           <button className="primary" disabled={!selected.length || busy} onClick={play}><Coins /> {busy ? tr(locale, 'Scoring portfolio…', 'Menghitung portofolio…') : tr(locale, 'Commit portfolio', 'Mainkan portofolio')}</button>
         </div>
