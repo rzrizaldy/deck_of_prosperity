@@ -722,8 +722,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 .modal h2 { margin: 0; font-size: var(--t-lg, 1.1rem); }
 .modal-body { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: calc(12 * var(--u, 1px)); }
 
-.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: calc(16 * var(--u, 1px)); }
-.guide-grid section:last-child { grid-column: 1 / -1; }
+.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: calc(16 * var(--u, 1px)); align-items: start; }
 .guide-grid h3 { margin: 0 0 calc(5 * var(--u, 1px)); color: var(--gold); font-size: var(--t-md, .85rem); }
 .guide-grid ol { margin: 0 0 calc(10 * var(--u, 1px)); color: #a6b1b6; line-height: 1.55; padding-left: calc(16 * var(--u, 1px)); font-size: var(--t-sm, .75rem); }
 .guide-grid p { margin: 0; color: #a6b1b6; font-size: var(--t-sm, .75rem); }
@@ -734,7 +733,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 
 .rank-list { display: grid; gap: calc(3 * var(--u, 1px)); }
 .rank-list .rank-row {
-  display: grid; grid-template-columns: minmax(110px, .85fr) 1fr auto; align-items: center;
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
   gap: calc(8 * var(--u, 1px)); padding: calc(4 * var(--u, 1px)) calc(6 * var(--u, 1px));
   background: #101820; border-radius: calc(6 * var(--u, 1px));
 }
@@ -742,7 +741,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 .rank-list strong { font-size: var(--t-sm, .75rem); }
 .rank-list small { color: #748188; font-size: var(--t-xs, .62rem); }
 .rank-list b { color: var(--gold); font: 500 var(--t-md, .85rem) 'DM Mono', monospace; }
-.portfolio-recipe { min-width: 0; display: grid; gap: calc(2 * var(--u, 1px)); }
+.portfolio-recipe { min-width: 0; display: grid; }
 .recipe-cards { display: flex; align-items: center; }
 .recipe-cards span {
   --recipe-color: #777;
@@ -753,7 +752,34 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
   box-shadow: 0 2px 6px rgba(0, 0, 0, .36); font: 700 var(--t-xs, .6rem) 'DM Mono', monospace;
 }
 .recipe-cards span:first-child { margin-left: 0; }
-.portfolio-recipe small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #839098; font: var(--t-xs, .55rem) 'DM Mono', monospace; }
+
+/* Worked scoring example: the one thing the guide has to actually teach. */
+.scoring-example {
+  margin: 0 0 calc(12 * var(--u, 1px)); padding: calc(9 * var(--u, 1px)) calc(10 * var(--u, 1px));
+  display: grid; justify-items: center; gap: calc(5 * var(--u, 1px));
+  border: 1px solid rgba(217, 168, 61, .3); border-radius: calc(9 * var(--u, 1px));
+  background: rgba(8, 20, 18, .6);
+}
+.scoring-example figcaption { color: #a6b1b6; font-size: var(--t-xs, .65rem); line-height: 1.45; text-align: center; }
+.scoring-example figcaption b { color: #f0dda6; }
+.example-cards { display: flex; gap: calc(6 * var(--u, 1px)); }
+.example-cards span {
+  --recipe-color: #777;
+  display: grid; justify-items: center; gap: calc(1 * var(--u, 1px));
+  width: calc(58 * var(--u, 1px)); padding: calc(5 * var(--u, 1px)) calc(3 * var(--u, 1px));
+  border: 1px solid color-mix(in srgb, var(--recipe-color), white 30%); border-radius: calc(5 * var(--u, 1px));
+  color: var(--recipe-ink);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--recipe-color), #05080d 20%), var(--recipe-color));
+  font: 700 calc(8.4 * var(--u, 1px)) 'DM Mono', monospace;
+}
+.example-cards b { font: 700 calc(13 * var(--u, 1px)) 'DM Mono', monospace; }
+.example-maths { display: flex; align-items: center; gap: calc(8 * var(--u, 1px)); }
+.example-maths span { display: grid; justify-items: center; }
+.example-maths small { color: rgba(232, 217, 159, .7); font: calc(7.6 * var(--u, 1px)) 'DM Mono', monospace; letter-spacing: .11em; text-transform: uppercase; }
+.example-maths strong { color: #9df5db; font: 800 calc(17 * var(--u, 1px)) 'DM Mono', monospace; }
+.example-maths i { color: rgba(244, 220, 140, .55); font: 800 calc(13 * var(--u, 1px)) 'DM Mono', monospace; font-style: normal; }
+.example-total strong { color: #fff0ac; }
+.guide-grid p.guide-note { margin: 0 0 calc(6 * var(--u, 1px)); font-size: var(--t-xs, .65rem); line-height: 1.45; }
 kbd { border: 1px solid #3b4852; background: #121b23; border-radius: 4px; padding: .16rem .35rem; font: var(--t-sm, .72rem) 'DM Mono', monospace; }
 
 .compendium-hint { margin: 0 0 calc(8 * var(--u, 1px)); color: #9eafa9; font: var(--t-xs, .65rem) 'DM Mono', monospace; }

@@ -302,9 +302,12 @@ const HAND_RECIPES: Record<string, string[]> = {
   TRANSPORT: ['RAILROAD', 'RAILROAD', 'RAILROAD', 'RAILROAD'],
 };
 
+/**
+ * The coloured mini-cards ARE the explanation of the pattern — matching colours
+ * read as "same group" at a glance. The wording lives once, next to the name.
+ */
 function PortfolioRecipe({ hand }: { hand: keyof typeof HANDS }) {
   const groups = HAND_RECIPES[hand];
-  const isConglomerate = hand === 'CONGLOMERATE';
   return (
     <div className="portfolio-recipe" aria-label={`${HANDS[hand].name} card pattern`}>
       <div className="recipe-cards">
@@ -315,8 +318,33 @@ function PortfolioRecipe({ hand }: { hand: keyof typeof HANDS }) {
           </span>;
         })}
       </div>
-      <small>{isConglomerate ? 'complete set + pair' : HANDS[hand].description}</small>
     </div>
+  );
+}
+
+/**
+ * The chips x mult formula is the whole game and was only ever shown as a live
+ * readout mid-hand. One worked example teaches it before the first card.
+ */
+function ScoringExample() {
+  const java = GROUPS.SKY;
+  const swatch = { '--recipe-color': java.color, '--recipe-ink': java.ink } as React.CSSProperties;
+  return (
+    <figure className="scoring-example">
+      <div className="example-cards">
+        <span style={swatch}>Bandung<b>10</b></span>
+        <span style={swatch}>Bogor<b>10</b></span>
+      </div>
+      <figcaption>Two <b>Java</b> deeds make a pair — that is a <b>Development</b>.</figcaption>
+      <div className="example-maths">
+        <span><small>chips</small><strong>20</strong></span>
+        <i>×</i>
+        <span><small>mult</small><strong>2</strong></span>
+        <i>=</i>
+        <span className="example-total"><small>score</small><strong>40</strong></span>
+      </div>
+      <figcaption>Add the deed values, multiply by the pattern. Bigger patterns pay far more, so five weak cards often beat two strong ones.</figcaption>
+    </figure>
   );
 }
 
@@ -325,33 +353,31 @@ function Guide({ onClose }: { onClose: () => void }) {
     <Modal title="The Market Ledger" onClose={onClose}>
       <div className="guide-grid">
         <section>
-          <h3>How the run works</h3>
+          <h3>Scoring, in one hand</h3>
+          <ScoringExample />
+          <h3>Each market</h3>
           <ol>
-            <li>Draw eight deeds. Select one to five and score a portfolio.</li>
-            <li>Use up to three discards per round to improve your hand.</li>
-            <li>A published Market Target is the win condition. Clear it within four hands.</li>
-            <li>Tycoons recruited at the Night Market sit on the table and enhance every portfolio they affect.</li>
-            <li>Clear eight escalating markets, then take the city.</li>
+            <li>You get <b>four hands</b> to beat the market target, and <b>three discards</b> to fix bad draws.</li>
+            <li>Clear the target and you are paid, then the <b>Night Market</b> opens to upgrade your deck.</li>
+            <li>Miss it and the run ends. Eight markets in a row wins the city.</li>
           </ol>
           <h3>Words you will see</h3>
           <dl className="glossary">
-            <div><dt>Chips</dt><dd>The raw value of the deeds you selected.</dd></div>
-            <div><dt>Mult</dt><dd>The portfolio pattern bonus that chips are multiplied by.</dd></div>
-            <div><dt>Deed</dt><dd>One property card in your deck.</dd></div>
-            <div><dt>Blind</dt><dd>One market round: four hands against one target.</dd></div>
-            <div><dt>Renovate</dt><dd>Pay to add +5 chips to one deed, permanently, for the rest of the run.</dd></div>
+            <div><dt>Deed</dt><dd>One property card. Its number is its chip value.</dd></div>
+            <div><dt>Group</dt><dd>Deeds sharing a colour, like the three Java cities. Matching groups is how multipliers grow.</dd></div>
+            <div><dt>Tycoon</dt><dd>A hired helper that adds chips or multiplier whenever its condition is met.</dd></div>
+            <div><dt>Renovate</dt><dd>Pay to give one deed +5 chips, permanently.</dd></div>
             <div><dt>Liquidate</dt><dd>Destroy one deed for $1. A smaller deck draws your best cards more often.</dd></div>
           </dl>
         </section>
         <section>
-          <h3>Portfolio rankings</h3>
+          <h3>Portfolio patterns</h3>
+          <p className="guide-note">Higher patterns are rarer and multiply far harder. The swatches show which groups the cards must come from.</p>
           <div className="rank-list">
             {Object.entries(HANDS).map(([key, hand]) => (
               <div key={key} className="rank-row"><PortfolioRecipe hand={key as keyof typeof HANDS} /><span><strong>{hand.name}</strong><small>{hand.description}</small></span><b>×{hand.multiplier}</b></div>
             ))}
           </div>
-        </section>
-        <section>
           <h3>Keyboard</h3>
           <p><kbd>1–8</kbd> select cards · <kbd>Enter</kbd> commit · <kbd>D</kbd> discard · <kbd>M</kbd> mute</p>
         </section>
@@ -464,12 +490,14 @@ function Intro({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
   const buddy = COMPANIONS[state.companion];
   return <main className="intro-screen game-frame">
     <div className="intro-panel">
-      <span className="eyebrow">Market briefing · {MARKET_DIFFICULTY[state.difficulty].label}</span>
+      <span className="eyebrow">Market 1 · {MARKET_DIFFICULTY[state.difficulty].label} difficulty</span>
       <h1>Reach {target} in four hands.</h1>
+      {/* The first three things the player will actually touch, in order. The
+          Night Market is deliberately left out — they meet it when they win. */}
       <ul className="intro-points">
-        <li><Building2 aria-hidden="true" /><span>Select <b>one to five deeds</b>. Pairs and complete groups multiply fast.</span></li>
-        <li><RotateCcw aria-hidden="true" /><span><b>Three discards</b> per market redraw the cards you do not want.</span></li>
-        <li><Crown aria-hidden="true" /><span>Clearing a market pays cash and opens the <b>Night Market</b> for Tycoons.</span></li>
+        <li><Building2 aria-hidden="true" /><span>Tap <b>one to five deeds</b>, then commit. Deeds of the <b>same colour</b> score far harder together.</span></li>
+        <li><RotateCcw aria-hidden="true" /><span>Bad draw? <b>Discard up to three times</b> to swap cards for new ones.</span></li>
+        <li><Target aria-hidden="true" /><span>The bar at the top tracks how close you are. Run out of hands short of the target and the run ends.</span></li>
       </ul>
       <div className="intro-companion"><img src={buddy.asset} alt="" /><p><b>{buddy.name}</b><span>“{buddy.intro}”</span></p></div>
       <div className="intro-actions">
@@ -585,7 +613,8 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
           </div>
         </aside>
         <section className="play-zone">
-          <div className="table-kicker"><span>Jakarta market blind</span><b>Ante {state.round}</b></div>
+          {/* One name for one thing: "market", never "blind" or "ante" as well. */}
+          <div className="table-kicker"><span>Jakarta property market</span><b>Market {state.round} of 8</b></div>
           <div className="round-track" aria-label={`Hand ${5 - state.player.handsLeft} of 4`}>
             {Array.from({ length: 4 }, (_, index) => <span key={index} className={index >= state.player.handsLeft ? 'done' : ''} />)}
           </div>
@@ -600,7 +629,7 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
             <div className="tycoon-lineup">
               {state.player.tycoons.length
                 ? state.player.tycoons.map((tycoon) => <TycoonCard key={tycoon.id} tycoon={tycoon} compact onInspect={() => setInspectedTycoon(tycoon)} />)
-                : <p>Clear this blind, then hire a Tycoon at the Night Market.</p>}
+                : <p>Clear this market, then hire a Tycoon at the Night Market.</p>}
             </div>
           </section>
           <div className={`played-tray ${state.lastPlayedCards.length ? 'has-cards' : ''}`} aria-live="polite">

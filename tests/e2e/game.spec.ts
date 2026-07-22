@@ -307,6 +307,37 @@ test('hovering a gameplay card for two seconds opens its large artwork preview',
   await expect(page.getByRole('dialog', { name: new RegExp(`${name} card preview`, 'i') })).toBeVisible();
 });
 
+test('the guide states each rule once and shows a worked score', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /How to play/i }).click();
+  const guide = page.getByRole('dialog', { name: /The Market Ledger/i });
+  await expect(guide).toBeVisible();
+
+  // The chips x mult formula is the one thing the guide has to teach outright.
+  const example = guide.locator('.scoring-example');
+  await expect(example).toContainText('chips');
+  await expect(example).toContainText('mult');
+  await expect(example).toContainText('40');
+
+  // Each pattern description used to be printed twice per row: once under the
+  // swatches and again beside the name.
+  const body = (await guide.locator('.guide-grid').innerText()).toLowerCase();
+  for (const phrase of ['one incomplete pair', 'two separate pairs', 'four distinct railroads']) {
+    const hits = body.split(phrase).length - 1;
+    expect(hits, `"${phrase}" appears ${hits} times in the guide`).toBe(1);
+  }
+});
+
+test('one word for one concept across briefing and table', async ({ page }) => {
+  await page.goto('/');
+  await startRun(page);
+  const table = (await page.locator('.game-frame').innerText()).toLowerCase();
+  // "blind" and "ante" were extra names for what the HUD already calls a market.
+  expect(table).not.toContain('blind');
+  expect(table).not.toContain('ante ');
+  expect(table).toContain('market');
+});
+
 test('compendium cards open a full-size artwork preview', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /^Cards$/i }).click();
