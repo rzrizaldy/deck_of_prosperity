@@ -22,7 +22,7 @@ const VOICES: Record<SoundName, Voice> = {
   draw: { notes: [300, 420], wave: 'triangle', step: 0.06, hold: 0.12, gain: 0.05 },
   select: { notes: [520], wave: 'triangle', step: 0.07, hold: 0.1, gain: 0.05 },
   deselect: { notes: [400], wave: 'triangle', step: 0.07, hold: 0.08, gain: 0.035 },
-  discard: { notes: [250, 180], wave: 'square', step: 0.06, hold: 0.11, gain: 0.045 },
+  discard: { notes: [330, 392], wave: 'sine', step: 0.06, hold: 0.11, gain: 0.04 },
   shuffle: { notes: [220, 300, 260, 340], wave: 'triangle', step: 0.045, hold: 0.07, gain: 0.04 },
   play: { notes: [340], wave: 'triangle', step: 0.07, hold: 0.13, gain: 0.055 },
   chips: { notes: [390, 470], wave: 'triangle', step: 0.07, hold: 0.12, gain: 0.055 },
@@ -30,13 +30,12 @@ const VOICES: Record<SoundName, Voice> = {
   score: { notes: [440, 660, 880], wave: 'triangle', step: 0.075, hold: 0.14, gain: 0.06 },
   purchase: { notes: [520, 780], wave: 'triangle', step: 0.07, hold: 0.13, gain: 0.055 },
   victory: { notes: [440, 554, 660, 880], wave: 'triangle', step: 0.1, hold: 0.24, gain: 0.06 },
-  defeat: { notes: [330, 277, 220], wave: 'sawtooth', step: 0.13, hold: 0.28, gain: 0.055 },
+  defeat: { notes: [392, 440, 494], wave: 'sine', step: 0.11, hold: 0.22, gain: 0.045 },
 };
 
 /**
- * A light gamelan/disco-pop loop: metallic pelog-like tones over a syncopated
- * bass and hand-drum pulse. It is deliberately sparse so score sounds keep
- * their Balatro-style punch.
+ * A gentle gamelan-and-kalimba loop: bright open tones and a soft pulse keep
+ * the table hopeful without competing with the score sounds.
  */
 const BGM_METAL = [293.66, 329.63, 369.99, 440, 493.88, 554.37];
 const BGM_MELODY = [0, 2, 4, 2, 1, 3, 5, 3, 0, 2, 4, 5, 3, 1, 2, 4];
@@ -61,16 +60,9 @@ let volume = readNumber(VOLUME_KEY, 0.7);
 let bgmEnabled = readFlag(BGM_KEY, true);
 
 /**
- * Companion voice lines are deliberately separate from the procedural score
- * sounds. They are fired only when a hand is actually committed, never when
- * selecting cards, so the table still has a clean Balatro-like rhythm.
+ * Companion callouts use the same warm procedural palette as the game. There
+ * are no inherited character voice clips in the published prosperity edition.
  */
-const COMPANION_SFX: Partial<Record<CompanionId, string>> = {
-  gemoy: '/assets/sfx/antekasync-play.mp3',
-  soloman: '/assets/sfx/soloman-play.mp3',
-};
-
-const companionPlayers: Partial<Record<CompanionId, HTMLAudioElement>> = {};
 
 /* ---------------------------------------------------------------- context */
 
@@ -156,14 +148,8 @@ export function playSound(name: SoundName, muted: boolean): void {
 
 /** Play the selected Konco's short callout when the player commits a hand. */
 export function playCompanionSfx(companion: CompanionId, muted: boolean): boolean {
-  if (muted || volume <= 0 || typeof Audio === 'undefined') return false;
-  const source = COMPANION_SFX[companion];
-  if (!source) return false;
-  const player = companionPlayers[companion] ?? new Audio(source);
-  companionPlayers[companion] = player;
-  player.currentTime = 0;
-  player.volume = Math.min(1, volume * 0.9);
-  void player.play().catch(() => undefined);
+  if (muted || volume <= 0) return false;
+  playSound(companion === 'gemoy' ? 'multiplier' : 'chips', muted);
   return true;
 }
 
@@ -197,13 +183,13 @@ function scheduleBgmStep(): void {
   // Metallophone: doubled triangle/sine partials give the bright, struck tone.
   scheduleTone(ctx, bus, metal, now, BGM_BEAT * 1.55, 'triangle', step % 4 === 0 ? 0.2 : 0.14);
   scheduleTone(ctx, bus, metal * 2.01, now + 0.005, BGM_BEAT * 0.9, 'sine', 0.045);
-  // Four-on-the-floor bass with an offbeat answer reads as disco, not ambience.
+  // Soft bass gives each phrase a grounded, unhurried pulse.
   if (step % 4 === 0 || step === 6 || step === 14) {
     scheduleTone(ctx, bus, BGM_BASS[Math.floor(step / 4) % BGM_BASS.length], now, BGM_BEAT * 1.65, 'sine', 0.21);
   }
-  // A very short high pulse is the browser-friendly kendang accent.
+  // A soft high pulse is the browser-friendly kendang accent.
   if (step % 4 === 2 || step === 7 || step === 15) {
-    scheduleTone(ctx, bus, step % 4 === 2 ? 180 : 235, now, 0.06, 'square', 0.018);
+    scheduleTone(ctx, bus, step % 4 === 2 ? 180 : 235, now, 0.06, 'sine', 0.014);
   }
   bgmStep += 1;
 }

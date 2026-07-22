@@ -77,6 +77,45 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
   isolation: isolate;
 }
 
+/* ======================================================================
+   Deck of Prosperity publishing retone
+   The game table and sizing model stay intact; this layer replaces the former
+   nightclub/noir visual language with a daylight, paper-and-garden palette.
+   ====================================================================== */
+:root { color: #193a38; background: #fff8e8; --ink: #173b39; --gold: #d88a25; --brass: #c97520; --teal: #239c84; --red: #df7655; --line: rgba(44, 122, 103, .30); --muted: #53716c; }
+body { background: #fff8e8; }
+#root { background: radial-gradient(ellipse at 50% 10%, #fffdf5, #d9f1e7 74%); }
+:fullscreen #root { background: #e8f6ee; }
+.game-frame { box-shadow: 0 20px 70px rgba(37, 104, 82, .20); }
+.menu-screen { background: #dff4e9 url('/assets/generated/prosperity-archipelago.png') center/cover no-repeat; }
+.menu-shade { background: linear-gradient(90deg, rgba(255, 251, 236, .96) 0%, rgba(255, 251, 236, .84) 47%, rgba(255, 251, 236, .22) 100%); }
+.prosperity-logo { display: grid; gap: calc(2 * var(--u)); font-family: Manrope, system-ui, sans-serif; line-height: .84; color: #177764; text-shadow: 0 2px 0 #fff8e8; }
+.prosperity-logo span { letter-spacing: .29em; font-size: calc(13 * var(--u)); font-weight: 800; color: #c36d22; }
+.prosperity-logo strong { font-size: calc(41 * var(--u)); letter-spacing: -.075em; }
+.eyebrow, .menu-copy, .high-score { color: #4c6d65; }
+.menu-brand h1 { color: #16433e; }
+.primary { background: linear-gradient(135deg, #f2bd51, #dc7e30); color: #243622; box-shadow: 0 6px 20px rgba(213, 126, 48, .25); }
+.secondary, .difficulty-picker button, .companion-picker button { background: rgba(255, 253, 244, .86); border-color: rgba(45, 117, 98, .27); color: #244842; }
+.difficulty-picker button small, .companion-picker button small { color: #5c7e75; }
+.difficulty-picker button.active, .companion-picker button.active { background: linear-gradient(135deg, rgba(176, 232, 206, .87), rgba(255, 249, 228, .9)); border-color: #44a58a; box-shadow: inset 0 0 0 1px rgba(57, 151, 125, .18); }
+.icon-button { background: rgba(255, 253, 244, .9); border-color: rgba(199, 117, 32, .4); color: #28584e; }
+.intro-screen { background: linear-gradient(rgba(240, 252, 246, .62), rgba(229, 247, 237, .90)), url('/assets/generated/prosperity-archipelago.png') center/cover; }
+.intro-panel, .modal { background: rgba(255, 252, 242, .94); border-color: rgba(40, 135, 108, .35); box-shadow: 0 20px 60px rgba(31, 98, 78, .20); color: #244941; }
+.intro-points li, .notice { background: rgba(234, 248, 237, .78); border-color: rgba(46, 143, 116, .26); color: #365b53; }
+.game-screen { background: radial-gradient(ellipse at 50% 42%, rgba(255, 253, 211, .92), transparent 48%), linear-gradient(145deg, #d7f1e6, #a8d8c5 52%, #d8f0e7); }
+.game-screen::before { opacity: .4; background: radial-gradient(ellipse at 50% 48%, transparent 0 42%, rgba(36, 108, 83, .16) 84%); }
+.game-hud { background: linear-gradient(180deg, rgba(255, 253, 244, .96), rgba(234, 249, 239, .91)); border-bottom-color: rgba(37, 140, 109, .45); box-shadow: 0 4px 14px rgba(40, 112, 87, .12); }
+.play-zone { border-color: rgba(41, 139, 108, .48); background: radial-gradient(ellipse at 50% 58%, rgba(255, 249, 202, .78), transparent 56%), linear-gradient(90deg, rgba(240, 252, 244, .42), transparent 15% 85%, rgba(240, 252, 244, .42)); box-shadow: inset 0 2px 0 rgba(255,255,255,.76), 0 -8px 35px rgba(35, 111, 84, .11); }
+.asset-card, .tycoon-card, .market-modifier, .consumable-rack, .player-resource, .deck-count, .market-target, .commentary-panel, .shop-screen { border-color: rgba(43, 132, 105, .32) !important; }
+.asset-card { background: #fffdf4; box-shadow: 0 5px 14px rgba(36, 99, 77, .18); }
+.asset-card::after { background: linear-gradient(180deg, transparent 47%, rgba(255, 252, 239, .10) 56%, rgba(255, 252, 239, .94) 86%); }
+.asset-card strong, .asset-card .card-value, .tycoon-card h3 { color: #1e4a42; }
+.asset-card .card-stripe { color: var(--group-ink); }
+.tycoon-card { background: #fffdf5; }
+.tycoon-card-copy { background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(247, 253, 243, .97)); }
+.shop-screen { background: linear-gradient(135deg, #edf9f0, #fff7df); }
+.ending { background-position: center; }
+
 .language-switch { display: inline-flex; overflow: hidden; border: 1px solid rgba(241,197,99,.48); border-radius: 999px; background: rgba(2,10,12,.72); }
 .language-switch button { min-width: 34px; border: 0; padding: 6px 8px; background: transparent; color: #bfbdad; font: 700 10px 'DM Mono', monospace; cursor: pointer; }
 .language-switch button.active { background: #e5b84f; color: #171006; }
@@ -964,3 +1003,28 @@ kbd { border: 1px solid #3b4852; background: #121b23; border-radius: 4px; paddin
   .flight-cards { display: none; }
   .deck-count em { opacity: 1; }
 }
+
+/* Final published-edition palette overrides: kept last so legacy component
+   rules cannot pull the live game back toward the private noir prototype. */
+:root { color: #193a38; background: #fff8e8; --ink: #173b39; --gold: #d88a25; --brass: #c97520; --teal: #239c84; --red: #df7655; --line: rgba(44, 122, 103, .30); --muted: #53716c; }
+body { background: #fff8e8; } #root { background: radial-gradient(ellipse at 50% 10%, #fffdf5, #d9f1e7 74%); }
+.menu-screen { background: #dff4e9 url('/assets/generated/prosperity-archipelago.png') center/cover no-repeat; }
+.menu-shade { background: linear-gradient(90deg, rgba(255,251,236,.96), rgba(255,251,236,.84) 47%, rgba(255,251,236,.22)); }
+.primary, .play-actions .primary { background: linear-gradient(135deg, #f2bd51, #dc7e30); color: #243622; box-shadow: 0 6px 20px rgba(213,126,48,.25); }
+.secondary, .difficulty-picker button, .companion-picker button, .icon-button { background: rgba(255,253,244,.91); border-color: rgba(45,117,98,.30); color: #244842; }
+.difficulty-picker button.active, .companion-picker button.active { background: linear-gradient(135deg, rgba(176,232,206,.9), rgba(255,249,228,.92)); border-color: #44a58a; }
+.intro-screen { background: linear-gradient(rgba(240,252,246,.62), rgba(229,247,237,.90)), url('/assets/generated/prosperity-archipelago.png') center/cover; }
+.intro-panel, .modal { background: rgba(255,252,242,.95); border-color: rgba(40,135,108,.35); box-shadow: 0 20px 60px rgba(31,98,78,.20); color: #244941; }
+.game-screen { background: radial-gradient(ellipse at 50% 42%, rgba(255,253,211,.92), transparent 48%), linear-gradient(145deg, #d7f1e6, #a8d8c5 52%, #d8f0e7); }
+.game-screen::before { opacity: .4; background: radial-gradient(ellipse at 50% 48%, transparent 0 42%, rgba(36,108,83,.16) 84%); }
+.game-hud { background: linear-gradient(180deg, rgba(255,253,244,.96), rgba(234,249,239,.91)); border-bottom-color: rgba(37,140,109,.45); box-shadow: 0 4px 14px rgba(40,112,87,.12); }
+.play-zone { border-color: rgba(41,139,108,.48); background: radial-gradient(ellipse at 50% 58%, rgba(255,249,202,.78), transparent 56%), linear-gradient(90deg, rgba(240,252,244,.42), transparent 15% 85%, rgba(240,252,244,.42)); }
+.asset-card, .tycoon-card { background: #fffdf4; box-shadow: 0 5px 14px rgba(36,99,77,.18); }
+.asset-card::after { background: linear-gradient(180deg, transparent 47%, rgba(255,252,239,.1) 56%, rgba(255,252,239,.94) 86%); }
+.asset-card strong, .asset-card .card-value, .tycoon-card h3 { color: #1e4a42; }
+.tycoon-card-copy { background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(247,253,243,.97)); }
+.shop-screen { background: linear-gradient(135deg, #edf9f0, #fff7df); }
+.hand-dock { background: linear-gradient(transparent, rgba(225,244,232,.86) 26%); }
+.play-actions, .hand-sort { background: rgba(255,253,244,.94); border-color: rgba(43,132,105,.36); box-shadow: 0 8px 22px rgba(35,111,84,.18); }
+.hand-cards .asset-card { width: calc(82 * var(--u)); }
+.hand-cards .asset-card strong { font-size: calc(11 * var(--u)); }

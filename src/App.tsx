@@ -23,37 +23,37 @@ const tr = (locale: Locale, english: string, indonesian: string) => locale === '
 const localizedGroup = (group: keyof typeof GROUPS, locale: Locale) => tr(locale, ({ RESIDENTIAL: 'Residential', COMMERCIAL: 'Commercial', INDUSTRIAL: 'Industrial', UTILITY: 'Utility', TRANSPORT: 'Transport' } as const)[group], GROUPS[group].label);
 const localizedHand = (hand: ScoreBreakdown['hand'], locale: Locale) => tr(locale, ({ HIGH_ASSET: 'High Asset', PAIR: 'Pair', TWO_PAIRS: 'Two Pairs', THREE_KIND: 'Three of a Kind', STRAIGHT: 'Straight', FLUSH: 'Flush', FULL_HOUSE: 'Full House', FOUR_KIND: 'Four of a Kind', STRAIGHT_FLUSH: 'Straight Flush' } as const)[hand], HANDS[hand].name);
 const localizedModifier = (modifier: GameState['modifier'], locale: Locale) => {
-  const english = ({ BANJIR: ['Flood', 'Residential assets score 0 this market.'], MACET: ['Gridlock', 'Transport assets score half chips this market.'], MATI_LAMPU: ['Blackout', 'Utility assets score 0 this market.'], GANJIL_GENAP: ['Odd-Even', `Only ${modifier.parity ?? 'odd'}-chip assets score this market.`], SIDAK: ['Inspection', 'Tycoon effects are disabled this market.'], MUSIM_KAWIN: ['Mating Season', 'Commercial chips double; all other asset chips are −20%.'], REKLAMASI: ['Reclamation', 'Three random assets are removed for this market only.'] } as const)[modifier.id];
+  const english = ({ BANJIR: ['Rainy Season', 'Residential assets rest for this market.'], MACET: ['Rush Hour', 'Transport assets score half chips this market.'], MATI_LAMPU: ['Network Care', 'Utility assets rest for this market.'], GANJIL_GENAP: ['Rotating Route', `Only ${modifier.parity ?? 'odd'}-chip assets score this market.`], SIDAK: ['Open Audit', 'Community partner effects pause this market.'], MUSIM_KAWIN: ['Market Festival', 'Commercial chips double; all other asset chips are −20%.'], REKLAMASI: ['District Renewal', 'Three random assets rest for this market only.'] } as const)[modifier.id];
   return locale === 'en' ? { name: english[0], summary: english[1] } : modifier;
 };
 const localizedConsumable = (item: Consumable, locale: Locale) => locale === 'id' ? item : ({
   SERTIFIKAT: { ...item, name: 'Certificate', description: 'Retitle one selected deed into the next asset group.' },
   NOTARIS: { ...item, name: 'Notary', description: 'Copy one selected deed into your discard pile.' },
-  PUNGLI: { ...item, name: 'Payoff', description: 'Reroll the public market event. Reclamation is off the table.' },
-  UANG_PELICIN: { ...item, name: 'Grease Money', description: 'Gain one extra hand for this market only.' },
-  SITA: { ...item, name: 'Seizure', description: 'Destroy exactly three selected deeds from your hand.' },
+  PUNGLI: { ...item, name: 'Community Forum', description: 'Reroll the public market event. District Renewal is off the table.' },
+  UANG_PELICIN: { ...item, name: 'Gotong Royong', description: 'Gain one extra hand for this market only.' },
+  SITA: { ...item, name: 'Portfolio Curation', description: 'Remove exactly three selected deeds from your hand.' },
 }[item.id]);
 
 const money = (value: number) => value.toLocaleString('en-US');
-const cardArt = (card: Card) => card.artId
-  ? `/assets/cards/${card.artId}.webp`
-  : `/assets/classes/${card.group.toLowerCase()}.webp`;
+/** Every deed now draws from a shared, daylight illustration family by class.
+ * Names, ranks, chips, and all scoring logic remain unchanged. */
+const cardArt = (card: Card) => `/assets/cards/prosperity-${card.group.toLowerCase()}.png`;
 const GROUP_SORT_ORDER = { RESIDENTIAL: 0, COMMERCIAL: 1, INDUSTRIAL: 2, UTILITY: 3, TRANSPORT: 4 } as const;
 const clearedPercent = (score: number, target: number) =>
   Math.max(0, Math.min(100, Math.round((score / Math.max(1, target)) * 100)));
 
 const COMPANIONS = {
   gemoy: {
-    name: 'AntekAsync',
-    title: 'The All-Caps Enforcer',
-    asset: '/assets/companions/gemoy.png',
-    intro: 'Big moves, bigger grin. Show the market who owns the table.',
+    name: 'Sari Pertiwi',
+    title: 'Arsitek Warga',
+    asset: '/assets/companions/sari-pertiwi.png',
+    intro: 'Mulai dari yang kuat, lalu tumbuhkan nilai bersama.',
   },
   soloman: {
-    name: 'Soloman',
-    title: 'The Royal Counselor',
-    asset: '/assets/companions/soloman.png',
-    intro: 'A calm hand wins loud markets. Build the multiplier before the spectacle.',
+    name: 'Bima Pradana',
+    title: 'Penggerak Koperasi',
+    asset: '/assets/companions/bima-pradana.png',
+    intro: 'Langkah kecil yang rapi bisa membangun banyak hal.',
   },
 } as const;
 
@@ -254,7 +254,7 @@ function CardPreview({ card, onClose }: { card: Card; onClose: () => void }) {
   return <div className="card-preview-backdrop" role="presentation" onMouseDown={onClose}>
     <section className="card-preview" role="dialog" aria-modal="true" aria-label={`${card.name} card preview`} onMouseDown={(event) => event.stopPropagation()}>
       <button className="icon-button preview-close" onClick={onClose} aria-label="Close card preview"><X /></button>
-      <img src={cardArt(card)} alt={`${card.name} pixel-noir property illustration`} />
+      <img src={cardArt(card)} alt={`${card.name} optimistic prosperity illustration`} />
       <div className="preview-vignette" />
       <div className="preview-details">
         <span style={{ '--preview-group': group.color } as React.CSSProperties}>{localizedGroup(card.group, locale)}</span>
@@ -270,10 +270,10 @@ function TycoonPreview({ tycoon, onClose }: { tycoon: Tycoon; onClose: () => voi
   return <div className="card-preview-backdrop" role="presentation" onMouseDown={onClose}>
     <section className="card-preview tycoon-preview" role="dialog" aria-modal="true" aria-label={`${tycoon.name} Tycoon card preview`} onMouseDown={(event) => event.stopPropagation()}>
       <button className="icon-button preview-close" onClick={onClose} aria-label="Close Tycoon preview"><X /></button>
-      <img src={`/assets/tycoons/${tycoon.artId ?? tycoon.id}.webp`} alt={`${tycoon.name} pixel-noir Tycoon artwork`} />
+      <img src="/assets/tycoons/community-partners.png" alt={`${tycoon.name} community partner artwork`} />
       <div className="preview-vignette" />
       <div className="preview-details">
-        <span><Crown /> Tycoon helper</span>
+        <span><Crown /> Community partner</span>
         <h2>{tycoon.name}</h2>
         <p>{tycoon.description}</p>
         <small>Recruited helpers stay in your Inner Circle for the full run.</small>
@@ -286,9 +286,9 @@ function TycoonCard({ tycoon, compact = false, bought = false, children, onInspe
   tycoon: Tycoon; compact?: boolean; bought?: boolean; children?: React.ReactNode; onInspect?: () => void;
 }) {
   const content = <>
-    <img src={`/assets/tycoons/${tycoon.artId ?? tycoon.id}.webp`} alt={`${tycoon.name} tycoon helper`} loading="lazy" />
+    <img src="/assets/tycoons/community-partners.png" alt={`${tycoon.name} community partner`} loading="lazy" />
     <div className="tycoon-card-copy">
-      <span><Crown aria-hidden="true" /> Tycoon</span>
+      <span><Crown aria-hidden="true" /> Partner</span>
       <h3>{tycoon.name}</h3>
       {!compact && <p>{tycoon.description}</p>}
       {children}
@@ -392,14 +392,14 @@ function Guide({ onClose }: { onClose: () => void }) {
           <h3>{tr(locale, 'Each market', 'Setiap pasar')}</h3>
           <ol>
             <li>{tr(locale, 'You get four hands to beat the market target, and three discards to fix bad draws.', 'Kamu punya empat tangan untuk menembus target, dan tiga buang kartu untuk memperbaiki tangan buruk.')}</li>
-            <li>{tr(locale, 'Clear the target and you are paid, then the Night Market opens to upgrade your deck.', 'Tembus target, raih bayaran, lalu Pasar Malam terbuka untuk memperkuat dekmu.')}</li>
+            <li>{tr(locale, 'Clear the target and you are paid, then the Community Market opens to strengthen your deck.', 'Tembus target, raih bayaran, lalu Pasar Bersama terbuka untuk memperkuat dekmu.')}</li>
             <li>{tr(locale, 'Miss it and the run ends. Eight markets in a row wins the city.', 'Gagal dan permainan berakhir. Taklukkan delapan pasar untuk menguasai kota.')}</li>
           </ol>
           <h3>{tr(locale, 'Words you will see', 'Istilah penting')}</h3>
           <dl className="glossary">
             <div><dt>{tr(locale, 'Deed', 'Aset')}</dt><dd>{tr(locale, 'One property card. Its number is its chip value.', 'Satu kartu properti. Angkanya adalah nilai chip.')}</dd></div>
             <div><dt>{tr(locale, 'Group', 'Grup')}</dt><dd>{tr(locale, 'Deeds sharing a colour. Matching groups makes multipliers grow.', 'Aset yang berbagi warna. Menyamakan grup membuat multiplier naik.')}</dd></div>
-            <div><dt>{tr(locale, 'Tycoon', 'Taipan')}</dt><dd>{tr(locale, 'A hired helper that adds chips or multiplier whenever its condition is met.', 'Rekan yang menambah chip atau pengali saat syaratnya terpenuhi.')}</dd></div>
+            <div><dt>{tr(locale, 'Partner', 'Rekan')}</dt><dd>{tr(locale, 'A recruited community partner that adds chips or multiplier whenever its condition is met.', 'Rekan komunitas yang menambah chip atau pengali saat syaratnya terpenuhi.')}</dd></div>
             <div><dt>{tr(locale, 'Renovate', 'Renovasi')}</dt><dd>{tr(locale, 'Pay to give one deed +5 chips, permanently.', 'Bayar untuk memberi satu aset +5 chip secara permanen.')}</dd></div>
             <div><dt>{tr(locale, 'Liquidate', 'Likuidasi')}</dt><dd>{tr(locale, 'Destroy one deed for $1. A smaller deck draws your best cards more often.', 'Hancurkan satu aset demi $1. Dek lebih ramping lebih sering menarik kartu terbaik.')}</dd></div>
           </dl>
@@ -450,11 +450,11 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
       <section className="menu-brand">
         <LanguageSwitch locale={locale} setLocale={setLocale} />
         <div className="title-lockup">
-          <img src="/assets/title.png" alt="Deck of Capitalist" />
+          <div className="prosperity-logo" aria-label="Deck of Prosperity"><span>DECK OF</span><strong>PROSPERITY</strong></div>
         </div>
-        <p className="eyebrow">{tr(locale, 'Monopoly your archipelago', 'Kuasai kepulauanmu')}</p>
-        <h1>{tr(locale, 'Dominate 58%.', 'Dominasi 58%.')}</h1>
-        <p className="menu-copy">{tr(locale, 'Be a ruthless tycoon.', 'Jadilah taipan tanpa ampun.')}</p>
+        <p className="eyebrow">{tr(locale, 'Build value across the archipelago', 'Tumbuhkan nilai di seluruh kepulauan')}</p>
+        <h1>{tr(locale, 'Make progress together.', 'Bertumbuh bersama.')}</h1>
+        <p className="menu-copy">{tr(locale, 'Build a resilient portfolio that helps the city thrive.', 'Bangun portofolio tangguh yang ikut membuat kota berkembang.')}</p>
         <div className="high-score"><Trophy /> {tr(locale, 'Best run', 'Rekor permainan')} <strong>{money(highScore)}</strong></div>
       </section>
       <section className="menu-panel">
@@ -554,22 +554,22 @@ type KoncoMoment = 'opening' | 'ready' | 'bigScore' | 'whiff' | 'lastHand' | 'ev
 
 const KONCO_LINES: Record<keyof typeof COMPANIONS, Record<KoncoMoment, string[]>> = {
   gemoy: {
-    opening: ['NEW MARKET!!! TAKE THE EASY MONEY!!!', 'PUBLIC EVENT IS RIGHT THERE!!! READ IT!!!', 'FIRST HAND!!! SET THE TONE!!!', 'THE TABLE IS YOURS!!! MAKE IT EXPENSIVE!!!'],
-    ready: ['{selected} DEEDS READY!!! COMMIT IT!!!', 'STOP PETTING THE CARDS!!! PLAY THEM!!!', 'THAT MULTIPLIER WON’T PRINT ITSELF!!!', 'GOOD. NOW PUT THE PORTFOLIO ON THE TABLE!!!'],
-    bigScore: ['{hand} FOR {score}!!! THAT IS A PROPER RECEIPT!!!', 'THE NUMBERS ARE SCREAMING!!! KEEP GOING!!!', 'YES!!! THE MARKET JUST BLINKED FIRST!!!', 'THAT’S HOW YOU BULLDOZE A TARGET!!!'],
-    whiff: ['{score}?!!! THAT’S A PARKING FEE!!!', 'SMALL SCORE!!! BIGGER MOVE NEXT!!!', 'THE MARKET DID NOT EVEN FLINCH!!! AGAIN!!!', 'WE CALL THAT A WARM-UP!!! DO NOT GET COMFORTABLE!!!'],
-    lastHand: ['LAST HAND!!! NO MORE EXCUSES!!!', 'ONE SHOT LEFT!!! MAKE IT VIOLENTLY EFFICIENT!!!', 'TARGET OR TAXI HOME!!! PICK ONE!!!', 'THIS IS THE RECEIPT MOMENT!!!'],
-    event: ['EVENT CHANGED!!! ADAPT FASTER!!!', 'THE MARKET MOVED!!! MOVE BACK HARDER!!!', 'NICE TOOL!!! USE IT LIKE YOU MEAN IT!!!', 'THE TABLE JUST GOT WEIRDER!!! PERFECT!!!'],
-    default: ['{remaining} LEFT!!! BUY, BUILD, BULLDOZE!!!', 'THE TARGET IS NOT GOING TO PAY ITSELF!!!', 'CARDS IN HAND!!! CAPITAL ON THE LINE!!!', 'KEEP THE ENGINE HOT!!!'],
+    opening: ['Pasar baru, peluang baru. Kita mulai dengan tenang!', 'Lihat event-nya, lalu rancang langkah pertama.', 'Tangan pertama bisa jadi pondasi yang kuat.', 'Meja sudah siap. Mari bangun sesuatu yang baik.'],
+    ready: ['{selected} aset sudah siap. Yuk, wujudkan idenya!', 'Pola sudah terlihat. Saatnya bergerak bersama.', 'Multiplier-nya menjanjikan. Coba kita jalankan!', 'Portofolio sudah rapi. Mainkan dengan yakin.'],
+    bigScore: ['{hand} untuk {score}! Kerja sama yang indah!', 'Nilainya tumbuh. Pertahankan ritme baik ini!', 'Hebat! Satu langkah lagi menuju target.', 'Itu contoh rencana yang berkembang dengan sehat.'],
+    whiff: ['{score} adalah awal yang jujur. Kita bisa menyusun ulang.', 'Tidak apa-apa, selalu ada langkah berikutnya.', 'Kartu ini memberi kita informasi untuk keputusan yang lebih baik.', 'Setiap percobaan membuat portofolio makin matang.'],
+    lastHand: ['Tangan terakhir. Pilih kombinasi yang paling kamu percaya.', 'Satu kesempatan lagi—tarik napas dan lihat polanya.', 'Kita sudah sampai sejauh ini. Mari selesaikan dengan baik.', 'Saatnya membuat nilai terbaik dari kartu yang ada.'],
+    event: ['Kondisi berubah; rencana yang baik ikut menyesuaikan.', 'Alat baru membuka cara pandang baru.', 'Mari baca situasinya dan lanjutkan dengan optimis.', 'Perubahan kecil bisa membuka peluang besar.'],
+    default: ['{remaining} lagi. Sedikit demi sedikit, target akan dekat.', 'Lihat pola, pilih langkah, lalu tumbuh.', 'Masih banyak ruang untuk keputusan yang cerdas.', 'Kita membangun nilai, satu portofolio pada satu waktu.'],
   },
   soloman: {
-    opening: ['Pasar baru sudah terbuka. Jangan buru-buru merasa akrab.', 'Atur napas. Event sudah bicara lebih dulu.', 'Empat tangan cukup, jika tidak dipakai untuk pamer.', 'Mari lihat apakah angka hari ini mau diajak kerja sama.'],
-    ready: ['{selected} deed sudah dipilih. Sekarang cek apakah mereka benar-benar berteman.', 'Portofolio siap. Semoga bukan sekadar kumpulan kartu yang kebetulan sewarna.', 'Multiplier sudah terlihat. Keputusanmu tinggal dibuat dengan tenang.', 'Pilihan ada di meja. Biasanya keputusan baik tidak perlu diteriakkan.'],
-    bigScore: ['{hand}, {score}. Lumayan. Angka juga bisa bersopan santun.', 'Pasar akhirnya mendengarkan. Jangan sampai ia menyesal.', 'Itu skor yang sehat. Jangan langsung belanja seperti menang lotre.', 'Bagus. Kita sebut ini perencanaan, supaya terdengar terhormat.'],
-    whiff: ['{score}. Pasar menerima dengan senyum tipis.', 'Kecil, tapi jujur. Tidak semua kartu harus berpura-pura hebat.', 'Angka itu sedang belajar berjalan. Jangan dipaksa lari.', 'Tidak setiap portofolio perlu dikenang. Yang ini cukup dilepas saja.'],
-    lastHand: ['Tangan terakhir. Kebijaksanaan biasanya datang terlambat, tapi silakan dicoba.', 'Sisa satu kesempatan. Bahkan pasar punya batas kesabaran.', 'Tarik napas, hitung lagi, lalu jangan menyesal terlalu puitis.', 'Ini saatnya angka bicara tanpa perantara.'],
-    event: ['Pasar berubah. Seperti kebijakan, selalu saat kita mulai nyaman.', 'Alat baru sudah dipakai. Semoga bukan sekadar dekorasi mahal.', 'Kondisi bergeser. Kartu yang baik tahu cara ikut bergeser.', 'Catat event-nya. Pasar jarang mengulang peringatannya.'],
-    default: ['{remaining} lagi. Pelan saja; pasar tidak ke mana-mana.', 'Target masih ada. Ia tidak tersinggung kalau kita menghitung dulu.', 'Jangan lihat jumlahnya saja. Lihat jalan menuju jumlahnya.', 'Masih ada ruang untuk keputusan yang lebih rapi.'],
+    opening: ['Pasar baru terbuka. Kita punya ruang untuk membuat pilihan yang baik.', 'Atur napas. Event sudah memberi arah pertama.', 'Empat tangan cukup bila digunakan dengan penuh perhatian.', 'Mari mulai dari pola yang paling jelas.'],
+    ready: ['{selected} aset sudah dipilih. Periksa kembali sinerginya.', 'Portofolio siap. Kombinasi yang rapi selalu punya potensi.', 'Multiplier sudah terlihat. Keputusanmu bisa dibuat dengan tenang.', 'Pilihan ada di meja. Mari jalankan yang paling bermakna.'],
+    bigScore: ['{hand}, {score}. Nilai yang tumbuh dari rencana yang baik.', 'Pasar merespons. Simpan ritme ini untuk langkah berikutnya.', 'Itu skor yang sehat. Rayakan, lalu lanjutkan dengan bijak.', 'Bagus. Perencanaan yang konsisten memang terasa seperti ini.'],
+    whiff: ['{score}. Kita belajar sesuatu untuk tangan berikutnya.', 'Kecil, tapi tetap sebuah langkah maju.', 'Angka itu sedang tumbuh. Beri ia kombinasi yang tepat.', 'Setiap portofolio memberi petunjuk untuk yang lebih baik.'],
+    lastHand: ['Tangan terakhir. Percayai hitungan dan intuisi yang sudah kamu bangun.', 'Sisa satu kesempatan. Pilih kombinasi yang paling selaras.', 'Tarik napas, hitung lagi, lalu mainkan dengan mantap.', 'Ini saatnya angka bekerja untuk rencana kita.'],
+    event: ['Pasar berubah, dan kita dapat beradaptasi dengan tenang.', 'Alat baru siap membantu. Gunakan saat momennya tepat.', 'Kondisi bergeser. Portofolio yang baik tahu cara ikut bergerak.', 'Catat event-nya; setiap perubahan membawa pelajaran.'],
+    default: ['{remaining} lagi. Pelan dan rapi, target akan mendekat.', 'Target masih ada. Mari lihat jalan menuju jumlahnya.', 'Jangan lihat jumlahnya saja. Lihat sinergi di baliknya.', 'Masih ada ruang untuk keputusan yang lebih indah.'],
   },
 };
 
@@ -741,7 +741,7 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
             <div className="tycoon-lineup">
               {state.player.tycoons.length
                 ? state.player.tycoons.map((tycoon) => <TycoonCard key={tycoon.id} tycoon={tycoon} compact onInspect={() => setInspectedTycoon(tycoon)} />)
-                : <p>{tr(locale, 'Clear this market, then hire a Tycoon at the Night Market.', 'Tembus pasar ini, lalu rekrut taipan di Pasar Malam.')}</p>}
+                : <p>{tr(locale, 'Clear this market, then invite a partner at the Community Market.', 'Tembus pasar ini, lalu ajak rekan di Pasar Bersama.')}</p>}
             </div>
           </section>
           <div className={`played-tray ${state.lastPlayedCards.length ? 'has-cards' : ''}`} aria-live="polite">
@@ -828,14 +828,14 @@ function Shop({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
       <Hud state={state} dispatch={dispatch} />
       <div className="shop-wrap">
         <header className="shop-heading">
-          <div><span>{tr(locale, `Round ${state.round} secured`, `Ronde ${state.round} diamankan`)}</span><h1>{tr(locale, 'The Night Market', 'Pasar Malam')}</h1><p>{tr(locale, 'Turn the last win into a stronger deck.', 'Ubah kemenangan tadi menjadi dek yang lebih kuat.')}</p></div>
+          <div><span>{tr(locale, `Round ${state.round} secured`, `Ronde ${state.round} diamankan`)}</span><h1>{tr(locale, 'Community Market', 'Pasar Bersama')}</h1><p>{tr(locale, 'Turn the last win into a stronger deck.', 'Ubah kemenangan tadi menjadi dek yang lebih kuat.')}</p></div>
           <div className={`cash-pile ${spend ? 'spending' : ''}`}>
             <Coins /> ${state.player.cash}
             {spend && <b key={spend.id} className="spend-chip" aria-hidden="true">-${spend.amount}</b>}
           </div>
         </header>
         <section>
-          <h2><Crown /> {tr(locale, 'Tycoon contracts', 'Kontrak taipan')} <small>{state.player.tycoons.length}/{MAX_TYCOONS} {tr(locale, 'hired', 'direkrut')}</small></h2>
+          <h2><Crown /> {tr(locale, 'Partner invitations', 'Undangan rekan')} <small>{state.player.tycoons.length}/{MAX_TYCOONS} {tr(locale, 'invited', 'diajak')}</small></h2>
           <div className="shop-grid">
             {shop.tycoons.map((tycoon) => {
               const price = priceFor(state.player, tycoon.cost);
@@ -933,7 +933,7 @@ function Ending({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
       <section>
         {won ? <Trophy /> : <Coins />}
         <span>{won ? tr(locale, 'Eight markets conquered', 'Delapan pasar ditaklukkan') : tr(locale, `Run ended in round ${state.round}`, `Permainan berakhir di ronde ${state.round}`)}</span>
-        <h1>{won ? tr(locale, 'The city is yours.', 'Kota ini milikmu.') : tr(locale, 'The market collected.', 'Pasar menagih utang.')}</h1>
+        <h1>{won ? tr(locale, 'The city thrives with you.', 'Kota ini tumbuh bersamamu.') : tr(locale, 'The next market can be brighter.', 'Pasar berikutnya bisa lebih cerah.')}</h1>
         <p>{won ? 'The final market has cleared.' : `You needed ${money(marketTarget(state.round, state.difficulty, state.modifier))} and closed at ${money(state.player.score)}.`}</p>
         <div className="ending-score"><span>{tr(locale, 'Run score', 'Skor permainan')}</span><strong>{money(state.runScore)}</strong></div>
         <div className="ending-actions">
@@ -994,7 +994,7 @@ export default function App() {
       {state.phase === 'playing' && <GameTable state={state} dispatch={dispatch} />}
       {state.phase === 'shop' && <Shop state={state} dispatch={dispatch} />}
       {(state.phase === 'victory' || state.phase === 'gameover') && <Ending state={state} dispatch={dispatch} />}
-      <div className="portrait-gate" role="status"><RotateCcw /><h2>Rotate to trade</h2><p>Deck of Capitalist is built for landscape play. Your run is saved.</p></div>
+      <div className="portrait-gate" role="status"><RotateCcw /><h2>Rotate to play</h2><p>Deck of Prosperity is built for landscape play. Your run is saved.</p></div>
     </LocaleContext.Provider>
   );
 }

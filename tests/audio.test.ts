@@ -74,7 +74,7 @@ describe('audio settings', () => {
     expect(audio.isBgmPlaying()).toBe(false);
   });
 
-  it('plays Soloman’s downloaded cue at the current game volume', async () => {
+  it('uses a procedural companion cue without loading a legacy voice clip', async () => {
     installStorage();
     const play = vi.fn().mockResolvedValue(undefined);
     const cue = { currentTime: 2, volume: 0, play };
@@ -82,13 +82,13 @@ describe('audio settings', () => {
     const audio = await import('../src/game/audio');
     audio.setVolume(0.8);
     expect(audio.playCompanionSfx('soloman', false)).toBe(true);
-    expect(cue.currentTime).toBe(0);
-    expect(cue.volume).toBeCloseTo(0.72);
-    expect(play).toHaveBeenCalledOnce();
+    expect(cue.currentTime).toBe(2);
+    expect(cue.volume).toBe(0);
+    expect(play).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
   });
 
-  it('uses AntekAsync’s local cue and respects mute', async () => {
+  it('uses the warm companion cue and respects mute', async () => {
     installStorage();
     const play = vi.fn().mockResolvedValue(undefined);
     const audioElement = { currentTime: 4, volume: 0, play };
@@ -96,8 +96,8 @@ describe('audio settings', () => {
     const audio = await import('../src/game/audio');
     expect(audio.playCompanionSfx('soloman', true)).toBe(false);
     expect(audio.playCompanionSfx('gemoy', false)).toBe(true);
-    expect(audioElement.currentTime).toBe(0);
-    expect(play).toHaveBeenCalledOnce();
+    expect(audioElement.currentTime).toBe(4);
+    expect(play).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
   });
 

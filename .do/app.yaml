@@ -1,12 +1,12 @@
-name: deck-of-capitalist
+name: deck-of-prosperity
 region: nyc
 domains:
-  - domain: deck-of-capitalist.allrize.tech
+  - domain: deck-of-prosperity.allrize.tech
     type: PRIMARY
 static_sites:
   - name: game
     git:
-      repo_clone_url: https://github.com/rzrizaldy/deck_of_capitalist.git
+      repo_clone_url: https://github.com/rzrizaldy/deck_of_prosperity.git
       branch: main
     build_command: npm ci && npm run build
     output_dir: dist

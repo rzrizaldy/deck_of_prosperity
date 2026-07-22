@@ -1,8 +1,8 @@
 import type { GameState, SaveGameV2 } from './types';
 
-export const SAVE_KEY = 'deck-of-capitalist-save-v2';
+export const SAVE_KEY = 'deck-of-prosperity-save-v2';
 export const LEGACY_SAVE_KEY = 'cp_save_data';
-export const HIGH_SCORE_KEY = 'deck-of-capitalist-high-score';
+export const HIGH_SCORE_KEY = 'deck-of-prosperity-high-score';
 
 export function loadSave(): GameState | null {
   try {

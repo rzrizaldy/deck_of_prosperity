@@ -1,60 +1,35 @@
-# Deck of Capitalist
+# Deck of Prosperity
 
-A browser-based, pixel-noir property roguelike set above nighttime Jakarta. Build portfolios, hire Tycoons, tune a persistent 40-card deck, and clear eight escalating market targets.
+A bright Indonesian property-card roguelike about building value together. It keeps the original Balatro × Monopoly Deal scoring, deck-building, markets, and progression intact—only the published identity, illustration system, characters, copy, and audio have been retuned for optimism.
 
 ## Play
 
-**[Play Deck of Capitalist](https://deck-of-capitalist.allrize.tech)** — the live DigitalOcean App Platform URL.
+**[Play Deck of Prosperity](https://deck-of-prosperity.allrize.tech)**
 
-The custom domain is the App Platform primary domain. Its CNAME points to `deck-of-capitalist-dkk8u.ondigitalocean.app`, and App Platform has issued the HTTPS certificate.
-
-The whole game runs solo: there is no rival, no bot, and no online opponent. Difficulty changes the market target thresholds only.
-
-Gameplay is locked to a landscape canvas. Desktop centres that canvas; landscape mobile fills it. Portrait mobile shows a rotation prompt while preserving the current run.
+The game is solo: select one to five deed cards, make scoring portfolios, clear eight escalating market targets, then improve the persistent deck at the Community Market.
 
 ## Rules
 
-Each market gives you an independently shuffled copy of the persistent deck, an eight-card hand, four scoring plays, and three discard actions. Select one to five cards. A published Market Target is the only win condition: clear it by the end of your fourth hand. Market difficulty changes only those targets: Street is 80%, Market is 100%, and High Stakes is 125%.
+Every market gives an independently shuffled copy of the persistent deck, an eight-card hand, four scoring plays, and three discard actions. Market difficulty only changes published target scores. Scoring is:
 
-| Portfolio | Requirement | Multiplier |
-| --- | --- | ---: |
-| Liquidation | No matching group | ×1 |
-| Development | One incomplete pair | ×2 |
-| Joint Venture | Two separate pairs | ×3 |
-| Monopoly | One complete asset group | ×5 |
-| Conglomerate | Complete group plus another pair | ×7 |
-| Diversified Portfolio | Five distinct groups | ×8 |
-| Transport Network | Four distinct railroads | ×12 |
+`(card chips + chip bonuses) × (base multiplier + multiplier bonuses) × multiplicative effects`
 
-Scoring is `(card chips + chip bonuses) × (base multiplier + multiplier bonuses) × multiplicative effects`.
-
-Winning opens the Night Market. Hire up to five illustrated Tycoon helpers, acquire deeds, renovate one deed by `+5` chips, liquidate one deed while the deck remains above 32 cards, or reroll the offers. You begin with `$4` and receive `$5 + interest` after each cleared market. Hired Tycoons stay visible at the centre of the table and apply their effects to matching portfolios.
+After clearing a target, invite Community Partners, acquire deeds, renovate one deed, curate one deed while the deck remains above the minimum, or reroll the offers. The gameplay model deliberately remains unchanged from the original private prototype.
 
 ## Development
 
 ```bash
 npm install
-npm run dev
 npm run check
 npm run test:e2e
 ```
 
-The project uses React, TypeScript, Vite, Vitest, and Playwright. Saves are versioned in browser local storage. The application has no backend, accounts, analytics, or online leaderboard.
-
-`tests/balance.test.ts` is a headless simulation harness: it plays deterministic greedy-best-hand runs across every difficulty and reports the per-round clear rate, which is how `MARKET_TARGETS` is tuned. Run `npx vitest run tests/balance.test.ts --reporter=verbose` to see the table.
-
-All audio is generated procedurally with the Web Audio API — there are no binary audio assets. Volume, mute, and the ambient music loop are exposed on the title screen and in the in-game HUD, and persist in local storage.
+The project uses React, TypeScript, Vite, Vitest, and Playwright. Saves are local to the browser; there is no backend, account system, analytics, or online leaderboard.
 
 ## Deployment
 
-`.do/app.yaml` defines a DigitalOcean App Platform static site. It builds with `npm ci && npm run build`, publishes `dist`, and falls back to `index.html` for client-side navigation. App Platform is the only deployment target for this project.
+`.do/app.yaml` defines a DigitalOcean App Platform static site. It builds with `npm ci && npm run build`, publishes `dist`, and falls back to `index.html` for client-side navigation.
 
-The app source is a plain git clone URL rather than a GitHub App integration, so pushing to `main` does not auto-deploy. Trigger a release explicitly:
+## Artwork and audio
 
-```bash
-doctl apps create-deployment 05e14d75-9c66-4ff9-a0ad-cc4da677b465 --wait
-```
-
-## Artwork
-
-The table, ending scenes, all 32 unique deed-card illustrations, and 10 unique Tycoon helper-card illustrations are original pixel-noir assets generated for this project with OpenAI ImageGen. The UI and scoring visuals remain code-native for legibility and responsive behavior.
+The published edition uses new ImageGen-created light prosperity illustration families for all deed cards, Community Partner cards, companions, and the landing backdrop. All interface composition remains code-native for clarity and responsive play. Audio is procedural Web Audio: a bright gamelan-and-kalimba loop plus warm interaction cues, with no inherited character voice clips.

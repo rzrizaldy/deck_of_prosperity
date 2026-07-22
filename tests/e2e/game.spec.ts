@@ -59,7 +59,7 @@ test('defaults to Indonesian and persists a language choice', async ({ browser }
  */
 async function reachShop(page: Page) {
   await page.evaluate(() => {
-    const key = 'deck-of-capitalist-save-v2';
+    const key = 'deck-of-prosperity-save-v2';
     const save = JSON.parse(localStorage.getItem(key)!);
     save.state.player.handsLeft = 1;
     save.state.player.score = 1_000_000;
@@ -69,7 +69,7 @@ async function reachShop(page: Page) {
   await page.getByRole('button', { name: /Continue round 1/i }).click();
   await page.locator('.hand-cards').getByRole('button', { name: /^1\./ }).click();
   await page.getByRole('button', { name: /Commit portfolio/i }).click();
-  await expect(page.getByRole('heading', { name: /The Night Market/i })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('heading', { name: /Community Market/i })).toBeVisible({ timeout: 15_000 });
 }
 
 test('starts a solo market, scores, and persists the run', async ({ page }) => {
@@ -218,7 +218,7 @@ test('the hand can be sorted by rank or asset class', async ({ page }) => {
  */
 async function seedFinalHand(page: Page, score: number) {
   await page.evaluate((finalScore) => {
-    const key = 'deck-of-capitalist-save-v2';
+    const key = 'deck-of-prosperity-save-v2';
     const save = JSON.parse(localStorage.getItem(key)!);
     save.state.round = 8;
     save.state.player.handsLeft = 1;
@@ -241,7 +241,7 @@ test('both endings fit the canvas', async ({ page }) => {
     await seedFinalHand(page, 1_000_000);
     await page.locator('.hand-cards').getByRole('button', { name: /^1\./ }).click();
     await page.getByRole('button', { name: /Commit portfolio/i }).click();
-    await expect(page.getByRole('heading', { name: /The city is yours/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /The city thrives with you/i })).toBeVisible({ timeout: 15_000 });
     await expectNoDocumentOverflow(page, `victory ${at}`);
     await expectFrameFits(page, `victory ${at}`);
     await expect(page.getByRole('button', { name: /Run it back/i })).toBeVisible();
@@ -266,7 +266,7 @@ test('both endings fit the canvas', async ({ page }) => {
 test('portrait view shows the rotation gate', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.getByRole('status').getByText('Rotate to trade')).toBeVisible();
+  await expect(page.getByRole('status').getByText('Rotate to play')).toBeVisible();
   await expectNoDocumentOverflow(page, 'portrait gate');
 });
 
@@ -307,11 +307,11 @@ test('the in-game HUD exposes mute and volume', async ({ page }) => {
 
 test('a chosen Konco follows the run from briefing to table', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Soloman.*Royal Counselor/i }).click();
+  await page.getByRole('button', { name: /Bima Pradana.*Penggerak Koperasi/i }).click();
   await page.getByRole('button', { name: /Start market run/i }).click();
-  await expect(page.getByText('Soloman', { exact: true })).toBeVisible();
+  await expect(page.getByText('Bima Pradana', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: /Deal market one/i }).click();
-  await expect(page.getByRole('region', { name: /Soloman, your Konco/i })).toBeVisible();
+  await expect(page.getByRole('region', { name: /Bima Pradana, your Konco/i })).toBeVisible();
 });
 
 test('holding a gameplay card opens its large artwork preview', async ({ page }) => {

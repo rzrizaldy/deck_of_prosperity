@@ -57,7 +57,7 @@ function completeRound(state: GameState, playerScore: GameState['lastPlayerScore
     return {
       ...state, phase: 'victory', runScore, lastPlayerScore: playerScore,
       selectedIds: [],
-      events: event(state, 'system', 'Pasar terakhir tembus. Jakarta sekarang milikmu.'),
+      events: event(state, 'system', 'Pasar terakhir tembus. Kota tumbuh bersamamu.'),
     };
   }
   const player = awardRound(state.player);
@@ -65,7 +65,7 @@ function completeRound(state: GameState, playerScore: GameState['lastPlayerScore
   return {
     ...state, phase: 'shop', player, shop: generated.shop, rngState: generated.rngState,
     runScore, selectedIds: [], lastPlayerScore: playerScore,
-    events: event(state, 'system', 'Target tembus. Pasar Malam dibuka.'),
+    events: event(state, 'system', 'Target tembus. Pasar Bersama dibuka.'),
   };
 }
 
