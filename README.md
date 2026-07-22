@@ -1,16 +1,18 @@
 # Deck of Capitalist
 
-A browser-based, pixel-noir property roguelike set above nighttime Jakarta. Build portfolios, hire Tycoons, tune a persistent 40-card deck, and defeat a fair AI rival across eight market rounds.
+A browser-based, pixel-noir property roguelike set above nighttime Jakarta. Build portfolios, hire Tycoons, tune a persistent 40-card deck, and clear eight escalating market targets.
 
 ## Play
 
 [Play Deck of Capitalist](https://deck-of-capitalist-dkk8u.ondigitalocean.app)
 
+The intended custom domain is [deck-of-capitalist.allrize.ai](https://deck-of-capitalist.allrize.ai). It must be pointed at the DigitalOcean App Platform CNAME after the platform accepts the domain.
+
 Desktop and landscape mobile are supported. Portrait mobile displays a rotation prompt while preserving the current run.
 
 ## Rules
 
-Each round gives both competitors an independently shuffled copy of their persistent deck, eight-card hands, four scoring plays, and three discard actions. Select one to five cards. After every committed hand the rival answers using the same scoring engine and only its own private state. Match or beat its total after four hands to advance.
+Each market gives you an independently shuffled copy of the persistent deck, an eight-card hand, four scoring plays, and three discard actions. Select one to five cards. A published Market Target is the win condition: clear it by the end of your fourth hand. The rival still answers using the same scoring engine and only its own private state, but is a visible benchmark rather than a loss gate.
 
 | Portfolio | Requirement | Multiplier |
 | --- | --- | ---: |
@@ -51,4 +53,4 @@ The project uses React, TypeScript, Vite, Vitest, and Playwright. Saves are vers
 
 ## Artwork
 
-The table, rival portraits, and ending scenes are original pixel-noir assets generated for this project with OpenAI ImageGen. The UI, deed cards, and scoring visuals are code-native for legibility and responsive behavior.
+The table, two fictional rival portraits, ending scenes, and all 32 unique deed-card illustrations are original pixel-noir assets generated for this project with OpenAI ImageGen. The UI and scoring visuals remain code-native for legibility and responsive behavior.

@@ -1,5 +1,5 @@
 export type Difficulty = 'casual' | 'trader' | 'tycoon';
-export type Phase = 'menu' | 'playing' | 'shop' | 'victory' | 'gameover';
+export type Phase = 'menu' | 'intro' | 'playing' | 'shop' | 'victory' | 'gameover';
 export type GroupKey =
   | 'BROWN' | 'SKY' | 'PINK' | 'ORANGE' | 'RED'
   | 'YELLOW' | 'GREEN' | 'BLUE' | 'RAILROAD' | 'UTILITY';
@@ -101,6 +101,7 @@ export interface BotDecision {
 
 export type GameAction =
   | { type: 'NEW_RUN'; difficulty: Difficulty; seed?: number }
+  | { type: 'BEGIN_RUN' }
   | { type: 'LOAD'; state: GameState }
   | { type: 'GO_MENU' }
   | { type: 'TOGGLE_CARD'; cardId: string }

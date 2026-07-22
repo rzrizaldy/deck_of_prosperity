@@ -1,7 +1,7 @@
 import { botShop, resolveBotBout } from './bot';
 import {
   awardRound, createCompetitor, deckSize, discardCards, emptyState, generateShop,
-  makeCard, playCards, priceFor, replaceCard, resetForRound, MAX_ROUNDS, MIN_DECK_SIZE,
+  makeCard, playCards, priceFor, replaceCard, resetForRound, marketTarget, MAX_ROUNDS, MIN_DECK_SIZE,
 } from './engine';
 import type { GameAction, GameEvent, GameState } from './types';
 
@@ -24,7 +24,7 @@ export function createRun(difficulty: GameState['difficulty'], seed = Date.now()
     bot: bot.side,
     selectedIds: [],
     shop: null,
-    events: [{ id: 'opening', actor: 'system', message: 'Round 1 opened. Match or beat the rival after four hands.' }],
+    events: [{ id: 'opening', actor: 'system', message: `Market 1 opens. Reach ${marketTarget(1).toLocaleString()} in four hands.` }],
     lastPlayerScore: null,
     lastBotScore: null,
     muted,
@@ -34,11 +34,12 @@ export function createRun(difficulty: GameState['difficulty'], seed = Date.now()
 
 function completeRound(state: GameState, playerScore: GameState['lastPlayerScore'], botScore: GameState['lastBotScore']): GameState {
   const runScore = state.runScore + state.player.score;
-  if (state.player.score < state.bot.score) {
+  const target = marketTarget(state.round);
+  if (state.player.score < target) {
     return {
       ...state, phase: 'gameover', runScore, lastPlayerScore: playerScore,
       lastBotScore: botScore, selectedIds: [],
-      events: event(state, 'system', `The rival wins round ${state.round}, ${state.bot.score.toLocaleString()} to ${state.player.score.toLocaleString()}.`),
+      events: event(state, 'system', `Market target missed: ${state.player.score.toLocaleString()} / ${target.toLocaleString()}.`),
     };
   }
   if (state.round >= MAX_ROUNDS) {
@@ -54,14 +55,16 @@ function completeRound(state: GameState, playerScore: GameState['lastPlayerScore
   return {
     ...state, phase: 'shop', player, bot, shop: generated.shop, rngState: generated.rngState,
     runScore, selectedIds: [], lastPlayerScore: playerScore, lastBotScore: botScore,
-    events: event(state, 'system', `Round ${state.round} secured. The night market is open.`),
+    events: event(state, 'system', `Target cleared${state.player.score >= state.bot.score ? ' — you also beat the benchmark' : ''}. The night market is open.`),
   };
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'NEW_RUN':
-      return createRun(action.difficulty, action.seed, state.muted);
+      return { ...createRun(action.difficulty, action.seed, state.muted), phase: 'intro' };
+    case 'BEGIN_RUN':
+      return state.phase === 'intro' ? { ...state, phase: 'playing' } : state;
     case 'LOAD':
       return { ...action.state, selectedIds: [] };
     case 'GO_MENU':
@@ -168,7 +171,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         phase: 'playing', round: state.round + 1, player: playerReset.side, bot: botReset.side,
         rngState: botReset.rngState, shop: null, selectedIds: [], lastPlayerScore: null, lastBotScore: null,
-        events: [{ id: `round-${state.round + 1}`, actor: 'system', message: `${botPurchase.message} Round ${state.round + 1} begins.` }],
+        events: [{ id: `round-${state.round + 1}`, actor: 'system', message: `${botPurchase.message} Market ${state.round + 1}: reach ${marketTarget(state.round + 1).toLocaleString()}.` }],
       };
     }
     default:

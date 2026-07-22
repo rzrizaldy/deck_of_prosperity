@@ -1,5 +1,8 @@
 name: deck-of-capitalist
 region: nyc
+domains:
+  - domain: deck-of-capitalist.allrize.ai
+    type: PRIMARY
 static_sites:
   - name: game
     git:

@@ -10,6 +10,11 @@ export const MAX_HANDS = 4;
 export const MAX_DISCARDS = 3;
 export const MAX_ROUNDS = 8;
 export const MIN_DECK_SIZE = 32;
+export const MARKET_TARGETS = [260, 420, 620, 880, 1180, 1540, 1980, 2520] as const;
+
+export function marketTarget(round: number): number {
+  return MARKET_TARGETS[Math.min(Math.max(round, 1), MAX_ROUNDS) - 1];
+}
 
 export function makeCard(template: CardTemplate, suffix: string): Card {
   return { ...template, instanceId: `${template.id}-${suffix}`, bonus: 0 };

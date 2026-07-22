@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { playSound } from './game/audio';
 import { CARD_TEMPLATES, GROUPS, HANDS } from './game/data';
-import { allCards, deckSize, priceFor, scoreHand } from './game/engine';
+import { allCards, deckSize, marketTarget, priceFor, scoreHand } from './game/engine';
 import { clearSave, loadSave, migrateLegacySave, recordHighScore, saveGame } from './game/persistence';
 import { gameReducer, initialState } from './game/reducer';
 import type { Card, Difficulty, GameState, ScoreBreakdown, Tycoon } from './game/types';
@@ -26,6 +26,7 @@ function AssetCard({ card, selected = false, compact = false, onClick, index }: 
       aria-label={`${index !== undefined ? `${index + 1}. ` : ''}${card.name}, ${card.chips + card.bonus} chips`}
       type="button"
     >
+      <img className="card-art" src={`/assets/cards/${card.id}.webp`} alt="" loading="lazy" />
       <span className="card-stripe">{group.label}</span>
       <Icon aria-hidden="true" />
       <strong>{card.name}</strong>
@@ -76,9 +77,9 @@ function Guide({ onClose }: { onClose: () => void }) {
           <ol>
             <li>Draw eight deeds. Select one to five and score a portfolio.</li>
             <li>Use up to three discards per round to improve your hand.</li>
-            <li>The rival answers every scored hand under the same rules.</li>
-            <li>After four hands, match or beat the rival to enter the market.</li>
-            <li>Survive eight rounds and defeat The Chairman.</li>
+            <li>A published Market Target is the win condition. Clear it within four hands.</li>
+            <li>The rival answers under the same rules as an atmospheric benchmark; beating it earns bragging rights, not survival.</li>
+            <li>Clear eight escalating markets, then take the city.</li>
           </ol>
         </section>
         <section>
@@ -122,7 +123,7 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch }: {
         <img src="/assets/title.png" alt="Deck of Capitalist" className="title-art" />
         <p className="eyebrow">A pixel-noir property roguelike</p>
         <h1>Outplay the market.<br />Own the night.</h1>
-        <p className="menu-copy">Build ruthless portfolios, hire tycoons, and beat a fair rival across eight escalating Jakarta markets.</p>
+        <p className="menu-copy">Build ruthless portfolios, hire tycoons, and clear eight escalating Jakarta market targets.</p>
         {legacyCleared && <p className="notice">The incompatible prototype save was retired. Your legacy high score remains.</p>}
         <fieldset className="difficulty-picker">
           <legend>Rival difficulty</legend>
@@ -133,7 +134,7 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch }: {
           ))}
         </fieldset>
         <div className="menu-actions">
-          <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty })}><Sparkles /> Start rival run</button>
+          <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty })}><Sparkles /> Start market run</button>
           {saved && <button className="secondary large" onClick={() => dispatch({ type: 'LOAD', state: saved })}>Continue round {saved.round}</button>}
         </div>
         <div className="menu-subactions">
@@ -155,10 +156,10 @@ function Hud({ state, dispatch }: { state: GameState; dispatch: React.Dispatch<P
     <>
       <header className="game-hud">
         <div className="round-mark"><span>Market round</span><strong>{state.round}<small>/8</small></strong></div>
-        <div className="duel-score" aria-label="Round scores">
+        <div className="duel-score" aria-label="Market score and target">
           <div><span>You</span><strong>{money(state.player.score)}</strong></div>
-          <b>VS</b>
-          <div><span>{state.round === 8 ? 'Chairman' : 'Broker'}</span><strong>{money(state.bot.score)}</strong></div>
+          <b>→</b>
+          <div><span>Target</span><strong>{money(marketTarget(state.round))}</strong></div>
         </div>
         <div className="hud-actions">
           <span className={`difficulty-tag ${state.difficulty}`}>{state.difficulty}</span>
@@ -172,12 +173,32 @@ function Hud({ state, dispatch }: { state: GameState; dispatch: React.Dispatch<P
   );
 }
 
+function Intro({ dispatch }: { dispatch: React.Dispatch<Parameters<typeof gameReducer>[1]> }) {
+  const [page, setPage] = useState(0);
+  const pages = [
+    ['Beat the market', `Every market publishes a target. Market 1 needs ${money(marketTarget(1))}; clear it with four scoring hands.`],
+    ['Build a portfolio', 'Select one to five deeds. The preview explains chips × multiplier before you commit. Pairs and complete groups scale fast.'],
+    ['Control the deck', 'Discard up to three times to redraw. Cleared markets pay cash and open the Night Market for tycoons, renovations, and acquisitions.'],
+  ];
+  return <main className="intro-screen">
+    <div className="intro-panel">
+      <span className="eyebrow">Market briefing · {page + 1}/3</span>
+      <h1>{pages[page][0]}</h1><p>{pages[page][1]}</p>
+      <div className="intro-progress">{pages.map((_, index) => <i key={index} className={index <= page ? 'active' : ''} />)}</div>
+      <div className="intro-actions">
+        {page > 0 && <button className="secondary" onClick={() => setPage(page - 1)}>Back</button>}
+        {page < pages.length - 1 ? <button className="primary" onClick={() => setPage(page + 1)}>Next</button> : <button className="primary" onClick={() => dispatch({ type: 'BEGIN_RUN' })}><Sparkles /> Deal market one</button>}
+      </div>
+    </div>
+  </main>;
+}
+
 function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Dispatch<Parameters<typeof gameReducer>[1]> }) {
   const [busy, setBusy] = useState(false);
   const selected = state.player.hand.filter((card) => state.selectedIds.includes(card.instanceId));
   const prediction = useMemo(() => selected.length ? scoreHand(selected, state.player.tycoons) : null, [selected, state.player.tycoons]);
-  const rivalName = state.round === 8 ? 'The Chairman' : 'The Broker';
-  const portrait = state.round === 8 ? '/assets/generated/final-chairman.png' : '/assets/generated/rival-broker.png';
+  const rivalName = state.round === 8 ? 'The Chairman' : 'Market Watcher';
+  const portrait = state.round === 8 ? '/assets/generated/final-chairman-v2.png' : '/assets/generated/rival-broker-v2.png';
 
   const toggle = (cardId: string) => { dispatch({ type: 'TOGGLE_CARD', cardId }); playSound('select', state.muted); };
   const play = () => {
@@ -223,6 +244,7 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Disp
           <div className="round-track" aria-label={`Hand ${5 - state.player.handsLeft} of 4`}>
             {Array.from({ length: 4 }, (_, index) => <span key={index} className={index >= state.player.handsLeft ? 'done' : ''} />)}
           </div>
+          <div className="market-target"><span>Market target</span><strong>{money(marketTarget(state.round))}</strong><small>{money(Math.max(0, marketTarget(state.round) - state.player.score))} remaining</small></div>
           <div className="last-hands">
             <ScoreFormula score={state.lastPlayerScore} label="Your last hand" />
             <ScoreFormula score={state.lastBotScore} label="Rival response" />
@@ -305,7 +327,7 @@ function Ending({ state, dispatch }: { state: GameState; dispatch: React.Dispatc
         {won ? <Trophy /> : <Bot />}
         <span>{won ? 'Eight markets conquered' : `Run ended in round ${state.round}`}</span>
         <h1>{won ? 'The city is yours.' : 'The market collected.'}</h1>
-        <p>{won ? 'The Chairman has signed over the table.' : `The rival closed at ${money(state.bot.score)} against your ${money(state.player.score)}.`}</p>
+        <p>{won ? 'The final market has cleared.' : `You needed ${money(marketTarget(state.round))} and closed at ${money(state.player.score)}.`}</p>
         <div className="ending-score"><span>Run score</span><strong>{money(state.runScore)}</strong></div>
         <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty: state.difficulty })}><Sparkles /> Run it back</button>
         <button className="ghost" onClick={() => dispatch({ type: 'GO_MENU' })}>Return to title</button>
@@ -335,6 +357,7 @@ export default function App() {
   return (
     <>
       {state.phase === 'menu' && <Menu state={state} saved={saved} highScore={highScore} legacyCleared={legacyCleared} dispatch={dispatch} />}
+      {state.phase === 'intro' && <Intro dispatch={dispatch} />}
       {state.phase === 'playing' && <GameTable state={state} dispatch={dispatch} />}
       {state.phase === 'shop' && <Shop state={state} dispatch={dispatch} />}
       {(state.phase === 'victory' || state.phase === 'gameover') && <Ending state={state} dispatch={dispatch} />}
