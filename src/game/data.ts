@@ -1,4 +1,4 @@
-import type { CardTemplate, GroupKey, HandKey, MarketModifier, Tycoon } from './types';
+import type { CardTemplate, Consumable, GroupKey, HandKey, MarketModifier, Tycoon } from './types';
 
 export const GROUPS: Record<GroupKey, { label: string; setSize: number; color: string; ink: string }> = {
   BROWN: { label: 'Regional', setSize: 2, color: '#8b5a2b', ink: '#fff5df' },
@@ -32,6 +32,14 @@ export const MARKET_MODIFIERS: MarketModifier[] = [
   { id: 'SIDAK', name: 'Sidak', summary: 'Tycoon effects are disabled this market.', art: 'sidak' },
   { id: 'MUSIM_KAWIN', name: 'Musim Kawin', summary: 'Lifestyle chips double; all other deed chips are −20%.', art: 'musim-kawin' },
   { id: 'REKLAMASI', name: 'Reklamasi', summary: 'Three random deeds are removed for this market only.', art: 'reklamasi' },
+];
+
+export const CONSUMABLES: Consumable[] = [
+  { id: 'SERTIFIKAT', name: 'Sertifikat', description: 'Retitle one selected deed into the next asset group.', cost: 3, art: 'sertifikat' },
+  { id: 'NOTARIS', name: 'Notaris', description: 'Copy one selected deed into your discard pile.', cost: 4, art: 'notaris' },
+  { id: 'PUNGLI', name: 'Pungli', description: 'Reroll the public market event. Reklamasi is off the table.', cost: 3, art: 'pungli' },
+  { id: 'UANG_PELICIN', name: 'Uang Pelicin', description: 'Gain one extra hand for this market only.', cost: 4, art: 'uang-pelicin' },
+  { id: 'SITA', name: 'Sita', description: 'Destroy exactly three selected deeds from your hand.', cost: 4, art: 'sita' },
 ];
 
 export const CARD_TEMPLATES: CardTemplate[] = [

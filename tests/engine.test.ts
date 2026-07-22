@@ -74,7 +74,7 @@ describe('authoritative scoring engine', () => {
     const normal = MARKET_MODIFIERS.find((modifier) => modifier.id === 'MACET')!;
     const side: PlayerState = {
       hand: [], drawPile: createStartingDeck('reclaim'), discardPile: [],
-      score: 0, cash: 4, tycoons: [], handsLeft: 4, discardsLeft: 3,
+      score: 0, cash: 4, tycoons: [], consumables: [], handsLeft: 4, discardsLeft: 3,
     };
     const reclaimed = prepareMarket(side, 42, reclamation);
     expect(reclaimed.exiled).toHaveLength(3);
@@ -87,7 +87,7 @@ describe('authoritative scoring engine', () => {
   it('reshuffles the discard pile when the draw pile is empty and reports it', () => {
     const side: PlayerState = {
       hand: [], drawPile: [], discardPile: [card('BROWN'), card('SKY')],
-      score: 0, cash: 4, tycoons: [], handsLeft: 4, discardsLeft: 3,
+      score: 0, cash: 4, tycoons: [], consumables: [], handsLeft: 4, discardsLeft: 3,
     };
     const result = drawToHand(side, 42, 2);
     expect(result.side.hand).toHaveLength(2);
@@ -98,7 +98,7 @@ describe('authoritative scoring engine', () => {
   it('does not report a reshuffle when the draw pile covers the deal', () => {
     const side: PlayerState = {
       hand: [], drawPile: [card('BROWN'), card('SKY'), card('RED')], discardPile: [card('BLUE')],
-      score: 0, cash: 4, tycoons: [], handsLeft: 4, discardsLeft: 3,
+      score: 0, cash: 4, tycoons: [], consumables: [], handsLeft: 4, discardsLeft: 3,
     };
     const result = drawToHand(side, 42, 2);
     expect(result.reshuffled).toBe(false);

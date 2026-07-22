@@ -18,6 +18,17 @@ export interface MarketModifier {
   parity?: 'odd' | 'even';
 }
 
+export type ConsumableId = 'SERTIFIKAT' | 'NOTARIS' | 'PUNGLI' | 'UANG_PELICIN' | 'SITA';
+
+/** One-use market tools; their effects are resolved exclusively by the reducer. */
+export interface Consumable {
+  id: ConsumableId;
+  name: string;
+  description: string;
+  cost: number;
+  art: string;
+}
+
 export interface CardTemplate {
   id: string;
   name: string;
@@ -80,6 +91,7 @@ export interface PlayerState {
   score: number;
   cash: number;
   tycoons: Tycoon[];
+  consumables: Consumable[];
   handsLeft: number;
   discardsLeft: number;
 }
@@ -90,6 +102,7 @@ export interface ShopState {
   rerollCost: number;
   renovations: number;
   liquidated: boolean;
+  consumables: Consumable[];
 }
 
 export interface GameEvent {
@@ -130,6 +143,8 @@ export type GameAction =
   | { type: 'PLAYER_DISCARD' }
   | { type: 'PLAYER_PLAY' }
   | { type: 'BUY_TYCOON'; tycoonId: string }
+  | { type: 'BUY_CONSUMABLE'; consumableId: ConsumableId }
+  | { type: 'USE_CONSUMABLE'; consumableId: ConsumableId }
   | { type: 'BUY_ACQUISITION' }
   | { type: 'RENOVATE'; cardId: string }
   | { type: 'LIQUIDATE'; cardId: string }

@@ -81,6 +81,36 @@ describe('campaign reducer', () => {
     expect(market.player.hand.some((card) => card.instanceId === cardId)).toBe(false);
   });
 
+  it('enforces consumable capacity and resolves every legal one-use tool', () => {
+    const run = createRun('trader', 1_234);
+    const generated = generateShop([], run.rngState);
+    let market: GameState = { ...run, phase: 'shop', shop: generated.shop, player: { ...run.player, cash: 100 } };
+    const first = market.shop!.consumables[0];
+    const second = market.shop!.consumables[1];
+    market = gameReducer(market, { type: 'BUY_CONSUMABLE', consumableId: first.id });
+    market = gameReducer(market, { type: 'BUY_CONSUMABLE', consumableId: second.id });
+    expect(market.player.consumables).toHaveLength(2);
+
+    const playing = { ...market, phase: 'playing' as const, selectedIds: [market.player.hand[0].instanceId], player: { ...market.player, consumables: [{ id: 'SERTIFIKAT', name: 'Sertifikat', description: '', cost: 3, art: 'sertifikat' }] } };
+    const original = playing.player.hand[0];
+    const retitled = gameReducer(playing, { type: 'USE_CONSUMABLE', consumableId: 'SERTIFIKAT' });
+    expect(retitled.player.hand.find((card) => card.instanceId === original.instanceId)?.group).not.toBe(original.group);
+    expect(retitled.player.consumables).toHaveLength(0);
+
+    const copied = gameReducer({ ...playing, player: { ...playing.player, consumables: [{ id: 'NOTARIS', name: 'Notaris', description: '', cost: 4, art: 'notaris' }] } }, { type: 'USE_CONSUMABLE', consumableId: 'NOTARIS' });
+    expect(copied.player.discardPile.some((card) => card.id === original.id)).toBe(true);
+
+    const bribed = gameReducer({ ...playing, selectedIds: [], player: { ...playing.player, handsLeft: 1, consumables: [{ id: 'UANG_PELICIN', name: 'Uang Pelicin', description: '', cost: 4, art: 'uang-pelicin' }] } }, { type: 'USE_CONSUMABLE', consumableId: 'UANG_PELICIN' });
+    expect(bribed.player.handsLeft).toBe(2);
+
+    const seized = gameReducer({ ...playing, selectedIds: playing.player.hand.slice(0, 3).map((card) => card.instanceId), player: { ...playing.player, consumables: [{ id: 'SITA', name: 'Sita', description: '', cost: 4, art: 'sita' }] } }, { type: 'USE_CONSUMABLE', consumableId: 'SITA' });
+    expect(seized.player.hand).toHaveLength(playing.player.hand.length - 3);
+
+    const rerolled = gameReducer({ ...playing, selectedIds: [], modifier: { ...playing.modifier, id: 'BANJIR' }, player: { ...playing.player, consumables: [{ id: 'PUNGLI', name: 'Pungli', description: '', cost: 3, art: 'pungli' }] } }, { type: 'USE_CONSUMABLE', consumableId: 'PUNGLI' });
+    expect(rerolled.modifier.id).not.toBe('BANJIR');
+    expect(rerolled.modifier.id).not.toBe('REKLAMASI');
+  });
+
   it('resolves explicit final-round victory and defeat states', () => {
     const base = createRun('trader', 404);
     const selected = base.player.hand[0].instanceId;

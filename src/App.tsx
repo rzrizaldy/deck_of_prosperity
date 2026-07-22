@@ -11,7 +11,7 @@ import { CARD_TEMPLATES, GROUPS, HANDS } from './game/data';
 import { allCards, deckSize, MARKET_DIFFICULTY, marketTarget, MAX_TYCOONS, MIN_DECK_SIZE, priceFor, scoreHand } from './game/engine';
 import { clearSave, loadSave, migrateLegacySave, recordHighScore, saveGame } from './game/persistence';
 import { gameReducer, initialState } from './game/reducer';
-import type { Card, Difficulty, GameState, ScoreBreakdown, Tycoon } from './game/types';
+import type { Card, Consumable, GameState, ScoreBreakdown, Tycoon } from './game/types';
 
 type Dispatch = React.Dispatch<Parameters<typeof gameReducer>[1]>;
 
@@ -511,28 +511,79 @@ function Intro({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
   </main>;
 }
 
+type KoncoMoment = 'opening' | 'ready' | 'bigScore' | 'whiff' | 'lastHand' | 'event' | 'default';
+
+const KONCO_LINES: Record<keyof typeof COMPANIONS, Record<KoncoMoment, string[]>> = {
+  gemoy: {
+    opening: ['NEW MARKET!!! TAKE THE EASY MONEY!!!', 'PUBLIC EVENT IS RIGHT THERE!!! READ IT!!!', 'FIRST HAND!!! SET THE TONE!!!', 'THE TABLE IS YOURS!!! MAKE IT EXPENSIVE!!!'],
+    ready: ['{selected} DEEDS READY!!! COMMIT IT!!!', 'STOP PETTING THE CARDS!!! PLAY THEM!!!', 'THAT MULTIPLIER WON’T PRINT ITSELF!!!', 'GOOD. NOW PUT THE PORTFOLIO ON THE TABLE!!!'],
+    bigScore: ['{hand} FOR {score}!!! THAT IS A PROPER RECEIPT!!!', 'THE NUMBERS ARE SCREAMING!!! KEEP GOING!!!', 'YES!!! THE MARKET JUST BLINKED FIRST!!!', 'THAT’S HOW YOU BULLDOZE A TARGET!!!'],
+    whiff: ['{score}?!!! THAT’S A PARKING FEE!!!', 'SMALL SCORE!!! BIGGER MOVE NEXT!!!', 'THE MARKET DID NOT EVEN FLINCH!!! AGAIN!!!', 'WE CALL THAT A WARM-UP!!! DO NOT GET COMFORTABLE!!!'],
+    lastHand: ['LAST HAND!!! NO MORE EXCUSES!!!', 'ONE SHOT LEFT!!! MAKE IT VIOLENTLY EFFICIENT!!!', 'TARGET OR TAXI HOME!!! PICK ONE!!!', 'THIS IS THE RECEIPT MOMENT!!!'],
+    event: ['EVENT CHANGED!!! ADAPT FASTER!!!', 'THE MARKET MOVED!!! MOVE BACK HARDER!!!', 'NICE TOOL!!! USE IT LIKE YOU MEAN IT!!!', 'THE TABLE JUST GOT WEIRDER!!! PERFECT!!!'],
+    default: ['{remaining} LEFT!!! BUY, BUILD, BULLDOZE!!!', 'THE TARGET IS NOT GOING TO PAY ITSELF!!!', 'CARDS IN HAND!!! CAPITAL ON THE LINE!!!', 'KEEP THE ENGINE HOT!!!'],
+  },
+  soloman: {
+    opening: ['Pasar baru sudah terbuka. Jangan buru-buru merasa akrab.', 'Atur napas. Event sudah bicara lebih dulu.', 'Empat tangan cukup, jika tidak dipakai untuk pamer.', 'Mari lihat apakah angka hari ini mau diajak kerja sama.'],
+    ready: ['{selected} deed sudah dipilih. Sekarang cek apakah mereka benar-benar berteman.', 'Portofolio siap. Semoga bukan sekadar kumpulan kartu yang kebetulan sewarna.', 'Multiplier sudah terlihat. Keputusanmu tinggal dibuat dengan tenang.', 'Pilihan ada di meja. Biasanya keputusan baik tidak perlu diteriakkan.'],
+    bigScore: ['{hand}, {score}. Lumayan. Angka juga bisa bersopan santun.', 'Pasar akhirnya mendengarkan. Jangan sampai ia menyesal.', 'Itu skor yang sehat. Jangan langsung belanja seperti menang lotre.', 'Bagus. Kita sebut ini perencanaan, supaya terdengar terhormat.'],
+    whiff: ['{score}. Pasar menerima dengan senyum tipis.', 'Kecil, tapi jujur. Tidak semua kartu harus berpura-pura hebat.', 'Angka itu sedang belajar berjalan. Jangan dipaksa lari.', 'Tidak setiap portofolio perlu dikenang. Yang ini cukup dilepas saja.'],
+    lastHand: ['Tangan terakhir. Kebijaksanaan biasanya datang terlambat, tapi silakan dicoba.', 'Sisa satu kesempatan. Bahkan pasar punya batas kesabaran.', 'Tarik napas, hitung lagi, lalu jangan menyesal terlalu puitis.', 'Ini saatnya angka bicara tanpa perantara.'],
+    event: ['Pasar berubah. Seperti kebijakan, selalu saat kita mulai nyaman.', 'Alat baru sudah dipakai. Semoga bukan sekadar dekorasi mahal.', 'Kondisi bergeser. Kartu yang baik tahu cara ikut bergeser.', 'Catat event-nya. Pasar jarang mengulang peringatannya.'],
+    default: ['{remaining} lagi. Pelan saja; pasar tidak ke mana-mana.', 'Target masih ada. Ia tidak tersinggung kalau kita menghitung dulu.', 'Jangan lihat jumlahnya saja. Lihat jalan menuju jumlahnya.', 'Masih ada ruang untuk keputusan yang lebih rapi.'],
+  },
+};
+
+function stableKoncoLine(lines: string[], key: string): string {
+  let hash = 17;
+  for (const character of key) hash = Math.imul(hash, 31) + character.charCodeAt(0) | 0;
+  return lines[Math.abs(hash) % lines.length];
+}
+
 function CompanionRail({ state }: { state: GameState }) {
   const buddy = COMPANIONS[state.companion];
   const selected = state.selectedIds.length;
   const remaining = Math.max(0, marketTarget(state.round, state.difficulty, state.modifier) - state.player.score);
-  const loud = state.lastPlayerScore
-    ? `${state.lastPlayerScore.handName.toUpperCase()} FOR ${money(state.lastPlayerScore.total)}!!! KEEP CRUSHING IT!!!`
-    : selected >= 2
-      ? `${selected} DEEDS READY!!! STOP THINKING, COMMIT IT!!!`
-      : state.player.discardsLeft === 0
-        ? 'NO MORE REDRAWS!!! MAKE THIS COUNT!!!'
-        : `${money(remaining)} LEFT!!! BUY, BUILD, BULLDOZE!!!`;
-  const dry = state.lastPlayerScore
-    ? `${state.lastPlayerScore.handName}, ${money(state.lastPlayerScore.total)}. Lumayan. Angka juga bisa bersopan santun.`
-    : selected >= 2
-      ? `${selected} deed sudah dipilih. Kalau berkenan, cek multiplier sebelum gegabah.`
-      : state.player.discardsLeft === 0
-        ? 'Diskon kesempatan sudah habis. Seperti biasa, keputusan tetap milikmu.'
-        : `${money(remaining)} lagi. Pelan saja; pasar tidak ke mana-mana.`;
-  const message = state.companion === 'gemoy' ? loud : dry;
+  const lastEvent = state.events.at(-1)?.message ?? '';
+  const moment: KoncoMoment = /hired|bought|Sita|retitled|copied|Pungli/i.test(lastEvent)
+    ? 'event'
+    : state.player.handsLeft === 1
+      ? 'lastHand'
+      : state.lastPlayerScore
+        ? state.lastPlayerScore.total >= marketTarget(state.round, state.difficulty, state.modifier) * .15 ? 'bigScore' : 'whiff'
+        : selected >= 1 ? 'ready' : state.player.score === 0 ? 'opening' : 'default';
+  const message = stableKoncoLine(KONCO_LINES[state.companion][moment], `${state.seed}-${state.round}-${moment}-${lastEvent}`)
+    .replace('{selected}', String(selected))
+    .replace('{remaining}', money(remaining))
+    .replace('{score}', state.lastPlayerScore ? money(state.lastPlayerScore.total) : '0')
+    .replace('{hand}', state.lastPlayerScore?.handName ?? 'Portfolio');
   return <section className="companion-rail" aria-label={`${buddy.name}, your Konco`}>
     <div className="companion-bubble"><b>{buddy.name}</b><span>{message}</span></div>
     <img src={buddy.asset} alt={`${buddy.name}, ${buddy.title}`} />
+  </section>;
+}
+
+function ConsumableRack({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
+  const selected = state.selectedIds.length;
+  const canUse = (item: Consumable) => {
+    if (item.id === 'SERTIFIKAT' || item.id === 'NOTARIS') return selected === 1;
+    if (item.id === 'SITA') return selected === 3;
+    return true;
+  };
+  return <section className="consumable-rack" aria-label="Held market tools">
+    <header><span>Market tools</span><b>{state.player.consumables.length}/2</b></header>
+    {state.player.consumables.length ? <div>
+      {state.player.consumables.map((item) => <article key={item.id}>
+        <img src={`/assets/consumables/${item.art}.webp`} alt="" />
+        <span><b>{item.name}</b><small>{item.description}</small></span>
+        <button
+          className="secondary"
+          disabled={!canUse(item)}
+          title={!canUse(item) ? item.id === 'SITA' ? 'Select exactly three deeds first.' : 'Select exactly one deed first.' : undefined}
+          onClick={() => { unlockAudio(); dispatch({ type: 'USE_CONSUMABLE', consumableId: item.id }); playSound('purchase', state.muted); pulseHaptic(7); }}
+        >Use</button>
+      </article>)}
+    </div> : <p>Win a market to buy one-use tools.</p>}
   </section>;
 }
 
@@ -664,6 +715,7 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
             <span>Deck</span><b>{deckSize(state.player)}</b>
             {reshuffling && <em aria-hidden="true">reshuffled</em>}
           </div>
+          <ConsumableRack state={state} dispatch={dispatch} />
         </aside>
       </section>
 
@@ -787,6 +839,20 @@ function Shop({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
                 </div>
               </div>
             </article>
+          </div>
+        </section>
+        <section className="consumable-market">
+          <h2><Coins /> Market tools <small>{state.player.consumables.length}/2 held</small></h2>
+          <div className="consumable-offers">
+            {shop.consumables.map((item) => {
+              const price = priceFor(state.player, item.cost);
+              return <article key={item.id} className={flash === item.id ? 'bought' : ''}>
+                <img src={`/assets/consumables/${item.art}.webp`} alt="" />
+                <div><h3>{item.name}</h3><p>{item.description}</p></div>
+                <button disabled={state.player.cash < price || state.player.consumables.length >= 2} onClick={() => buy({ type: 'BUY_CONSUMABLE', consumableId: item.id }, item.id, price)}>Buy · ${price}</button>
+              </article>;
+            })}
+            {!shop.consumables.length && <p className="sold-out">No tools left on this stall.</p>}
           </div>
         </section>
       </div>

@@ -2,6 +2,7 @@ import {
   allCards, awardRound, chooseMarketModifier, createPlayer, deckSize, discardCards, emptyState, generateShop,
   makeCard, playCards, prepareMarket, priceFor, replaceCard, marketTarget, MAX_ROUNDS, MAX_TYCOONS, MIN_DECK_SIZE,
 } from './engine';
+import { GROUPS, MARKET_MODIFIERS } from './data';
 import type { GameAction, GameEvent, GameState } from './types';
 
 function event(state: GameState, actor: GameEvent['actor'], message: string): GameEvent[] {
@@ -81,6 +82,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         companion: action.state.companion ?? 'gemoy',
         modifier: action.state.modifier ?? emptyState().modifier,
         marketExile: action.state.marketExile ?? [],
+        player: { ...action.state.player, consumables: action.state.player.consumables ?? [] },
+        shop: action.state.shop ? { ...action.state.shop, consumables: action.state.shop.consumables ?? [] } : null,
         selectedIds: [],
         lastPlayedCards: action.state.lastPlayedCards ?? [],
         reshuffles: action.state.reshuffles ?? 0,
@@ -137,6 +140,56 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         player: { ...state.player, cash: state.player.cash - price, tycoons: [...state.player.tycoons, tycoon] },
         events: event(state, 'player', `You hired ${tycoon.name} for $${price}.`),
       };
+    }
+    case 'BUY_CONSUMABLE': {
+      if (state.phase !== 'shop' || !state.shop || state.player.consumables.length >= 2) return state;
+      const consumable = state.shop.consumables.find((item) => item.id === action.consumableId);
+      if (!consumable) return state;
+      const price = priceFor(state.player, consumable.cost);
+      if (state.player.cash < price) return state;
+      return {
+        ...state,
+        player: { ...state.player, cash: state.player.cash - price, consumables: [...state.player.consumables, consumable] },
+        shop: { ...state.shop, consumables: state.shop.consumables.filter((item) => item.id !== consumable.id) },
+        events: event(state, 'player', `You bought ${consumable.name} for $${price}.`),
+      };
+    }
+    case 'USE_CONSUMABLE': {
+      if (state.phase !== 'playing') return state;
+      const consumable = state.player.consumables.find((item) => item.id === action.consumableId);
+      if (!consumable) return state;
+      const selected = state.player.hand.filter((card) => state.selectedIds.includes(card.instanceId));
+      const consume = (player: GameState['player'], message: string, extra: Partial<GameState> = {}): GameState => ({
+        ...state, ...extra,
+        player: { ...player, consumables: player.consumables.filter((item) => item.id !== consumable.id) },
+        events: event(state, 'player', message),
+      });
+      if (consumable.id === 'SERTIFIKAT') {
+        if (selected.length !== 1) return state;
+        const card = selected[0];
+        const keys = Object.keys(GROUPS) as Array<keyof typeof GROUPS>;
+        const group = keys[(keys.indexOf(card.group) + 1) % keys.length];
+        return consume(replaceCard(state.player, card.instanceId, (item) => ({ ...item, group })), `${card.name} was retitled as ${GROUPS[group].label}.`, { selectedIds: [] });
+      }
+      if (consumable.id === 'NOTARIS') {
+        if (selected.length !== 1) return state;
+        const card = selected[0];
+        const copy = { ...card, instanceId: `${card.id}-notaris-${state.round}-${state.rngState}` };
+        return consume({ ...state.player, discardPile: [...state.player.discardPile, copy] }, `Notaris copied ${card.name} into your deck.`, { selectedIds: [] });
+      }
+      if (consumable.id === 'PUNGLI') {
+        const eligible = MARKET_MODIFIERS.filter((item) => item.id !== 'REKLAMASI' && item.id !== state.modifier.id);
+        const index = state.rngState % eligible.length;
+        const modifier = eligible[index];
+        return consume(state.player, `Pungli changes the market to ${modifier.name}.`, { modifier, rngState: (state.rngState * 1664525 + 1013904223) >>> 0 });
+      }
+      if (consumable.id === 'UANG_PELICIN') {
+        return consume({ ...state.player, handsLeft: state.player.handsLeft + 1 }, 'Uang Pelicin buys one extra hand for this market.');
+      }
+      if (selected.length !== 3) return state;
+      const selectedIds = new Set(selected.map((card) => card.instanceId));
+      const player = { ...state.player, hand: state.player.hand.filter((card) => !selectedIds.has(card.instanceId)) };
+      return consume(player, 'Sita destroyed three deeds. The deck is leaner now.', { selectedIds: [] });
     }
     case 'BUY_ACQUISITION': {
       if (state.phase !== 'shop' || !state.shop) return state;

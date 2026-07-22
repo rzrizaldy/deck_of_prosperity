@@ -1,4 +1,4 @@
-import { CARD_TEMPLATES, GROUPS, HANDS, MARKET_MODIFIERS, STARTING_DUPLICATES, TYCOONS } from './data';
+import { CARD_TEMPLATES, CONSUMABLES, GROUPS, HANDS, MARKET_MODIFIERS, STARTING_DUPLICATES, TYCOONS } from './data';
 import { pick, shuffle } from './rng';
 import type {
   Card, CardTemplate, PlayerState, Difficulty, GameState, GroupKey, HandKey,
@@ -104,6 +104,7 @@ export function createPlayer(owner: string, rngState: number): DrawResult {
     score: 0,
     cash: 4,
     tycoons: [],
+    consumables: [],
     handsLeft: MAX_HANDS,
     discardsLeft: MAX_DISCARDS,
   };
@@ -244,10 +245,13 @@ export function generateShop(owned: Tycoon[], rngState: number): { shop: ShopSta
   const pool = TYCOONS.filter((tycoon) => !owned.some((item) => item.id === tycoon.id));
   const mixed = shuffle(pool.length >= 3 ? pool : TYCOONS, rngState);
   const acquired = pick(CARD_TEMPLATES, mixed.state);
+  // Shop supplies get their own deterministic stream: adding an offer must not
+  // silently change future public market events or invalidate seeded runs.
+  const supplies = shuffle(CONSUMABLES, acquired.state ^ 0x9e3779b9);
   return {
     shop: {
       tycoons: mixed.items.slice(0, 3), acquisition: acquired.item,
-      rerollCost: 2, renovations: 0, liquidated: false,
+      consumables: supplies.items.slice(0, 2), rerollCost: 2, renovations: 0, liquidated: false,
     },
     rngState: acquired.state,
   };
@@ -285,7 +289,7 @@ export function prepareMarket(side: PlayerState, rngState: number, modifier: Mar
 }
 
 export function emptyState(muted = false): GameState {
-  const empty: PlayerState = { drawPile: [], discardPile: [], hand: [], score: 0, cash: 4, tycoons: [], handsLeft: 4, discardsLeft: 3 };
+  const empty: PlayerState = { drawPile: [], discardPile: [], hand: [], score: 0, cash: 4, tycoons: [], consumables: [], handsLeft: 4, discardsLeft: 3 };
   return {
     version: 2, phase: 'menu', difficulty: 'trader', companion: 'gemoy', round: 1,
     modifier: MARKET_MODIFIERS[0], marketExile: [], seed: 1, rngState: 1,
