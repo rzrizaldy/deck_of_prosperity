@@ -1,7 +1,7 @@
 name: deck-of-capitalist
 region: nyc
 domains:
-  - domain: deck-of-capitalist.allrize.ai
+  - domain: deck-of-capitalist.allrize.tech
     type: PRIMARY
 static_sites:
   - name: game
