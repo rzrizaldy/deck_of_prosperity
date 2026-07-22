@@ -169,9 +169,11 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch }: {
     <main className="menu-screen">
       <div className="menu-shade" />
       <section className="menu-panel">
-        <img src="/assets/title.png" alt="Deck of Capitalist" className="title-art" />
+        <div className="title-lockup" aria-label="Monopoly Citizen Asset">
+          <span>Monopoly</span><strong>Citizen Asset</strong>
+        </div>
         <p className="eyebrow">A pixel-noir property roguelike</p>
-        <h1>Outplay the market.<br />Own the night.</h1>
+        <h1>Be a corrupt tycoon.</h1>
         <p className="menu-copy">Build ruthless portfolios, hire tycoons, and clear eight escalating Jakarta market targets.</p>
         {legacyCleared && <p className="notice">The incompatible prototype save was retired. Your legacy high score remains.</p>}
         <fieldset className="difficulty-picker">
@@ -419,7 +421,7 @@ export default function App() {
       {state.phase === 'playing' && <GameTable state={state} dispatch={dispatch} />}
       {state.phase === 'shop' && <Shop state={state} dispatch={dispatch} />}
       {(state.phase === 'victory' || state.phase === 'gameover') && <Ending state={state} dispatch={dispatch} />}
-      <div className="portrait-gate" role="status"><RotateCcw /><h2>Rotate to trade</h2><p>Deck of Capitalist is built for landscape play. Your run is saved.</p></div>
+      <div className="portrait-gate" role="status"><RotateCcw /><h2>Rotate to trade</h2><p>Monopoly Citizen Asset is built for landscape play. Your run is saved.</p></div>
     </>
   );
 }
