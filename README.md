@@ -12,7 +12,7 @@ Desktop and landscape mobile are supported. Portrait mobile displays a rotation 
 
 ## Rules
 
-Each market gives you an independently shuffled copy of the persistent deck, an eight-card hand, four scoring plays, and three discard actions. Select one to five cards. A published Market Target is the only win condition: clear it by the end of your fourth hand.
+Each market gives you an independently shuffled copy of the persistent deck, an eight-card hand, four scoring plays, and three discard actions. Select one to five cards. A published Market Target is the only win condition: clear it by the end of your fourth hand. Market difficulty changes only those targets: Street is 80%, Market is 100%, and High Stakes is 125%.
 
 | Portfolio | Requirement | Multiplier |
 | --- | --- | ---: |

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { TYCOONS } from '../src/game/data';
-import { createStartingDeck, drawToHand, identifyHand, scoreHand } from '../src/game/engine';
+import { createStartingDeck, drawToHand, identifyHand, marketTarget, scoreHand } from '../src/game/engine';
 import type { Card, CompetitorState, GroupKey } from '../src/game/types';
 
 let id = 0;
@@ -9,6 +9,14 @@ const card = (group: GroupKey, templateId = `${group.toLowerCase()}-${id}`): Car
 });
 
 describe('authoritative scoring engine', () => {
+  it('scales published market targets by difficulty only', () => {
+    expect(marketTarget(1, 'casual')).toBe(210);
+    expect(marketTarget(1, 'trader')).toBe(260);
+    expect(marketTarget(1, 'tycoon')).toBe(330);
+    expect(marketTarget(8, 'casual')).toBeLessThan(marketTarget(8, 'trader'));
+    expect(marketTarget(8, 'trader')).toBeLessThan(marketTarget(8, 'tycoon'));
+  });
+
   it('creates the specified 40-card starting deck', () => {
     const deck = createStartingDeck('test');
     expect(deck).toHaveLength(40);

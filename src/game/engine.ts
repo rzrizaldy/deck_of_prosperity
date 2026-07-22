@@ -1,7 +1,7 @@
 import { CARD_TEMPLATES, GROUPS, HANDS, STARTING_DUPLICATES, TYCOONS } from './data';
 import { pick, shuffle } from './rng';
 import type {
-  Card, CardTemplate, CompetitorState, GameState, GroupKey, HandKey,
+  Card, CardTemplate, CompetitorState, Difficulty, GameState, GroupKey, HandKey,
   ScoreBreakdown, ShopState, Tycoon,
 } from './types';
 
@@ -11,9 +11,15 @@ export const MAX_DISCARDS = 3;
 export const MAX_ROUNDS = 8;
 export const MIN_DECK_SIZE = 32;
 export const MARKET_TARGETS = [260, 420, 620, 880, 1180, 1540, 1980, 2520] as const;
+export const MARKET_DIFFICULTY: Record<Difficulty, { label: string; description: string; targetFactor: number }> = {
+  casual: { label: 'Street', description: '80% published targets', targetFactor: 0.8 },
+  trader: { label: 'Market', description: 'Published targets', targetFactor: 1 },
+  tycoon: { label: 'High Stakes', description: '125% published targets', targetFactor: 1.25 },
+};
 
-export function marketTarget(round: number): number {
-  return MARKET_TARGETS[Math.min(Math.max(round, 1), MAX_ROUNDS) - 1];
+export function marketTarget(round: number, difficulty: Difficulty = 'trader'): number {
+  const baseline = MARKET_TARGETS[Math.min(Math.max(round, 1), MAX_ROUNDS) - 1];
+  return Math.round((baseline * MARKET_DIFFICULTY[difficulty].targetFactor) / 10) * 10;
 }
 
 export function makeCard(template: CardTemplate, suffix: string): Card {
@@ -224,7 +230,7 @@ export function resetForRound(side: CompetitorState, rngState: number): { side: 
 export function emptyState(muted = false): GameState {
   const empty: CompetitorState = { drawPile: [], discardPile: [], hand: [], score: 0, cash: 4, tycoons: [], handsLeft: 4, discardsLeft: 3 };
   return {
-    version: 2, phase: 'menu', round: 1, seed: 1, rngState: 1,
+    version: 2, phase: 'menu', difficulty: 'trader', round: 1, seed: 1, rngState: 1,
     player: empty, selectedIds: [], shop: null, events: [],
     lastPlayerScore: null, lastPlayedCards: [], muted, runScore: 0,
   };

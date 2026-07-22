@@ -9,18 +9,19 @@ function event(state: GameState, actor: GameEvent['actor'], message: string): Ga
   return next.slice(-8);
 }
 
-export function createRun(seed = Date.now() >>> 0, muted = false): GameState {
+export function createRun(difficulty: GameState['difficulty'] = 'trader', seed = Date.now() >>> 0, muted = false): GameState {
   const player = createCompetitor('player', seed);
   return {
     version: 2,
     phase: 'playing',
+    difficulty,
     round: 1,
     seed,
     rngState: player.rngState,
     player: player.side,
     selectedIds: [],
     shop: null,
-    events: [{ id: 'opening', actor: 'system', message: `Market 1 opens. Reach ${marketTarget(1).toLocaleString()} in four hands.` }],
+    events: [{ id: 'opening', actor: 'system', message: `${difficulty === 'trader' ? 'Market' : difficulty === 'casual' ? 'Street' : 'High Stakes'} 1 opens. Reach ${marketTarget(1, difficulty).toLocaleString()} in four hands.` }],
     lastPlayerScore: null,
     lastPlayedCards: [],
     muted,
@@ -30,7 +31,7 @@ export function createRun(seed = Date.now() >>> 0, muted = false): GameState {
 
 function completeRound(state: GameState, playerScore: GameState['lastPlayerScore']): GameState {
   const runScore = state.runScore + state.player.score;
-  const target = marketTarget(state.round);
+  const target = marketTarget(state.round, state.difficulty);
   if (state.player.score < target) {
     return {
       ...state, phase: 'gameover', runScore, lastPlayerScore: playerScore,
@@ -57,11 +58,11 @@ function completeRound(state: GameState, playerScore: GameState['lastPlayerScore
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'NEW_RUN':
-      return { ...createRun(action.seed, state.muted), phase: 'intro' };
+      return { ...createRun(action.difficulty, action.seed, state.muted), phase: 'intro' };
     case 'BEGIN_RUN':
       return state.phase === 'intro' ? { ...state, phase: 'playing' } : state;
     case 'LOAD':
-      return { ...action.state, selectedIds: [], lastPlayedCards: action.state.lastPlayedCards ?? [] };
+      return { ...action.state, difficulty: action.state.difficulty ?? 'trader', selectedIds: [], lastPlayedCards: action.state.lastPlayedCards ?? [] };
     case 'GO_MENU':
       return { ...state, phase: 'menu', selectedIds: [] };
     case 'SET_MUTED':
@@ -160,7 +161,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state, phase: 'playing', round: state.round + 1, player: playerReset.side,
         rngState: playerReset.rngState, shop: null, selectedIds: [], lastPlayerScore: null, lastPlayedCards: [],
-        events: [{ id: `round-${state.round + 1}`, actor: 'system', message: `Market ${state.round + 1}: reach ${marketTarget(state.round + 1).toLocaleString()}.` }],
+        events: [{ id: `round-${state.round + 1}`, actor: 'system', message: `Market ${state.round + 1}: reach ${marketTarget(state.round + 1, state.difficulty).toLocaleString()}.` }],
       };
     }
     default:

@@ -1,3 +1,4 @@
+export type Difficulty = 'casual' | 'trader' | 'tycoon';
 export type Phase = 'menu' | 'intro' | 'playing' | 'shop' | 'victory' | 'gameover';
 export type GroupKey =
   | 'BROWN' | 'SKY' | 'PINK' | 'ORANGE' | 'RED'
@@ -76,6 +77,7 @@ export interface GameEvent {
 export interface GameState {
   version: 2;
   phase: Phase;
+  difficulty: Difficulty;
   round: number;
   seed: number;
   rngState: number;
@@ -90,7 +92,7 @@ export interface GameState {
 }
 
 export type GameAction =
-  | { type: 'NEW_RUN'; seed?: number }
+  | { type: 'NEW_RUN'; difficulty: Difficulty; seed?: number }
   | { type: 'BEGIN_RUN' }
   | { type: 'LOAD'; state: GameState }
   | { type: 'GO_MENU' }
