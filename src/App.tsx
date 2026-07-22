@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
   BookOpen, Building2, Coins, Crown, Music, RotateCcw,
-  Eye, Sparkles, Target, Train, Trash2, Trophy, Volume2, VolumeX, Wrench, X, Zap,
+  Eye, Sparkles, Target, Trash2, Trophy, Volume2, VolumeX, Wrench, X,
 } from 'lucide-react';
 import {
   getVolume, isBgmEnabled, playSound, pulseHaptic, setBgmEnabled, setVolume,
@@ -18,6 +18,21 @@ type Dispatch = React.Dispatch<Parameters<typeof gameReducer>[1]>;
 const money = (value: number) => value.toLocaleString('en-US');
 const clearedPercent = (score: number, target: number) =>
   Math.max(0, Math.min(100, Math.round((score / Math.max(1, target)) * 100)));
+
+const COMPANIONS = {
+  gemoy: {
+    name: 'Gemoy',
+    title: 'The Big-Hearted Fixer',
+    asset: '/assets/companions/gemoy.png',
+    intro: 'Big moves, bigger grin. Show the market who owns the table.',
+  },
+  soloman: {
+    name: 'Soloman',
+    title: 'The Royal Counselor',
+    asset: '/assets/companions/soloman.png',
+    intro: 'A calm hand wins loud markets. Build the multiplier before the spectacle.',
+  },
+} as const;
 
 function AnimatedNumber({ value, active = false, duration = 460 }: { value: number; active?: boolean; duration?: number }) {
   const [shown, setShown] = useState(value);
@@ -127,15 +142,34 @@ function AssetCard({ card, selected = false, compact = false, departing = false,
   card: Card; selected?: boolean; compact?: boolean; departing?: boolean; onClick?: () => void; onInspect?: () => void; index?: number;
 }) {
   const group = GROUPS[card.group];
-  const Icon = card.group === 'RAILROAD' ? Train : card.group === 'UTILITY' ? Zap : Building2;
+  const holdTimer = useRef<number>();
+  const held = useRef(false);
+  const stopHolding = () => {
+    if (holdTimer.current !== undefined) window.clearTimeout(holdTimer.current);
+    holdTimer.current = undefined;
+  };
+  const beginHolding = () => {
+    if (!onInspect || !onClick) return;
+    held.current = false;
+    stopHolding();
+    holdTimer.current = window.setTimeout(() => {
+      held.current = true;
+      onInspect();
+    }, 420);
+  };
   return (
     <button
       className={`asset-card ${selected ? 'selected' : ''} ${compact ? 'compact' : ''} ${departing ? 'departing' : ''} ${onInspect ? 'inspectable' : ''}`}
       style={{ '--group': group.color, '--group-ink': group.ink, '--card-index': index ?? 0 } as React.CSSProperties}
       onClick={(event) => {
+        if (held.current) { held.current = false; return; }
         if (onInspect && (!onClick || (event.target as HTMLElement).closest('.card-art'))) { onInspect(); return; }
         onClick?.();
       }}
+      onPointerDown={beginHolding}
+      onPointerUp={stopHolding}
+      onPointerCancel={stopHolding}
+      onPointerLeave={stopHolding}
       aria-pressed={selected}
       /* The ordinal is the 1-8 keyboard shortcut, so only selectable hand cards get one. */
       aria-label={`${onClick && index !== undefined ? `${index + 1}. ` : ''}${card.name}, ${card.chips + card.bonus} chips`}
@@ -144,7 +178,6 @@ function AssetCard({ card, selected = false, compact = false, departing = false,
       <img className="card-art" src={`/assets/cards/${card.id}.webp`} alt={onInspect ? `Inspect ${card.name} artwork` : ''} loading="lazy" />
       {onInspect && <span className="inspect-hint" aria-hidden="true"><Eye /></span>}
       <span className="card-stripe">{group.label}</span>
-      <Icon aria-hidden="true" />
       <strong>{card.name}</strong>
       <span className="card-value"><Coins aria-hidden="true" /> {card.chips + card.bonus}</span>
       {card.bonus > 0 && <span className="upgrade">+{card.bonus}</span>}
@@ -317,6 +350,7 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch }: {
   state: GameState; saved: GameState | null; highScore: number; legacyCleared: boolean; dispatch: Dispatch;
 }) {
   const [difficulty, setDifficulty] = useState<Difficulty>('trader');
+  const [companion, setCompanion] = useState<GameState['companion']>('gemoy');
   const [guide, setGuide] = useState(false);
   const [compendium, setCompendium] = useState(false);
   return (
@@ -341,8 +375,17 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch }: {
             </button>
           ))}
         </fieldset>
+        <fieldset className="companion-picker">
+          <legend>Choose your Konco</legend>
+          {(Object.entries(COMPANIONS) as [GameState['companion'], typeof COMPANIONS[keyof typeof COMPANIONS]][]).map(([id, buddy]) => (
+            <button key={id} className={companion === id ? 'active' : ''} onClick={() => setCompanion(id)} type="button" aria-pressed={companion === id}>
+              <img src={buddy.asset} alt="" />
+              <span><strong>{buddy.name}</strong><small>{buddy.title}</small></span>
+            </button>
+          ))}
+        </fieldset>
         <div className="menu-actions">
-          <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty })}><Sparkles /> Start market run</button>
+          <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty, companion })}><Sparkles /> Start market run</button>
           {saved && <button className="secondary large" onClick={() => dispatch({ type: 'LOAD', state: saved })}>Continue round {saved.round}</button>}
         </div>
         <div className="menu-subactions">
@@ -387,6 +430,7 @@ function Hud({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
 
 function Intro({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
   const target = money(marketTarget(1, state.difficulty));
+  const buddy = COMPANIONS[state.companion];
   return <main className="intro-screen game-frame">
     <div className="intro-panel">
       <span className="eyebrow">Market briefing · {MARKET_DIFFICULTY[state.difficulty].label}</span>
@@ -396,11 +440,28 @@ function Intro({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
         <li><RotateCcw aria-hidden="true" /><span><b>Three discards</b> per market redraw the cards you do not want.</span></li>
         <li><Crown aria-hidden="true" /><span>Clearing a market pays cash and opens the <b>Night Market</b> for Tycoons.</span></li>
       </ul>
+      <div className="intro-companion"><img src={buddy.asset} alt="" /><p><b>{buddy.name}</b><span>“{buddy.intro}”</span></p></div>
       <div className="intro-actions">
         <button className="primary large" onClick={() => dispatch({ type: 'BEGIN_RUN' })}><Sparkles /> Deal market one</button>
       </div>
     </div>
   </main>;
+}
+
+function CompanionRail({ state }: { state: GameState }) {
+  const buddy = COMPANIONS[state.companion];
+  const selected = state.selectedIds.length;
+  const message = state.lastPlayerScore
+    ? `${state.lastPlayerScore.handName}: ${money(state.lastPlayerScore.total)}. ${state.companion === 'gemoy' ? 'That is a proper flex.' : 'The numbers agree.'}`
+    : selected >= 2
+      ? `${selected} deeds on the table. ${state.companion === 'gemoy' ? 'Make it loud.' : 'Check the multiplier.'}`
+      : state.player.discardsLeft === 0
+        ? 'No more redraws. Make this hand count.'
+        : `${money(marketTarget(state.round, state.difficulty) - state.player.score)} left. Pick your angle.`;
+  return <section className="companion-rail" aria-label={`${buddy.name}, your Konco`}>
+    <div className="companion-bubble"><b>{buddy.name}</b><span>{message}</span></div>
+    <img src={buddy.asset} alt={`${buddy.name}, ${buddy.title}`} />
+  </section>;
 }
 
 function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
@@ -511,6 +572,7 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
         </section>
 
         <aside className="player-panel">
+          <CompanionRail state={state} />
           <div className="player-resource"><span>Hands</span><strong>{state.player.handsLeft}</strong></div>
           <div className="player-resource"><span>Discards</span><strong>{state.player.discardsLeft}</strong></div>
           <div className="player-resource gold"><span>Capital</span><strong>${state.player.cash}</strong></div>
@@ -665,7 +727,7 @@ function Ending({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
         <p>{won ? 'The final market has cleared.' : `You needed ${money(marketTarget(state.round, state.difficulty))} and closed at ${money(state.player.score)}.`}</p>
         <div className="ending-score"><span>Run score</span><strong>{money(state.runScore)}</strong></div>
         <div className="ending-actions">
-          <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty: state.difficulty })}><Sparkles /> Run it back</button>
+          <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty: state.difficulty, companion: state.companion })}><Sparkles /> Run it back</button>
           <button className="ghost" onClick={() => dispatch({ type: 'GO_MENU' })}>Return to title</button>
         </div>
       </section>

@@ -209,6 +209,14 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 .difficulty-picker button:hover:not(.active) { transform: translateY(-2px); border-color: #4a5866; }
 .difficulty-picker button.active { border-color: var(--gold); background: rgba(132, 87, 23, .24); box-shadow: inset 0 0 0 1px rgba(241, 197, 99, .18); }
 .difficulty-picker button.active small { color: #d8c59b; }
+.companion-picker { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: calc(7 * var(--u)); }
+.companion-picker legend { color: #7f8a91; font: var(--t-xs) 'DM Mono', monospace; text-transform: uppercase; margin-bottom: calc(6 * var(--u)); padding: 0; }
+.companion-picker button { min-height: calc(64 * var(--u)); display: flex; align-items: center; gap: calc(7 * var(--u)); padding: calc(5 * var(--u)) calc(8 * var(--u)); border: 1px solid #28323d; border-radius: calc(9 * var(--u)); background: rgba(14, 21, 30, .88); cursor: pointer; text-align: left; }
+.companion-picker button img { width: calc(57 * var(--u)); height: calc(60 * var(--u)); object-fit: contain; object-position: bottom; align-self: end; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .64)); }
+.companion-picker button span { display: grid; gap: calc(2 * var(--u)); min-width: 0; }
+.companion-picker button strong { color: #f3dfaa; font-size: var(--t-md); }
+.companion-picker button small { color: #839098; font-size: var(--t-xs); line-height: 1.16; }
+.companion-picker button.active { border-color: var(--teal); background: linear-gradient(135deg, rgba(42, 108, 96, .52), rgba(17, 28, 36, .9)); box-shadow: inset 0 0 0 1px rgba(78, 225, 210, .14); }
 .menu-actions { display: flex; gap: calc(8 * var(--u)); flex-wrap: wrap; }
 .menu-actions .large { flex: 1 1 auto; }
 .menu-subactions { display: flex; flex-wrap: wrap; align-items: center; gap: calc(4 * var(--u)); }
@@ -247,6 +255,11 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 }
 .intro-points svg { width: calc(16 * var(--u)); height: calc(16 * var(--u)); color: var(--gold); }
 .intro-points b { color: #fff0bd; font-weight: 700; }
+.intro-companion { display: flex; align-items: end; justify-content: center; gap: calc(8 * var(--u)); margin: calc(2 * var(--u)) auto 0; max-width: calc(410 * var(--u)); }
+.intro-companion img { width: calc(68 * var(--u)); height: calc(70 * var(--u)); object-fit: contain; object-position: bottom; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .6)); }
+.intro-companion p { margin: 0 0 calc(6 * var(--u)); display: grid; gap: calc(2 * var(--u)); text-align: left; }
+.intro-companion b { color: var(--teal); font: 700 var(--t-sm) 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; }
+.intro-companion span { color: #c5d0d0; font-size: var(--t-sm); line-height: 1.35; }
 
 /* ========================================================== game table
 
@@ -414,6 +427,12 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
   gap: calc(4.5 * var(--u)); padding: calc(6.7 * var(--u)) calc(6.7 * var(--u)) 0;
 }
 .player-panel::before { content: 'YOUR BANK'; color: rgba(238, 222, 172, .88); text-align: center; font: calc(11.6 * var(--u)) 'DM Mono', monospace; letter-spacing: .1em; }
+.companion-rail { position: relative; flex: 0 0 calc(96 * var(--u)); width: calc(156 * var(--u)); margin-left: calc(-40 * var(--u)); margin-bottom: calc(-4 * var(--u)); }
+.companion-rail > img { position: absolute; z-index: 1; right: calc(-5 * var(--u)); bottom: calc(-8 * var(--u)); width: calc(112 * var(--u)); height: calc(118 * var(--u)); object-fit: contain; object-position: bottom right; filter: drop-shadow(0 calc(4 * var(--u)) calc(5 * var(--u)) rgba(0, 0, 0, .7)); animation: companion-arrive .38s cubic-bezier(.2, .8, .2, 1) both; }
+.companion-bubble { position: absolute; z-index: 2; top: 0; left: 0; width: calc(104 * var(--u)); min-height: calc(43 * var(--u)); display: grid; align-content: center; gap: calc(2 * var(--u)); padding: calc(5 * var(--u)) calc(7 * var(--u)); border: 1px solid rgba(78, 225, 210, .42); border-radius: calc(8 * var(--u)); background: rgba(5, 20, 22, .92); box-shadow: 0 calc(4 * var(--u)) calc(10 * var(--u)) rgba(0, 0, 0, .3); }
+.companion-bubble::after { content: ''; position: absolute; right: calc(12 * var(--u)); bottom: calc(-5 * var(--u)); border: calc(5 * var(--u)) solid transparent; border-top-color: rgba(78, 225, 210, .42); border-bottom: 0; }
+.companion-bubble b { color: var(--gold); font: 700 calc(9.2 * var(--u)) 'DM Mono', monospace; letter-spacing: .08em; text-transform: uppercase; }
+.companion-bubble span { color: #e6eee8; font-size: calc(9.4 * var(--u)); line-height: 1.18; }
 .player-resource, .deck-count {
   position: relative; min-height: 0; padding: calc(4 * var(--u)) calc(5.6 * var(--u));
   display: flex; flex-direction: column; justify-content: center; text-align: center;
@@ -526,7 +545,6 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
   background: var(--group); color: var(--group-ink); text-transform: uppercase;
   font: 700 calc(9.8 * var(--u)) 'DM Mono', monospace; letter-spacing: .05em;
 }
-.asset-card > svg { width: calc(25 * var(--u)); height: calc(25 * var(--u)); color: var(--group); filter: brightness(1.25); }
 /* The name sits over artwork, so it needs its own shadow to stay readable. */
 .asset-card strong {
   width: 100%; color: #fbfdfd; text-align: center; font-size: calc(12 * var(--u)); font-weight: 700;
@@ -841,6 +859,7 @@ kbd { border: 1px solid #3b4852; background: #121b23; border-radius: 4px; paddin
 @keyframes purchase-pop { 0% { transform: scale(1); } 35% { transform: scale(1.045); filter: brightness(1.35); } 100% { transform: scale(1); filter: brightness(1); } }
 @keyframes deck-reshuffle { 0% { transform: rotate(0) scale(1); } 30% { transform: rotate(-5deg) scale(1.09); } 65% { transform: rotate(4deg) scale(1.05); } 100% { transform: rotate(0) scale(1); } }
 @keyframes fade-rise { 0% { opacity: 0; transform: translateY(6px); } 25% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-6px); } }
+@keyframes companion-arrive { from { opacity: 0; transform: translateX(calc(12 * var(--u))) scale(.94); } to { opacity: 1; transform: translateX(0) scale(1); } }
 
 /* ------------------------------------------------------- reduced motion */
 

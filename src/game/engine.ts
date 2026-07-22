@@ -224,7 +224,7 @@ export function resetForRound(side: PlayerState, rngState: number): DrawResult {
 export function emptyState(muted = false): GameState {
   const empty: PlayerState = { drawPile: [], discardPile: [], hand: [], score: 0, cash: 4, tycoons: [], handsLeft: 4, discardsLeft: 3 };
   return {
-    version: 2, phase: 'menu', difficulty: 'trader', round: 1, seed: 1, rngState: 1,
+    version: 2, phase: 'menu', difficulty: 'trader', companion: 'gemoy', round: 1, seed: 1, rngState: 1,
     player: empty, selectedIds: [], shop: null, events: [],
     lastPlayerScore: null, lastPlayedCards: [], muted, runScore: 0, reshuffles: 0,
   };

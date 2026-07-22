@@ -9,12 +9,18 @@ function event(state: GameState, actor: GameEvent['actor'], message: string): Ga
   return next.slice(-8);
 }
 
-export function createRun(difficulty: GameState['difficulty'] = 'trader', seed = Date.now() >>> 0, muted = false): GameState {
+export function createRun(
+  difficulty: GameState['difficulty'] = 'trader',
+  seed = Date.now() >>> 0,
+  muted = false,
+  companion: GameState['companion'] = 'gemoy',
+): GameState {
   const player = createPlayer('player', seed);
   return {
     version: 2,
     phase: 'playing',
     difficulty,
+    companion,
     round: 1,
     seed,
     rngState: player.rngState,
@@ -61,13 +67,14 @@ function completeRound(state: GameState, playerScore: GameState['lastPlayerScore
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'NEW_RUN':
-      return { ...createRun(action.difficulty, action.seed, state.muted), phase: 'intro' };
+      return { ...createRun(action.difficulty, action.seed, state.muted, action.companion), phase: 'intro' };
     case 'BEGIN_RUN':
       return state.phase === 'intro' ? { ...state, phase: 'playing' } : state;
     case 'LOAD':
       return {
         ...action.state,
         difficulty: action.state.difficulty ?? 'trader',
+        companion: action.state.companion ?? 'gemoy',
         selectedIds: [],
         lastPlayedCards: action.state.lastPlayedCards ?? [],
         reshuffles: action.state.reshuffles ?? 0,

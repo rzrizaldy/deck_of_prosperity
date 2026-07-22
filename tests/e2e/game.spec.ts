@@ -274,6 +274,28 @@ test('the in-game HUD exposes mute and volume', async ({ page }) => {
   await expect(hud.getByRole('button', { name: /background music/i })).toBeVisible();
 });
 
+test('a chosen Konco follows the run from briefing to table', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Soloman.*Royal Counselor/i }).click();
+  await page.getByRole('button', { name: /Start market run/i }).click();
+  await expect(page.getByText('Soloman', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /Deal market one/i }).click();
+  await expect(page.getByRole('region', { name: /Soloman, your Konco/i })).toBeVisible();
+});
+
+test('holding a gameplay card opens its large artwork preview', async ({ page }) => {
+  await page.goto('/');
+  await startRun(page);
+  const card = page.locator('.hand-cards .asset-card').first();
+  const name = (await card.locator('strong').textContent())!.trim();
+  const box = (await card.boundingBox())!;
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(470);
+  await page.mouse.up();
+  await expect(page.getByRole('dialog', { name: new RegExp(`${name} card preview`, 'i') })).toBeVisible();
+});
+
 test('compendium cards open a full-size artwork preview', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /^Cards$/i }).click();

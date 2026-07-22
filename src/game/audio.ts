@@ -31,10 +31,15 @@ const VOICES: Record<SoundName, Voice> = {
   defeat: { notes: [330, 277, 220], wave: 'sawtooth', step: 0.13, hold: 0.28, gain: 0.055 },
 };
 
-/** A slow minor vamp played as a soft pad, one chord per bar. */
-const BGM_BASS = [110, 110, 146.83, 130.81];
-const BGM_PAD = [329.63, 329.63, 392, 349.23];
-const BGM_BEAT = 1.9;
+/**
+ * A light gamelan/disco-pop loop: metallic pelog-like tones over a syncopated
+ * bass and hand-drum pulse. It is deliberately sparse so score sounds keep
+ * their Balatro-style punch.
+ */
+const BGM_METAL = [293.66, 329.63, 369.99, 440, 493.88, 554.37];
+const BGM_MELODY = [0, 2, 4, 2, 1, 3, 5, 3, 0, 2, 4, 5, 3, 1, 2, 4];
+const BGM_BASS = [73.42, 73.42, 82.41, 98];
+const BGM_BEAT = 0.34;
 
 function readNumber(key: string, fallback: number): number {
   if (typeof localStorage === 'undefined') return fallback;
@@ -141,29 +146,39 @@ let bgmGain: GainNode | null = null;
 let bgmTimer: number | null = null;
 let bgmStep = 0;
 
-function scheduleBgmBar(): void {
+function scheduleTone(ctx: AudioContext, bus: GainNode, frequency: number, at: number, duration: number, wave: OscillatorType, level: number): void {
+  const oscillator = ctx.createOscillator();
+  const gain = ctx.createGain();
+  oscillator.type = wave;
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(0.0001, at);
+  gain.gain.exponentialRampToValueAtTime(level, at + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+  oscillator.connect(gain).connect(bus);
+  oscillator.start(at);
+  oscillator.stop(at + duration + 0.03);
+  oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+}
+
+function scheduleBgmStep(): void {
   const ctx = context;
   const bus = bgmGain;
   if (!ctx || !bus) return;
   const now = ctx.currentTime;
-  const parts = [
-    { frequency: BGM_BASS[bgmStep % BGM_BASS.length], wave: 'sine' as OscillatorType, level: 0.5 },
-    { frequency: BGM_PAD[bgmStep % BGM_PAD.length], wave: 'triangle' as OscillatorType, level: 0.2 },
-  ];
+  const step = bgmStep % 16;
+  const metal = BGM_METAL[BGM_MELODY[step]];
+  // Metallophone: doubled triangle/sine partials give the bright, struck tone.
+  scheduleTone(ctx, bus, metal, now, BGM_BEAT * 1.55, 'triangle', step % 4 === 0 ? 0.2 : 0.14);
+  scheduleTone(ctx, bus, metal * 2.01, now + 0.005, BGM_BEAT * 0.9, 'sine', 0.045);
+  // Four-on-the-floor bass with an offbeat answer reads as disco, not ambience.
+  if (step % 4 === 0 || step === 6 || step === 14) {
+    scheduleTone(ctx, bus, BGM_BASS[Math.floor(step / 4) % BGM_BASS.length], now, BGM_BEAT * 1.65, 'sine', 0.21);
+  }
+  // A very short high pulse is the browser-friendly kendang accent.
+  if (step % 4 === 2 || step === 7 || step === 15) {
+    scheduleTone(ctx, bus, step % 4 === 2 ? 180 : 235, now, 0.06, 'square', 0.018);
+  }
   bgmStep += 1;
-  parts.forEach((part) => {
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
-    oscillator.type = part.wave;
-    oscillator.frequency.value = part.frequency;
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(part.level, now + 0.6);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + BGM_BEAT);
-    oscillator.connect(gain).connect(bus);
-    oscillator.start(now);
-    oscillator.stop(now + BGM_BEAT + 0.05);
-    oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
-  });
 }
 
 /** Starts the ambient loop. No-op until audio has been unlocked by a gesture. */
@@ -172,11 +187,11 @@ export function startBgm(muted: boolean): void {
   const ctx = ensureContext();
   if (!ctx || ctx.state !== 'running' || !master) return;
   bgmGain = ctx.createGain();
-  bgmGain.gain.value = 0.055;
+  bgmGain.gain.value = 0.11;
   bgmGain.connect(master);
   bgmStep = 0;
-  scheduleBgmBar();
-  bgmTimer = window.setInterval(scheduleBgmBar, BGM_BEAT * 1000);
+  scheduleBgmStep();
+  bgmTimer = window.setInterval(scheduleBgmStep, BGM_BEAT * 1000);
 }
 
 export function stopBgm(): void {

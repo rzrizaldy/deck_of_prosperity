@@ -1,4 +1,5 @@
 export type Difficulty = 'casual' | 'trader' | 'tycoon';
+export type CompanionId = 'gemoy' | 'soloman';
 export type Phase = 'menu' | 'intro' | 'playing' | 'shop' | 'victory' | 'gameover';
 export type GroupKey =
   | 'BROWN' | 'SKY' | 'PINK' | 'ORANGE' | 'RED'
@@ -78,6 +79,7 @@ export interface GameState {
   version: 2;
   phase: Phase;
   difficulty: Difficulty;
+  companion: CompanionId;
   round: number;
   seed: number;
   rngState: number;
@@ -94,7 +96,7 @@ export interface GameState {
 }
 
 export type GameAction =
-  | { type: 'NEW_RUN'; difficulty: Difficulty; seed?: number }
+  | { type: 'NEW_RUN'; difficulty: Difficulty; companion?: CompanionId; seed?: number }
   | { type: 'BEGIN_RUN' }
   | { type: 'LOAD'; state: GameState }
   | { type: 'GO_MENU' }
