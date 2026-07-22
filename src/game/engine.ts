@@ -226,6 +226,6 @@ export function emptyState(muted = false): GameState {
   return {
     version: 2, phase: 'menu', difficulty: 'trader', round: 1, seed: 1, rngState: 1,
     player: empty, bot: { ...empty }, selectedIds: [], shop: null, events: [],
-    lastPlayerScore: null, lastBotScore: null, muted, runScore: 0,
+    lastPlayerScore: null, lastBotScore: null, lastPlayedCards: [], muted, runScore: 0,
   };
 }

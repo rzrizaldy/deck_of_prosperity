@@ -27,6 +27,7 @@ export function createRun(difficulty: GameState['difficulty'], seed = Date.now()
     events: [{ id: 'opening', actor: 'system', message: `Market 1 opens. Reach ${marketTarget(1).toLocaleString()} in four hands.` }],
     lastPlayerScore: null,
     lastBotScore: null,
+    lastPlayedCards: [],
     muted,
     runScore: 0,
   };
@@ -66,7 +67,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'BEGIN_RUN':
       return state.phase === 'intro' ? { ...state, phase: 'playing' } : state;
     case 'LOAD':
-      return { ...action.state, selectedIds: [] };
+      return { ...action.state, selectedIds: [], lastPlayedCards: action.state.lastPlayedCards ?? [] };
     case 'GO_MENU':
       return { ...state, phase: 'menu', selectedIds: [] };
     case 'SET_MUTED':
@@ -100,6 +101,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           selectedIds: [],
           lastPlayerScore: playerResult.score,
           lastBotScore: botResult.score,
+          lastPlayedCards: state.player.hand.filter((card) => state.selectedIds.includes(card.instanceId)),
           events: event(state, 'bot', `${state.round === MAX_ROUNDS ? 'The Chairman' : 'The Broker'}${botResult.discarded ? ` recycled ${botResult.discarded}, then` : ''} scored ${botResult.score.total.toLocaleString()} with ${botResult.score.handName}.`),
         };
         interim.events = event(interim, 'player', `You scored ${playerResult.score.total.toLocaleString()} with ${playerResult.score.handName}.`);
@@ -170,7 +172,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         phase: 'playing', round: state.round + 1, player: playerReset.side, bot: botReset.side,
-        rngState: botReset.rngState, shop: null, selectedIds: [], lastPlayerScore: null, lastBotScore: null,
+        rngState: botReset.rngState, shop: null, selectedIds: [], lastPlayerScore: null, lastBotScore: null, lastPlayedCards: [],
         events: [{ id: `round-${state.round + 1}`, actor: 'system', message: `${botPurchase.message} Market ${state.round + 1}: reach ${marketTarget(state.round + 1).toLocaleString()}.` }],
       };
     }

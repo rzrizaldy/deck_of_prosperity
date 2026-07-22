@@ -273,6 +273,12 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Disp
             {Array.from({ length: 4 }, (_, index) => <span key={index} className={index >= state.player.handsLeft ? 'done' : ''} />)}
           </div>
           <div className="market-target"><span>Market target</span><strong>{money(marketTarget(state.round))}</strong><small>{money(Math.max(0, marketTarget(state.round) - state.player.score))} remaining</small></div>
+          <div className={`played-tray ${state.lastPlayedCards.length ? 'has-cards' : ''}`} aria-live="polite">
+            <span className="played-label">{state.lastPlayedCards.length ? 'Last portfolio played' : 'Play your first portfolio'}</span>
+            <div className="played-cards">
+              {state.lastPlayedCards.map((card, index) => <AssetCard key={card.instanceId} card={card} compact index={index} />)}
+            </div>
+          </div>
           <div className="last-hands">
             <ScoreFormula score={state.lastPlayerScore} label="Your last hand" />
             <ScoreFormula score={state.lastBotScore} label="Rival response" />

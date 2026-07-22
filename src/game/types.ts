@@ -88,6 +88,7 @@ export interface GameState {
   events: GameEvent[];
   lastPlayerScore: ScoreBreakdown | null;
   lastBotScore: ScoreBreakdown | null;
+  lastPlayedCards: Card[];
   muted: boolean;
   runScore: number;
 }

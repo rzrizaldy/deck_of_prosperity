@@ -108,6 +108,18 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 .market-target { display: flex; align-items: baseline; justify-content: center; gap: .5rem; padding: .42rem .6rem; border: 1px solid rgba(241,197,99,.35); background: linear-gradient(90deg, rgba(241,197,99,.12), rgba(7,11,16,.74), rgba(241,197,99,.12)); border-radius: 8px; animation: target-arrive .34s cubic-bezier(.2,.8,.2,1) both; }
 .market-target span, .market-target small { color: #aab4b8; font: .58rem DM Mono, monospace; text-transform: uppercase; }
 .market-target strong { color: var(--gold); font: 700 1.05rem DM Mono, monospace; }
+.played-tray { min-height: 54px; display: grid; place-items: center; align-content: center; gap: .2rem; padding: .35rem .6rem; border: 1px dashed rgba(120,145,154,.28); border-radius: 9px; background: radial-gradient(ellipse at center, rgba(20,49,55,.3), rgba(4,9,14,.72)); }
+.played-tray.has-cards { border-style: solid; border-color: rgba(78,225,210,.35); box-shadow: inset 0 0 28px rgba(78,225,210,.06); }
+.played-label { color: #7f9198; font: .52rem DM Mono, monospace; letter-spacing: .1em; text-transform: uppercase; }
+.played-cards { min-height: 1px; display: flex; justify-content: center; align-items: flex-end; padding: .1rem .2rem; }
+.played-cards .asset-card { width: 47px; height: 69px; margin-left: -10px; border-radius: 5px; padding: 0 .16rem .2rem; pointer-events: none; animation: table-play .28s cubic-bezier(.2,.8,.2,1) calc(var(--card-index) * 55ms) both; }
+.played-cards .asset-card:first-child { margin-left: 0; }
+.played-cards .card-stripe { width: calc(100% + .32rem); min-height: 11px; font-size: .28rem; }
+.played-cards .asset-card > svg, .played-cards .asset-card strong { display: none; }
+.played-cards .card-art { inset: 11px 0 0; height: calc(100% - 11px); opacity: .88; }
+.played-cards .asset-card::after { inset: 11px 0 0; background: linear-gradient(180deg, transparent, rgba(3,7,11,.76)); }
+.played-cards .card-value { font-size: .35rem; padding: .12rem .16rem; }
+.played-cards .card-value svg { display: block; width: 7px; height: 7px; }
 
 .player-panel { padding: .7rem; display: grid; grid-template-columns: repeat(2, 1fr); align-content: center; gap: .5rem; }
 .player-resource, .deck-count { min-height: 66px; background: rgba(17,26,35,.82); border: 1px solid #27343e; border-radius: 9px; padding: .55rem; display: flex; flex-direction: column; justify-content: center; text-align: center; }
@@ -281,3 +293,4 @@ kbd { border: 1px solid #3b4852; background: #121b23; border-radius: 4px; paddin
 @keyframes briefing-in { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes target-arrive { from { opacity: 0; transform: translateY(-7px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes card-deal { from { opacity: 0; transform: translateY(20px) rotate(2deg) scale(.96); } to { opacity: 1; transform: translateY(0) rotate(0) scale(1); } }
+@keyframes table-play { from { opacity: 0; transform: translateY(18px) rotate(3deg) scale(.92); } to { opacity: 1; transform: translateY(0) rotate(0) scale(1); } }
