@@ -484,3 +484,46 @@ kbd { border: 1px solid #3b4852; background: #121b23; border-radius: 4px; paddin
   .score-formula strong { font-size: .52rem; }
   .player-panel { min-height: 0; }
 }
+
+/* Scoring is a physical table event: cards land, then chips, mult, and cash print. */
+.number-pop { display: inline-block; animation: number-pop .22s cubic-bezier(.2,.8,.2,1); }
+.score-sequence { position: absolute; z-index: 12; inset: 0; display: grid; place-items: center; pointer-events: none; overflow: hidden; }
+.flight-cards { position: absolute; inset: 0; }
+.flight-cards img { --flight-index: 0; position: absolute; left: calc(19% + var(--flight-index) * 11%); bottom: -28%; width: clamp(50px, 7vw, 82px); aspect-ratio: 4 / 5; object-fit: cover; border: 1px solid rgba(255,225,135,.88); border-radius: 7px; box-shadow: 0 11px 25px rgba(0,0,0,.7); animation: card-to-table .76s cubic-bezier(.18,.84,.24,1) calc(var(--flight-index) * 55ms) both; }
+.score-cascade { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: .38rem; min-width: min(500px, 90%); padding: .68rem .85rem .62rem; border: 1px solid rgba(243,204,101,.72); border-radius: 12px; background: linear-gradient(180deg, rgba(7,28,24,.96), rgba(2,12,10,.97)); box-shadow: 0 18px 52px rgba(0,0,0,.68), inset 0 1px rgba(255,240,177,.28); transform: translateY(14px) scale(.94); animation: score-machine-in .18s .22s cubic-bezier(.2,.8,.2,1) both; }
+.cascade-hand { position: absolute; top: -.65rem; left: 50%; padding: .13rem .55rem; border: 1px solid rgba(244,205,105,.5); border-radius: 999px; background: #10251f; color: #ffe9a4; font: 700 .56rem DM Mono, monospace; letter-spacing: .11em; text-transform: uppercase; transform: translateX(-50%); white-space: nowrap; }
+.cascade-part, .cascade-total { display: grid; justify-items: center; min-width: 92px; opacity: .18; transform: translateY(4px) scale(.9); transition: opacity .12s, transform .12s; }
+.cascade-part small, .cascade-total small { color: rgba(232,217,159,.67); font: .42rem DM Mono, monospace; letter-spacing: .11em; }
+.cascade-part strong { min-height: 1.28em; color: #9df5db; font: 800 clamp(1.15rem, 2.3vw, 1.7rem) DM Mono, monospace; }
+.cascade-part.multiplier strong { color: #f2a5ff; }
+.cascade-part.live, .cascade-total.live { opacity: 1; transform: translateY(0) scale(1); }
+.score-cascade > i { color: rgba(244,220,140,.3); font: 800 1.3rem DM Mono, monospace; font-style: normal; transition: color .12s, transform .12s; }
+.score-cascade > i.live { color: #ffe197; transform: scale(1.22); }
+.score-cascade > em { color: #e7a8ee; font: 700 .68rem DM Mono, monospace; font-style: normal; opacity: 0; transition: opacity .12s; }
+.score-cascade > em.live { opacity: 1; }
+.cascade-total { min-width: 132px; margin-left: .2rem; padding-left: .65rem; border-left: 1px solid rgba(243,204,101,.28); }
+.cascade-total strong { min-height: 1.28em; color: #fff0ac; font: 800 clamp(1.45rem, 3vw, 2.3rem) DM Mono, monospace; text-shadow: 0 2px 0 #734b0e, 0 0 19px rgba(244,198,75,.35); }
+.stage-total .cascade-total { animation: total-print .42s cubic-bezier(.2,.9,.25,1) both; }
+.hand-cards .asset-card.departing { pointer-events: none; animation: discard-to-deck .32s cubic-bezier(.55,.03,.85,.37) both; }
+
+@keyframes card-to-table { 0% { opacity: 0; transform: translate(0, 0) rotate(-10deg) scale(.8); } 58% { opacity: 1; transform: translate(120%, -105%) rotate(3deg) scale(1.05); } 100% { opacity: 0; transform: translate(128%, -112%) rotate(0) scale(.7); } }
+@keyframes score-machine-in { to { transform: translateY(0) scale(1); } }
+@keyframes total-print { 0% { filter: brightness(1); } 40% { filter: brightness(2.2); transform: scale(1.07); } 100% { filter: brightness(1); transform: scale(1); } }
+@keyframes number-pop { 0% { transform: scale(.7); opacity: .35; } 65% { transform: scale(1.16); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes discard-to-deck { to { opacity: 0; transform: translate(54vw, 46vh) rotate(20deg) scale(.28); filter: brightness(.35); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .number-pop, .flight-cards img, .score-cascade, .stage-total .cascade-total, .hand-cards .asset-card.departing { animation: none; }
+  .flight-cards { display: none; }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .score-cascade { min-width: min(350px, 84%); gap: .18rem; padding: .42rem .45rem; }
+  .cascade-part { min-width: 54px; }
+  .cascade-total { min-width: 85px; padding-left: .36rem; }
+  .cascade-part small, .cascade-total small { font-size: .32rem; }
+  .cascade-part strong { font-size: .86rem; }
+  .cascade-total strong { font-size: 1.12rem; }
+  .score-cascade > em { font-size: .48rem; }
+  .flight-cards img { width: 38px; }
+}

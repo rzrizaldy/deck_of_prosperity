@@ -3,7 +3,7 @@ import {
   BookOpen, Building2, Coins, Crown, RotateCcw,
   Eye, Sparkles, Train, Trash2, Trophy, Volume2, VolumeX, Wrench, X, Zap,
 } from 'lucide-react';
-import { playSound } from './game/audio';
+import { playSound, pulseHaptic } from './game/audio';
 import { CARD_TEMPLATES, GROUPS, HANDS } from './game/data';
 import { allCards, deckSize, marketTarget, priceFor, scoreHand } from './game/engine';
 import { clearSave, loadSave, migrateLegacySave, recordHighScore, saveGame } from './game/persistence';
@@ -12,14 +12,50 @@ import type { Card, GameState, ScoreBreakdown, Tycoon } from './game/types';
 
 const money = (value: number) => value.toLocaleString('en-US');
 
-function AssetCard({ card, selected = false, compact = false, onClick, onInspect, index }: {
-  card: Card; selected?: boolean; compact?: boolean; onClick?: () => void; onInspect?: () => void; index?: number;
+function AnimatedNumber({ value, active = false, duration = 460 }: { value: number; active?: boolean; duration?: number }) {
+  const [shown, setShown] = useState(value);
+  useEffect(() => {
+    const started = performance.now();
+    let frame = 0;
+    const tick = (now: number) => {
+      const progress = Math.min(1, (now - started) / duration);
+      setShown(Math.round(value * (1 - (1 - progress) ** 3)));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value, duration]);
+  return <span className={active ? 'number-pop' : ''}>{money(shown)}</span>;
+}
+
+type ScoreStage = 'cards' | 'chips' | 'multiplier' | 'total';
+interface ScoreSequence { cards: Card[]; score: ScoreBreakdown; stage: ScoreStage; id: number; }
+
+function ScoreCascade({ sequence }: { sequence: ScoreSequence }) {
+  const { score, stage } = sequence;
+  const chips = score.cardChips + score.bonusChips;
+  const multiplier = score.baseMultiplier + score.bonusMultiplier;
+  const showChips = stage !== 'cards';
+  const showMultiplier = stage === 'multiplier' || stage === 'total';
+  const showTotal = stage === 'total';
+  return <div className={`score-cascade stage-${stage}`} aria-live="assertive" aria-label={`Scoring ${score.handName}: ${money(score.total)}`}>
+    <span className="cascade-hand">{score.handName}</span>
+    <div className={showChips ? 'cascade-part live' : 'cascade-part'}><small>CHIPS</small><strong>{showChips && <AnimatedNumber value={chips} active />}</strong></div>
+    <i className={showMultiplier ? 'live' : ''}>×</i>
+    <div className={showMultiplier ? 'cascade-part live multiplier' : 'cascade-part multiplier'}><small>MULT</small><strong>{showMultiplier && <AnimatedNumber value={multiplier} active />}</strong></div>
+    {score.multiplicative !== 1 && <em className={showMultiplier ? 'live' : ''}>× {score.multiplicative.toFixed(2)}</em>}
+    <div className={showTotal ? 'cascade-total live' : 'cascade-total'}><small>PORTFOLIO VALUE</small><strong>{showTotal && <AnimatedNumber value={score.total} active duration={620} />}</strong></div>
+  </div>;
+}
+
+function AssetCard({ card, selected = false, compact = false, departing = false, onClick, onInspect, index }: {
+  card: Card; selected?: boolean; compact?: boolean; departing?: boolean; onClick?: () => void; onInspect?: () => void; index?: number;
 }) {
   const group = GROUPS[card.group];
   const Icon = card.group === 'RAILROAD' ? Train : card.group === 'UTILITY' ? Zap : Building2;
   return (
     <button
-      className={`asset-card ${selected ? 'selected' : ''} ${compact ? 'compact' : ''} ${onInspect ? 'inspectable' : ''}`}
+      className={`asset-card ${selected ? 'selected' : ''} ${compact ? 'compact' : ''} ${departing ? 'departing' : ''} ${onInspect ? 'inspectable' : ''}`}
       style={{ '--group': group.color, '--group-ink': group.ink, '--card-index': index ?? 0 } as React.CSSProperties}
       onClick={(event) => {
         if (onInspect && (event.target as HTMLElement).closest('.card-art')) { onInspect(); return; }
@@ -207,7 +243,7 @@ function Hud({ state, dispatch }: { state: GameState; dispatch: React.Dispatch<P
       <header className="game-hud">
         <div className="round-mark"><span>Market round</span><strong>{state.round}<small>/8</small></strong></div>
         <div className="duel-score" aria-label="Market score and target">
-          <div><span>You</span><strong>{money(state.player.score)}</strong></div>
+          <div><span>You</span><strong><AnimatedNumber value={state.player.score} active /></strong></div>
           <b>→</b>
           <div><span>Target</span><strong>{money(marketTarget(state.round))}</strong></div>
         </div>
@@ -245,22 +281,30 @@ function Intro({ dispatch }: { dispatch: React.Dispatch<Parameters<typeof gameRe
 function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Dispatch<Parameters<typeof gameReducer>[1]> }) {
   const [busy, setBusy] = useState(false);
   const [inspectedCard, setInspectedCard] = useState<Card | null>(null);
+  const [sequence, setSequence] = useState<ScoreSequence | null>(null);
+  const [discardingIds, setDiscardingIds] = useState<string[]>([]);
   const selected = state.player.hand.filter((card) => state.selectedIds.includes(card.instanceId));
   const prediction = useMemo(() => selected.length ? scoreHand(selected, state.player.tycoons) : null, [selected, state.player.tycoons]);
-  const toggle = (cardId: string) => { dispatch({ type: 'TOGGLE_CARD', cardId }); playSound('select', state.muted); };
+  const toggle = (cardId: string) => { dispatch({ type: 'TOGGLE_CARD', cardId }); playSound('select', state.muted); pulseHaptic(5); };
   const play = () => {
-    if (!selected.length || busy) return;
+    if (!selected.length || !prediction || busy) return;
     setBusy(true);
-    window.setTimeout(() => {
-      dispatch({ type: 'PLAYER_PLAY' });
-      playSound('score', state.muted);
-      setBusy(false);
-    }, 620);
+    const id = Date.now();
+    setSequence({ cards: selected, score: prediction, stage: 'cards', id });
+    playSound('play', state.muted); pulseHaptic(8);
+    window.setTimeout(() => { setSequence((current) => current?.id === id ? { ...current, stage: 'chips' } : current); playSound('chips', state.muted); pulseHaptic(5); }, 280);
+    window.setTimeout(() => { setSequence((current) => current?.id === id ? { ...current, stage: 'multiplier' } : current); playSound('multiplier', state.muted); pulseHaptic(6); }, 600);
+    window.setTimeout(() => { dispatch({ type: 'PLAYER_PLAY' }); setSequence((current) => current?.id === id ? { ...current, stage: 'total' } : current); playSound('score', state.muted); pulseHaptic([12, 22, 18]); }, 900);
+    window.setTimeout(() => { setSequence((current) => current?.id === id ? null : current); setBusy(false); }, 1680);
   };
   const discard = () => {
     if (!selected.length || busy) return;
-    dispatch({ type: 'PLAYER_DISCARD' });
+    setBusy(true);
+    setDiscardingIds(selected.map((card) => card.instanceId));
     playSound('discard', state.muted);
+    pulseHaptic(10);
+    window.setTimeout(() => dispatch({ type: 'PLAYER_DISCARD' }), 310);
+    window.setTimeout(() => { setDiscardingIds([]); setBusy(false); }, 520);
   };
 
   useEffect(() => {
@@ -300,6 +344,10 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Disp
               {state.lastPlayedCards.map((card, index) => <AssetCard key={card.instanceId} card={card} compact index={index} onInspect={() => setInspectedCard(card)} />)}
             </div>
           </div>
+          {sequence && <div className="score-sequence" aria-hidden="true">
+            <div className="flight-cards">{sequence.cards.map((card, index) => <img key={card.instanceId} src={`/assets/cards/${card.id}.webp`} style={{ '--flight-index': index } as React.CSSProperties} alt="" />)}</div>
+            <ScoreCascade sequence={sequence} />
+          </div>}
           <div className="last-hands">
             <ScoreFormula score={state.lastPlayerScore} label="Your last hand" />
           </div>
@@ -317,7 +365,7 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Disp
 
       <section className="hand-dock" aria-label="Your hand">
         <div className="hand-cards">
-          {state.player.hand.map((card, index) => <AssetCard key={card.instanceId} card={card} index={index} selected={state.selectedIds.includes(card.instanceId)} onClick={() => toggle(card.instanceId)} onInspect={() => setInspectedCard(card)} />)}
+          {state.player.hand.map((card, index) => <AssetCard key={card.instanceId} card={card} index={index} selected={state.selectedIds.includes(card.instanceId)} departing={discardingIds.includes(card.instanceId)} onClick={() => toggle(card.instanceId)} onInspect={() => setInspectedCard(card)} />)}
         </div>
         <div className="play-actions">
           <button className="secondary" disabled={!selected.length || state.player.discardsLeft < 1 || busy} onClick={discard}><RotateCcw /> Discard <small>{selected.length || ''}</small></button>
