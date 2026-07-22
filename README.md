@@ -1,4 +1,4 @@
-# Monopoly Citizen Asset
+# Deck of Capitalist
 
 A browser-based, pixel-noir property roguelike set above nighttime Jakarta. Build portfolios, hire Tycoons, tune a persistent 40-card deck, and clear eight escalating market targets.
 

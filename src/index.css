@@ -26,9 +26,8 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 .menu-screen { background: #070b11 url('/assets/generated/table-jakarta.webp') center/cover no-repeat; display: grid; place-items: center start; padding: 4vh 7vw; }
 .menu-shade, .ending-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(3,6,10,.98) 0%, rgba(3,6,10,.86) 42%, rgba(3,6,10,.18) 74%, rgba(3,6,10,.45) 100%); }
 .menu-panel { position: relative; width: min(610px, 92vw); z-index: 1; }
-.title-lockup { width: min(560px, 88vw); display: grid; gap: 0; padding: .35rem 0 .75rem; color: #f8e5a4; text-transform: uppercase; text-shadow: 0 3px 0 #5b3210, 0 8px 24px rgba(0,0,0,.8); }
-.title-lockup span { color: #e9b84d; font: 700 clamp(.95rem, 1.75vw, 1.4rem) DM Mono, monospace; letter-spacing: .3em; }
-.title-lockup strong { margin-top: -.12em; font-size: clamp(2.8rem, 7vw, 6.6rem); line-height: .77; letter-spacing: -.095em; font-weight: 800; }
+.title-lockup { width: min(560px, 88vw); padding: .35rem 0 .5rem; }
+.title-lockup img { display: block; width: 100%; height: auto; filter: drop-shadow(0 9px 22px rgba(0,0,0,.72)); }
 .eyebrow, .shop-heading span, .ending section > span { margin: .4rem 0; color: var(--gold); text-transform: uppercase; letter-spacing: .19em; font: 500 .73rem DM Mono, monospace; }
 .menu-panel h1 { margin: .25rem 0 .6rem; font-size: clamp(2.1rem, 4.6vw, 4.5rem); line-height: .96; letter-spacing: -.055em; }
 .menu-copy { max-width: 560px; color: #b7c1c8; line-height: 1.55; font-size: clamp(.86rem, 1.2vw, 1.03rem); }
