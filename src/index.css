@@ -391,11 +391,11 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 .played-cards .asset-card {
   width: calc(72 * var(--u)); height: calc(105 * var(--u)); margin-left: calc(-18 * var(--u));
   border-radius: calc(7 * var(--u)); padding: 0 calc(3.6 * var(--u)) calc(4.5 * var(--u));
-  pointer-events: none; border-color: rgba(245, 216, 139, .7); box-shadow: 0 5px 11px rgba(0, 0, 0, .56);
+  pointer-events: none; border-color: color-mix(in srgb, var(--group), white 35%); box-shadow: 0 5px 11px rgba(0, 0, 0, .56);
   animation: table-play .28s cubic-bezier(.2, .8, .2, 1) calc(var(--card-index) * 55ms) both;
 }
 .played-cards .asset-card:first-child { margin-left: 0; }
-.played-cards .card-stripe { top: calc(4 * var(--u)); left: calc(4 * var(--u)); min-height: calc(11 * var(--u)); padding: 0 calc(3 * var(--u)); font-size: calc(5.8 * var(--u)); }
+.played-cards .card-stripe { top: 0; left: 0; min-height: calc(11 * var(--u)); padding: 0 calc(3 * var(--u)); font-size: calc(5.8 * var(--u)); }
 .played-cards .asset-card > svg, .played-cards .asset-card strong { display: none; }
 .played-cards .card-art { inset: 0; height: 100%; opacity: .9; }
 .played-cards .asset-card::after { inset: 0; background: linear-gradient(180deg, transparent, rgba(3, 7, 11, .76)); }
@@ -511,7 +511,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 .asset-card {
   --group: #777;
   position: relative; flex: 0 0 auto; overflow: hidden;
-  border: 1px solid #4a535a; border-radius: calc(9 * var(--u)); padding: 0 calc(5 * var(--u)) calc(5 * var(--u));
+  border: 1px solid color-mix(in srgb, var(--group), white 28%); border-radius: calc(9 * var(--u)); padding: 0 calc(5 * var(--u)) calc(5 * var(--u));
   background: linear-gradient(145deg, #171d23, #090d12);
   box-shadow: 0 8px 18px rgba(0, 0, 0, .48);
   display: flex; flex-direction: column; align-items: center; justify-content: space-between;
@@ -521,7 +521,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 }
 .card-art {
   position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%;
-  object-fit: cover; opacity: .84; mix-blend-mode: screen;
+  object-fit: cover; object-position: center; opacity: .84; mix-blend-mode: screen;
   transition: transform .24s cubic-bezier(.2, .8, .2, 1), opacity .18s ease;
 }
 .asset-card::after {
@@ -544,8 +544,8 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
   .hand-cards .asset-card.selected:hover { transform: translateY(calc(var(--lift) * -1 - 8 * var(--u))) rotate(var(--rot)) scale(1.06); }
 }
 .card-stripe {
-  position: absolute; top: calc(5 * var(--u)); left: calc(5 * var(--u)); width: auto; min-height: calc(17 * var(--u)); display: grid; place-items: center;
-  padding: 0 calc(5 * var(--u)); border: 1px solid color-mix(in srgb, var(--group), white 40%); border-radius: calc(4 * var(--u)); background: color-mix(in srgb, var(--group), #020507 18%); color: var(--group-ink); text-transform: uppercase;
+  position: absolute; top: 0; left: 0; width: auto; min-height: calc(17 * var(--u)); display: grid; place-items: center;
+  padding: 0 calc(5 * var(--u)); border: 0; border-right: 1px solid color-mix(in srgb, var(--group), white 45%); border-bottom: 1px solid color-mix(in srgb, var(--group), white 45%); border-radius: 0 0 calc(6 * var(--u)) 0; background: color-mix(in srgb, var(--group), #020507 12%); color: var(--group-ink); text-transform: uppercase;
   font: 700 calc(9.8 * var(--u)) 'DM Mono', monospace; letter-spacing: .05em;
 }
 /* The name sits over artwork, so it needs its own shadow to stay readable. */
@@ -657,7 +657,7 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
 .deed-picker .asset-card.compact > svg { display: none; }
 /* Rack cards are half hand-size, so the face type steps down to match. */
 .deed-picker .card-stripe { min-height: calc(15 * var(--u)); font-size: calc(6.6 * var(--u)); }
-.deed-picker .card-art, .deed-picker .asset-card::after { inset: calc(15 * var(--u)) 0 0; height: auto; }
+.deed-picker .card-art, .deed-picker .asset-card::after { inset: 0; height: 100%; }
 /* The longest deed names still won't fit a rack card; the sentence under the
    buttons always spells out the picked card, so ellipsis is safe here. */
 .deed-picker .asset-card strong {
