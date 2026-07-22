@@ -7,6 +7,12 @@ const LANDSCAPE_VIEWPORTS = [
   { width: 740, height: 360 },
 ];
 
+// Most interaction coverage intentionally uses EN selectors; the application
+// itself defaults to Indonesian and has dedicated locale coverage below.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('doc-locale', 'en'));
+});
+
 /** The document itself must never scroll: every screen lives inside the canvas. */
 async function expectNoDocumentOverflow(page: Page, label: string) {
   const box = await page.evaluate(() => ({
@@ -34,6 +40,18 @@ async function startRun(page: Page) {
   await page.getByRole('button', { name: /Deal market one/i }).click();
   await expect(page.getByLabel('Market progress')).toBeVisible();
 }
+
+test('defaults to Indonesian and persists a language choice', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 844, height: 390 } });
+  const page = await context.newPage();
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: /Mulai pasar/i })).toBeVisible();
+  await page.getByRole('button', { name: 'EN', exact: true }).click();
+  await expect(page.getByRole('button', { name: /Start market run/i })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('button', { name: /Start market run/i })).toBeVisible();
+  await context.close();
+});
 
 /**
  * Seeds the live save one hand short of a cleared first market, then resumes.

@@ -77,6 +77,11 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
   isolation: isolate;
 }
 
+.language-switch { display: inline-flex; overflow: hidden; border: 1px solid rgba(241,197,99,.48); border-radius: 999px; background: rgba(2,10,12,.72); }
+.language-switch button { min-width: 34px; border: 0; padding: 6px 8px; background: transparent; color: #bfbdad; font: 700 10px 'DM Mono', monospace; cursor: pointer; }
+.language-switch button.active { background: #e5b84f; color: #171006; }
+.menu-brand .language-switch { position: absolute; top: calc(15 * var(--u)); left: calc(18 * var(--u)); z-index: 2; }
+
 /* Reads as a deliberate canvas rather than a page that failed to fill. */
 @media (min-width: 1200px) {
   .game-frame {
