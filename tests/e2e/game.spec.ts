@@ -255,7 +255,7 @@ test('both endings fit the canvas', async ({ page }) => {
     await seedFinalHand(page, 0);
     await page.locator('.hand-cards').getByRole('button', { name: /^1\./ }).click();
     await page.getByRole('button', { name: /Commit portfolio/i }).click();
-    await expect(page.getByRole('heading', { name: /The market collected/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /The next market can be brighter/i })).toBeVisible({ timeout: 15_000 });
     await expectNoDocumentOverflow(page, `gameover ${at}`);
     await expectFrameFits(page, `gameover ${at}`);
     await expect(page.getByRole('button', { name: /Run it back/i })).toBeVisible();
