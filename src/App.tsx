@@ -327,7 +327,7 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: React.Disp
   });
 
   return (
-    <main className="game-screen">
+    <main className="game-screen landscape-locked">
       <Hud state={state} dispatch={dispatch} />
       <section className="table-layout">
         <section className="play-zone">
