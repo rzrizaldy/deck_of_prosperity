@@ -39,18 +39,34 @@ export const CONSUMABLES: Consumable[] = [
   { id: 'SITA', name: 'Sita', description: 'Musnahkan tepat tiga aset terpilih dari tanganmu.', cost: 4, art: 'sita' },
 ];
 
-const ASSET_CLASSES: Array<{ group: GroupKey; names: string[] }> = [
-  { group: 'RESIDENTIAL', names: ['Kampung Pesisir', 'Rusun Pinggir Rel', 'Kontrakan Cipinang', 'Perumahan Bekasi', 'Komplek Cibubur', 'Kemang Townhouse', 'Pondok Indah', 'Menteng', 'Pantai Indah Kapuk', 'Superblok SCBD'] },
-  { group: 'COMMERCIAL', names: ['Warung Tenda', 'Kios Pasar', 'Ruko Depok', 'Ruko BSD', 'Kafe Kemang', 'Blok M Plaza', 'Senopati Strip', 'Kuningan Tower', 'Sudirman Exchange', 'SCBD District'] },
-  { group: 'INDUSTRIAL', names: ['Gudang Dadap', 'Pabrik Cikarang', 'Kawasan Karawang', 'Pelabuhan Tanjung Priok', 'Smelter Sulawesi', 'Kilang Balikpapan', 'Batam Freeport', 'Kawasan Kendal', 'Morowali Estate', 'Nusantara Megaproject'] },
-  { group: 'UTILITY', names: ['Sumur Kampung', 'PDAM Cabang', 'Gardu PLN', 'Menara BTS', 'IPAL Kota', 'Bendungan Jatiluhur', 'Jaringan Serat', 'Pembangkit Gas', 'PLTA Cirata', 'Grid Nusantara'] },
-  { group: 'TRANSPORT', names: ['Angkot Terminal', 'Stasiun KRL', 'Pelabuhan Merak', 'Tol Cipularang', 'MRT Jakarta', 'Bandara Soetta', 'Whoosh Rail', 'Pelabuhan Batam', 'Trans-Sumatra', 'Jaringan Logistik Nusantara'] },
+const ASSET_CLASSES: Array<{ group: GroupKey; assets: Array<{ name: string; artId?: string }> }> = [
+  { group: 'RESIDENTIAL', assets: [
+    { name: 'Kampung Pesisir' }, { name: 'Rusun Pinggir Rel' }, { name: 'Kontrakan Cipinang' }, { name: 'Perumahan Bekasi' }, { name: 'Komplek Cibubur' },
+    { name: 'Kemang Townhouse', artId: 'kemang' }, { name: 'Pondok Indah', artId: 'pondok-indah' }, { name: 'Menteng', artId: 'menteng' }, { name: 'Pantai Indah Kapuk' }, { name: 'Superblok SCBD', artId: 'scbd' },
+  ] },
+  { group: 'COMMERCIAL', assets: [
+    { name: 'Warung Tenda' }, { name: 'Kios Pasar' }, { name: 'Ruko Depok' }, { name: 'Ruko BSD', artId: 'bsd' }, { name: 'Kafe Kemang', artId: 'kemang' },
+    { name: 'Blok M Plaza' }, { name: 'Senopati Strip', artId: 'senopati' }, { name: 'Kuningan Tower', artId: 'kuningan' }, { name: 'Sudirman Exchange', artId: 'sudirman' }, { name: 'SCBD District', artId: 'scbd' },
+  ] },
+  { group: 'INDUSTRIAL', assets: [
+    { name: 'Gudang Dadap' }, { name: 'Pabrik Cikarang' }, { name: 'Kawasan Karawang' }, { name: 'Pelabuhan Tanjung Priok' }, { name: 'Smelter Sulawesi' },
+    { name: 'Kilang Balikpapan', artId: 'balikpapan' }, { name: 'Batam Freeport', artId: 'batam' }, { name: 'Kawasan Kendal' }, { name: 'Morowali Estate' }, { name: 'Nusantara Megaproject' },
+  ] },
+  { group: 'UTILITY', assets: [
+    { name: 'Sumur Kampung' }, { name: 'PDAM Cabang', artId: 'pdam' }, { name: 'Gardu PLN', artId: 'pln' }, { name: 'Menara BTS' }, { name: 'IPAL Kota' },
+    { name: 'Bendungan Jatiluhur' }, { name: 'Jaringan Serat' }, { name: 'Pembangkit Gas' }, { name: 'PLTA Cirata' }, { name: 'Grid Nusantara' },
+  ] },
+  { group: 'TRANSPORT', assets: [
+    { name: 'Angkot Terminal' }, { name: 'Stasiun KRL', artId: 'gambir' }, { name: 'Pelabuhan Merak' }, { name: 'Tol Cipularang' }, { name: 'MRT Jakarta', artId: 'mrt' },
+    { name: 'Bandara Soetta', artId: 'soetta' }, { name: 'Whoosh Rail', artId: 'whoosh' }, { name: 'Pelabuhan Batam', artId: 'batam' }, { name: 'Trans-Sumatra' }, { name: 'Jaringan Logistik Nusantara' },
+  ] },
 ];
 
-export const CARD_TEMPLATES: CardTemplate[] = ASSET_CLASSES.flatMap(({ group, names }) =>
+export const CARD_TEMPLATES: CardTemplate[] = ASSET_CLASSES.flatMap(({ group, assets }) =>
   Array.from({ length: 10 }, (_, index) => {
     const rank = index + 1;
-    return { id: `${group.toLowerCase()}-${rank}`, name: names[index], chips: rank * 5, rank, group };
+    const asset = assets[index];
+    return { id: `${group.toLowerCase()}-${rank}`, name: asset.name, artId: asset.artId, chips: rank * 5, rank, group };
   }),
 );
 export const STARTING_DUPLICATES: string[] = [];

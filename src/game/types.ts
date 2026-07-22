@@ -32,6 +32,8 @@ export interface CardTemplate {
   id: string;
   name: string;
   group: GroupKey;
+  /** Reuses a commissioned card illustration when this named asset has one. */
+  artId?: string;
   chips: number;
   /** 1–10 rank. Five consecutive ranks form a Straight. */
   rank: number;

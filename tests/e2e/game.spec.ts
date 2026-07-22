@@ -335,15 +335,15 @@ test('the guide states each rule once and shows a worked score', async ({ page }
   const example = guide.locator('.scoring-example');
   await expect(example).toContainText('chips');
   await expect(example).toContainText('mult');
-  await expect(example).toContainText('40');
+  await expect(example).toContainText('125');
 
-  // Each pattern description used to be printed twice per row: once under the
-  // swatches and again beside the name.
-  const body = (await guide.locator('.guide-grid').innerText()).toLowerCase();
-  for (const phrase of ['one incomplete pair', 'two separate pairs', 'four distinct railroads']) {
-    const hits = body.split(phrase).length - 1;
-    expect(hits, `"${phrase}" appears ${hits} times in the guide`).toBe(1);
-  }
+  // The new 5×10 ruleset publishes each legal scoring pattern exactly once.
+  const rows = guide.locator('.guide-grid .rank-row');
+  await expect(rows).toHaveCount(9);
+  await expect(rows.locator('strong')).toHaveText([
+    'High Asset', 'Pair', 'Two Pairs', 'Three of a Kind', 'Straight',
+    'Flush', 'Full House', 'Four of a Kind', 'Straight Flush',
+  ]);
 });
 
 test('one word for one concept across briefing and table', async ({ page }) => {
@@ -359,6 +359,6 @@ test('one word for one concept across briefing and table', async ({ page }) => {
 test('compendium cards open a full-size artwork preview', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /^Cards$/i }).click();
-  await page.getByRole('button', { name: /^Medan, 5 chips/i }).click();
-  await expect(page.getByRole('dialog', { name: /Medan card preview/i })).toBeVisible();
+  await page.getByRole('button', { name: /^Kampung Pesisir, 5 chips/i }).click();
+  await expect(page.getByRole('dialog', { name: /Kampung Pesisir card preview/i })).toBeVisible();
 });

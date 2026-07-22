@@ -34,7 +34,9 @@ const localizedConsumable = (item: Consumable, locale: Locale) => locale === 'id
 }[item.id]);
 
 const money = (value: number) => value.toLocaleString('en-US');
-const cardArt = (card: Card) => `/assets/classes/${card.group.toLowerCase()}.webp`;
+const cardArt = (card: Card) => card.artId
+  ? `/assets/cards/${card.artId}.webp`
+  : `/assets/classes/${card.group.toLowerCase()}.webp`;
 const clearedPercent = (score: number, target: number) =>
   Math.max(0, Math.min(100, Math.round((score / Math.max(1, target)) * 100)));
 
@@ -324,13 +326,10 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 }
 
 const HAND_RECIPES: Record<string, string[]> = {
-  LIQUIDATION: ['BROWN', 'SKY', 'PINK'],
-  DEVELOPMENT: ['SKY', 'SKY'],
-  JOINT_VENTURE: ['BROWN', 'BROWN', 'PINK', 'PINK'],
-  TAKEOVER: ['BROWN', 'BROWN'],
-  CONGLOMERATE: ['BROWN', 'BROWN', 'PINK', 'PINK'],
-  DIVERSIFIED: ['BROWN', 'SKY', 'PINK', 'ORANGE', 'RED'],
-  TRANSPORT: ['RAILROAD', 'RAILROAD', 'RAILROAD', 'RAILROAD'],
+  HIGH_ASSET: ['RESIDENTIAL'], PAIR: ['RESIDENTIAL', 'COMMERCIAL'], TWO_PAIRS: ['RESIDENTIAL', 'COMMERCIAL', 'UTILITY', 'TRANSPORT'],
+  THREE_KIND: ['RESIDENTIAL', 'COMMERCIAL', 'INDUSTRIAL'], STRAIGHT: ['RESIDENTIAL', 'COMMERCIAL', 'INDUSTRIAL', 'UTILITY', 'TRANSPORT'],
+  FLUSH: ['TRANSPORT', 'TRANSPORT', 'TRANSPORT', 'TRANSPORT', 'TRANSPORT'], FULL_HOUSE: ['RESIDENTIAL', 'COMMERCIAL', 'INDUSTRIAL', 'UTILITY', 'TRANSPORT'],
+  FOUR_KIND: ['RESIDENTIAL', 'COMMERCIAL', 'INDUSTRIAL', 'UTILITY'], STRAIGHT_FLUSH: ['TRANSPORT', 'TRANSPORT', 'TRANSPORT', 'TRANSPORT', 'TRANSPORT'],
 };
 
 /**
@@ -346,7 +345,7 @@ function PortfolioRecipe({ hand }: { hand: keyof typeof HANDS }) {
         {groups.map((group, index) => {
           const visual = GROUPS[group as keyof typeof GROUPS];
           return <span key={`${group}-${index}`} style={{ '--recipe-color': visual.color, '--recipe-ink': visual.ink } as React.CSSProperties}>
-            {hand === 'TRANSPORT' ? '↔' : localizedGroup(group as keyof typeof GROUPS, locale).slice(0, 1)}
+            {localizedGroup(group as keyof typeof GROUPS, locale).slice(0, 1)}
           </span>;
         })}
       </div>
@@ -359,23 +358,23 @@ function PortfolioRecipe({ hand }: { hand: keyof typeof HANDS }) {
  * readout mid-hand. One worked example teaches it before the first card.
  */
 function ScoringExample() {
-  const java = GROUPS.SKY;
-  const swatch = { '--recipe-color': java.color, '--recipe-ink': java.ink } as React.CSSProperties;
+  const locale = useLocale();
+  const transport = GROUPS.TRANSPORT;
+  const swatch = { '--recipe-color': transport.color, '--recipe-ink': transport.ink } as React.CSSProperties;
   return (
     <figure className="scoring-example">
       <div className="example-cards">
-        <span style={swatch}>Bandung<b>10</b></span>
-        <span style={swatch}>Bogor<b>10</b></span>
+        <span style={swatch}>3<b>15</b></span><span style={swatch}>4<b>20</b></span><span style={swatch}>5<b>25</b></span><span style={swatch}>6<b>30</b></span><span style={swatch}>7<b>35</b></span>
       </div>
-      <figcaption>Two <b>Java</b> deeds make a pair — that is a <b>Development</b>.</figcaption>
+      <figcaption>{tr(locale, 'Five consecutive ranks make a Straight. Five in the same class make a Flush. Do both and it is a Straight Flush.', 'Lima rank berurutan membentuk Koridor. Lima kartu satu kelas membentuk Satu Kelas. Dapatkan keduanya untuk Koridor Prime.')}</figcaption>
       <div className="example-maths">
-        <span><small>chips</small><strong>20</strong></span>
+        <span><small>{tr(locale, 'chips', 'chip')}</small><strong>125</strong></span>
         <i>×</i>
-        <span><small>mult</small><strong>2</strong></span>
+        <span><small>mult</small><strong>16</strong></span>
         <i>=</i>
-        <span className="example-total"><small>score</small><strong>40</strong></span>
+        <span className="example-total"><small>{tr(locale, 'score', 'skor')}</small><strong>2,000</strong></span>
       </div>
-      <figcaption>Add the deed values, multiply by the pattern. Bigger patterns pay far more, so five weak cards often beat two strong ones.</figcaption>
+      <figcaption>{tr(locale, 'Ranks are 1–10 in every class. Build runs for Straights, classes for Flushes, or matching ranks for pairs and houses.', 'Setiap kelas punya rank 1–10. Susun rank untuk Koridor, kumpulkan kelas untuk Satu Kelas, atau samakan rank untuk Pasangan dan Kawasan Lengkap.')}</figcaption>
     </figure>
   );
 }
@@ -405,14 +404,14 @@ function Guide({ onClose }: { onClose: () => void }) {
         </section>
         <section>
           <h3>{tr(locale, 'Portfolio patterns', 'Pola portofolio')}</h3>
-          <p className="guide-note">Higher patterns are rarer and multiply far harder. The swatches show which groups the cards must come from.</p>
+          <p className="guide-note">{tr(locale, 'Every class holds ranks 1–10. Higher patterns are rarer and multiply much harder; the swatches show the required classes.', 'Setiap kelas memiliki rank 1–10. Pola tinggi lebih langka dan multiplier-nya lebih besar; kotak warna menunjukkan kelas yang diperlukan.')}</p>
           <div className="rank-list">
             {Object.entries(HANDS).map(([key, hand]) => (
-              <div key={key} className="rank-row"><PortfolioRecipe hand={key as keyof typeof HANDS} /><span><strong>{localizedHand(key as keyof typeof HANDS, locale)}</strong><small>{hand.description}</small></span><b>×{hand.multiplier}</b></div>
+              <div key={key} className="rank-row"><PortfolioRecipe hand={key as keyof typeof HANDS} /><span><strong>{localizedHand(key as keyof typeof HANDS, locale)}</strong><small>{locale === 'en' ? ({ HIGH_ASSET: 'No pattern; highest rank leads.', PAIR: 'Two matching ranks.', TWO_PAIRS: 'Two different matching ranks.', THREE_KIND: 'Three matching ranks.', STRAIGHT: 'Five consecutive ranks.', FLUSH: 'Five cards in one class.', FULL_HOUSE: 'Three matching ranks plus a pair.', FOUR_KIND: 'Four matching ranks.', STRAIGHT_FLUSH: 'Five consecutive ranks in one class.' } as Record<string, string>)[key] : hand.description}</small></span><b>×{hand.multiplier}</b></div>
             ))}
           </div>
           <h3>{tr(locale, 'Keyboard', 'Keyboard')}</h3>
-          <p><kbd>1–8</kbd> select cards · <kbd>Enter</kbd> commit · <kbd>D</kbd> discard · <kbd>M</kbd> mute</p>
+          <p>{tr(locale, '1–8 select cards · Enter commit · D discard · M mute', '1–8 pilih kartu · Enter mainkan · D buang · M senyap')}</p>
         </section>
       </div>
     </Modal>
@@ -705,7 +704,13 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
           <CompanionRail state={state} />
           <div className="market-log" aria-live="polite">
             <span>Market desk</span>
-            <p>{busy ? tr(locale, 'Portfolio settling…', 'Portofolio sedang dihitung…') : state.events.at(-1)?.message}</p>
+            <p>{busy
+              ? tr(locale, 'Portfolio settling…', 'Portofolio sedang dihitung…')
+              : state.lastPlayerScore
+                ? tr(locale,
+                  `You scored ${money(state.lastPlayerScore.total)} with ${localizedHand(state.lastPlayerScore.hand, locale)}.`,
+                  `Kamu mencetak ${money(state.lastPlayerScore.total)} lewat ${localizedHand(state.lastPlayerScore.hand, locale)}.`)
+                : state.events.at(-1)?.message}</p>
           </div>
         </aside>
         <section className="play-zone">
