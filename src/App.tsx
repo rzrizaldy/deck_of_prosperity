@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
   BookOpen, Building2, Coins, Crown, Music, RotateCcw,
-  Eye, Maximize2, Minimize2, Sparkles, Target, Trash2, Trophy, Volume2, VolumeX, Wrench, X,
+  ArrowDownUp, Eye, Maximize2, Minimize2, Sparkles, Target, Trash2, Trophy, Volume2, VolumeX, Wrench, X,
 } from 'lucide-react';
 import {
   getVolume, isBgmEnabled, playCompanionSfx, playSound, pulseHaptic, setBgmEnabled, setVolume,
@@ -15,6 +15,7 @@ import type { Card, Consumable, GameState, ScoreBreakdown, Tycoon } from './game
 
 type Dispatch = React.Dispatch<Parameters<typeof gameReducer>[1]>;
 type Locale = 'id' | 'en';
+type HandSort = 'class' | 'rank';
 const LOCALE_KEY = 'doc-locale';
 const LocaleContext = createContext<Locale>('id');
 const useLocale = () => useContext(LocaleContext);
@@ -37,6 +38,7 @@ const money = (value: number) => value.toLocaleString('en-US');
 const cardArt = (card: Card) => card.artId
   ? `/assets/cards/${card.artId}.webp`
   : `/assets/classes/${card.group.toLowerCase()}.webp`;
+const GROUP_SORT_ORDER = { RESIDENTIAL: 0, COMMERCIAL: 1, INDUSTRIAL: 2, UTILITY: 3, TRANSPORT: 4 } as const;
 const clearedPercent = (score: number, target: number) =>
   Math.max(0, Math.min(100, Math.round((score / Math.max(1, target)) * 100)));
 
@@ -634,7 +636,12 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
   const [sequence, setSequence] = useState<ScoreSequence | null>(null);
   const [discardingIds, setDiscardingIds] = useState<string[]>([]);
   const [reshuffling, setReshuffling] = useState(false);
+  const [handSort, setHandSort] = useState<HandSort>('class');
   const selected = state.player.hand.filter((card) => state.selectedIds.includes(card.instanceId));
+  const sortedHand = useMemo(() => [...state.player.hand].sort((left, right) => {
+    if (handSort === 'rank') return left.rank - right.rank || left.group.localeCompare(right.group) || left.name.localeCompare(right.name);
+    return GROUP_SORT_ORDER[left.group] - GROUP_SORT_ORDER[right.group] || left.rank - right.rank || left.name.localeCompare(right.name);
+  }), [state.player.hand, handSort]);
   const prediction = useMemo(() => selected.length ? scoreHand(selected, state.player.tycoons, { modifier: state.modifier }) : null, [selected, state.player.tycoons, state.modifier]);
   const target = marketTarget(state.round, state.difficulty, state.modifier);
   const remaining = Math.max(0, target - state.player.score);
@@ -686,7 +693,7 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key >= '1' && event.key <= '8') {
-        const card = state.player.hand[Number(event.key) - 1];
+        const card = sortedHand[Number(event.key) - 1];
         if (card) toggle(card.instanceId);
       } else if (event.key === 'Enter') play();
       else if (event.key.toLowerCase() === 'd') discard();
@@ -766,8 +773,13 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
       </section>
 
       <section className="hand-dock" aria-label="Your hand">
+        <div className="hand-sort" role="group" aria-label={tr(locale, 'Sort your hand', 'Urutkan tangan')}>
+          <ArrowDownUp aria-hidden="true" />
+          <button className={handSort === 'class' ? 'active' : ''} onClick={() => setHandSort('class')} type="button">{tr(locale, 'Class', 'Kelas')}</button>
+          <button className={handSort === 'rank' ? 'active' : ''} onClick={() => setHandSort('rank')} type="button">{tr(locale, 'Rank', 'Peringkat')}</button>
+        </div>
         <div className="hand-cards">
-          {state.player.hand.map((card, index) => <AssetCard key={card.instanceId} card={card} index={index} selected={state.selectedIds.includes(card.instanceId)} departing={discardingIds.includes(card.instanceId)} onClick={() => toggle(card.instanceId)} onInspect={() => setInspectedCard(card)} />)}
+          {sortedHand.map((card, index) => <AssetCard key={card.instanceId} card={card} index={index} selected={state.selectedIds.includes(card.instanceId)} departing={discardingIds.includes(card.instanceId)} onClick={() => toggle(card.instanceId)} onInspect={() => setInspectedCard(card)} />)}
         </div>
         <div className="play-actions">
           <button className="secondary" disabled={!selected.length || state.player.discardsLeft < 1 || busy} onClick={discard}><RotateCcw /> {tr(locale, 'Discard', 'Buang')} <small>{selected.length || ''}</small></button>

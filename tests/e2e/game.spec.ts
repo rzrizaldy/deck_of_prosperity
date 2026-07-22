@@ -200,6 +200,18 @@ test('the hand never collides with the play actions', async ({ page }) => {
   }
 });
 
+test('the hand can be sorted by rank or asset class', async ({ page }) => {
+  await page.goto('/');
+  await startRun(page);
+  const sort = page.getByRole('group', { name: /Sort your hand/i });
+  await sort.getByRole('button', { name: /^Rank$/i }).click();
+  const ranks = await page.locator('.hand-cards .card-rank').allTextContents();
+  expect(ranks.map(Number)).toEqual([...ranks.map(Number)].sort((a, b) => a - b));
+
+  await sort.getByRole('button', { name: /^Class$/i }).click();
+  await expect(sort.getByRole('button', { name: /^Class$/i })).toHaveClass(/active/);
+});
+
 /**
  * Rewrites the live save so the next hand resolves the run, then resumes it.
  * The reducer still decides the outcome; only the starting position is seeded.

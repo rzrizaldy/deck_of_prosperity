@@ -495,6 +495,31 @@ button:disabled { cursor: not-allowed; filter: grayscale(.7); opacity: .42; }
   display: flex; justify-content: center; align-items: flex-end;
   padding: calc(6 * var(--u)) 0 0;
 }
+.hand-sort {
+  position: absolute;
+  left: calc(13 * var(--u));
+  top: calc(6 * var(--u));
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(3 * var(--u));
+  padding: calc(3 * var(--u));
+  border: 1px solid rgba(208, 165, 54, .42);
+  border-radius: calc(7 * var(--u));
+  background: rgba(7, 21, 20, .82);
+  box-shadow: 0 calc(3 * var(--u)) calc(10 * var(--u)) rgba(0, 0, 0, .28);
+}
+.hand-sort svg { width: calc(12 * var(--u)); height: calc(12 * var(--u)); color: #e6c96a; }
+.hand-sort button {
+  min-height: calc(24 * var(--u));
+  padding: calc(2 * var(--u)) calc(6 * var(--u));
+  border: 1px solid transparent;
+  border-radius: calc(4 * var(--u));
+  background: transparent;
+  color: #adc0ba;
+  font: 700 calc(8.4 * var(--u))/1 var(--font-ui);
+}
+.hand-sort button.active { color: #15231e; background: #e3c75b; border-color: #fff0a1; }
 /* The fan overlaps only the card edge — deep enough to read as a held hand,
    shallow enough that every deed name stays visible without hovering. */
 .hand-cards .asset-card {
