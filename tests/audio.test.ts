@@ -81,7 +81,7 @@ describe('audio settings', () => {
     vi.stubGlobal('Audio', vi.fn(() => cue));
     const audio = await import('../src/game/audio');
     audio.setVolume(0.8);
-    expect(audio.playCompanionSfx('soloman', false)).toBe(true);
+    expect(audio.playCompanionSfx('bima', false)).toBe(true);
     expect(cue.currentTime).toBe(2);
     expect(cue.volume).toBe(0);
     expect(play).not.toHaveBeenCalled();
@@ -94,8 +94,8 @@ describe('audio settings', () => {
     const audioElement = { currentTime: 4, volume: 0, play };
     vi.stubGlobal('Audio', vi.fn(() => audioElement));
     const audio = await import('../src/game/audio');
-    expect(audio.playCompanionSfx('soloman', true)).toBe(false);
-    expect(audio.playCompanionSfx('gemoy', false)).toBe(true);
+    expect(audio.playCompanionSfx('bima', true)).toBe(false);
+    expect(audio.playCompanionSfx('sari', false)).toBe(true);
     expect(audioElement.currentTime).toBe(4);
     expect(play).not.toHaveBeenCalled();
     vi.unstubAllGlobals();

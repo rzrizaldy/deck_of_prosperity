@@ -43,13 +43,13 @@ const clearedPercent = (score: number, target: number) =>
   Math.max(0, Math.min(100, Math.round((score / Math.max(1, target)) * 100)));
 
 const COMPANIONS = {
-  gemoy: {
+  sari: {
     name: 'Sari Pertiwi',
     title: 'Arsitek Warga',
     asset: '/assets/companions/sari-pertiwi.png',
     intro: 'Mulai dari yang kuat, lalu tumbuhkan nilai bersama.',
   },
-  soloman: {
+  bima: {
     name: 'Bima Pradana',
     title: 'Penggerak Koperasi',
     asset: '/assets/companions/bima-pradana.png',
@@ -441,7 +441,7 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
   state: GameState; saved: GameState | null; highScore: number; legacyCleared: boolean; dispatch: Dispatch; locale: Locale; setLocale: (locale: Locale) => void;
 }) {
   const [difficulty, setDifficulty] = useState<Difficulty>('trader');
-  const [companion, setCompanion] = useState<GameState['companion']>('gemoy');
+  const [companion, setCompanion] = useState<GameState['companion']>('sari');
   const [guide, setGuide] = useState(false);
   const [compendium, setCompendium] = useState(false);
   return (
@@ -553,7 +553,7 @@ function Intro({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
 type KoncoMoment = 'opening' | 'ready' | 'bigScore' | 'whiff' | 'lastHand' | 'event' | 'default';
 
 const KONCO_LINES: Record<keyof typeof COMPANIONS, Record<KoncoMoment, string[]>> = {
-  gemoy: {
+  sari: {
     opening: ['Pasar baru, peluang baru. Kita mulai dengan tenang!', 'Lihat event-nya, lalu rancang langkah pertama.', 'Tangan pertama bisa jadi pondasi yang kuat.', 'Meja sudah siap. Mari bangun sesuatu yang baik.'],
     ready: ['{selected} aset sudah siap. Yuk, wujudkan idenya!', 'Pola sudah terlihat. Saatnya bergerak bersama.', 'Multiplier-nya menjanjikan. Coba kita jalankan!', 'Portofolio sudah rapi. Mainkan dengan yakin.'],
     bigScore: ['{hand} untuk {score}! Kerja sama yang indah!', 'Nilainya tumbuh. Pertahankan ritme baik ini!', 'Hebat! Satu langkah lagi menuju target.', 'Itu contoh rencana yang berkembang dengan sehat.'],
@@ -562,7 +562,7 @@ const KONCO_LINES: Record<keyof typeof COMPANIONS, Record<KoncoMoment, string[]>
     event: ['Kondisi berubah; rencana yang baik ikut menyesuaikan.', 'Alat baru membuka cara pandang baru.', 'Mari baca situasinya dan lanjutkan dengan optimis.', 'Perubahan kecil bisa membuka peluang besar.'],
     default: ['{remaining} lagi. Sedikit demi sedikit, target akan dekat.', 'Lihat pola, pilih langkah, lalu tumbuh.', 'Masih banyak ruang untuk keputusan yang cerdas.', 'Kita membangun nilai, satu portofolio pada satu waktu.'],
   },
-  soloman: {
+  bima: {
     opening: ['Pasar baru terbuka. Kita punya ruang untuk membuat pilihan yang baik.', 'Atur napas. Event sudah memberi arah pertama.', 'Empat tangan cukup bila digunakan dengan penuh perhatian.', 'Mari mulai dari pola yang paling jelas.'],
     ready: ['{selected} aset sudah dipilih. Periksa kembali sinerginya.', 'Portofolio siap. Kombinasi yang rapi selalu punya potensi.', 'Multiplier sudah terlihat. Keputusanmu bisa dibuat dengan tenang.', 'Pilihan ada di meja. Mari jalankan yang paling bermakna.'],
     bigScore: ['{hand}, {score}. Nilai yang tumbuh dari rencana yang baik.', 'Pasar merespons. Simpan ritme ini untuk langkah berikutnya.', 'Itu skor yang sehat. Rayakan, lalu lanjutkan dengan bijak.', 'Bagus. Perencanaan yang konsisten memang terasa seperti ini.'],

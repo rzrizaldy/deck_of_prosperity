@@ -10,6 +10,11 @@ export function loadSave(): GameState | null {
     if (!raw) return null;
     const save = JSON.parse(raw) as SaveGameV2;
     if (save.version !== 2 || save.state.version !== 2) return null;
+    // Preserve runs created during the short pre-publish retone while removing
+    // the prototype companion identifiers from the published runtime.
+    const legacyCompanion = save.state.companion as string;
+    if (legacyCompanion === 'gemoy') save.state.companion = 'sari';
+    if (legacyCompanion === 'soloman') save.state.companion = 'bima';
     return save.state;
   } catch {
     return null;

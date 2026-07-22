@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;600;700;800&display=swap');
 
 /* ==========================================================================
-   Deck of Capitalist — single-pass stylesheet.
+   Deck of Prosperity — single-pass stylesheet.
    Every top-level screen renders into one shared landscape canvas
    (`.game-frame`). Nothing scrolls the document; screens that overflow the
    canvas scroll inside it.
