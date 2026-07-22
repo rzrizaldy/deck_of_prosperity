@@ -52,7 +52,7 @@ export const CARD_TEMPLATES: CardTemplate[] = [
   { id: 'whoosh', name: 'Whoosh Rail', chips: 20, group: 'RAILROAD' },
   { id: 'pln', name: 'PLN Power', chips: 15, group: 'UTILITY' },
   { id: 'pdam', name: 'PDAM Water', chips: 15, group: 'UTILITY' },
-  { id: 'batam', name: 'Batam Port', chips: 12, group: 'SKY' },
+  { id: 'batam', name: 'Batam Port', chips: 12, group: 'RAILROAD' },
   { id: 'malang', name: 'Malang', chips: 16, group: 'PINK' },
   { id: 'nusa-dua', name: 'Nusa Dua', chips: 21, group: 'ORANGE' },
   { id: 'bsd', name: 'BSD City', chips: 31, group: 'YELLOW' },

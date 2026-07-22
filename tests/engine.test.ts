@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TYCOONS } from '../src/game/data';
+import { CARD_TEMPLATES, TYCOONS } from '../src/game/data';
 import { createStartingDeck, drawToHand, identifyHand, marketTarget, scoreHand } from '../src/game/engine';
 import type { Card, CompetitorState, GroupKey } from '../src/game/types';
 
@@ -21,6 +21,10 @@ describe('authoritative scoring engine', () => {
     const deck = createStartingDeck('test');
     expect(deck).toHaveLength(40);
     expect(new Set(deck.map((item) => item.instanceId)).size).toBe(40);
+  });
+
+  it('classifies Batam Port as a Transit asset, not a Java property', () => {
+    expect(CARD_TEMPLATES.find((item) => item.id === 'batam')?.group).toBe('RAILROAD');
   });
 
   it.each([
