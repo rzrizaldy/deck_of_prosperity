@@ -4,7 +4,7 @@ A browser-based, pixel-noir property roguelike set above nighttime Jakarta. Buil
 
 ## Play
 
-The production URL is added here after the first DigitalOcean deployment.
+[Play Deck of Capitalist](https://deck-of-capitalist-dkk8u.ondigitalocean.app)
 
 Desktop and landscape mobile are supported. Portrait mobile displays a rotation prompt while preserving the current run.
 
