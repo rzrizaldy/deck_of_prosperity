@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
   BookOpen, Building2, Coins, Crown, Music, RotateCcw,
-  ArrowDownUp, Eye, Maximize2, Minimize2, Sparkles, Target, Trash2, Trophy, Volume2, VolumeX, Wrench, X,
+  ArrowDownUp, Eye, Maximize2, Minimize2, Settings, Sparkles, Target, Trash2, Trophy, Volume2, VolumeX, Wrench, X,
 } from 'lucide-react';
 import {
   getVolume, isBgmEnabled, playCompanionSfx, playSound, pulseHaptic, setBgmEnabled, setVolume,
@@ -17,6 +17,20 @@ type Dispatch = React.Dispatch<Parameters<typeof gameReducer>[1]>;
 type Locale = 'id' | 'en';
 type HandSort = 'class' | 'rank';
 const LOCALE_KEY = 'doc-locale';
+const DYSTOPIA_UNLOCK_KEY = 'doc-dystopia-unlocked';
+const DYSTOPIA_URL = 'https://deck-of-capitalist.allrize.tech/';
+/** djb2 signature — avoids storing the friend code as plain text in source. */
+const FRIEND_CODE_SIG = -1073387418;
+
+const isDystopiaUnlocked = () => localStorage.getItem(DYSTOPIA_UNLOCK_KEY) === 'true';
+const persistDystopiaUnlock = () => localStorage.setItem(DYSTOPIA_UNLOCK_KEY, 'true');
+const verifyFriendCode = (input: string) => {
+  const normalized = input.trim().toLowerCase();
+  if (!normalized) return false;
+  let hash = 5381;
+  for (let i = 0; i < normalized.length; i += 1) hash = ((hash << 5) + hash) ^ normalized.charCodeAt(i);
+  return hash === FRIEND_CODE_SIG;
+};
 const LocaleContext = createContext<Locale>('id');
 const useLocale = () => useContext(LocaleContext);
 const tr = (locale: Locale, english: string, indonesian: string) => locale === 'id' ? indonesian : english;
@@ -118,26 +132,86 @@ function AudioControls({ state, dispatch, compact = false }: { state: GameState;
       >
         {state.muted ? <VolumeX /> : <Volume2 />}{!compact && <span>Sound</span>}
       </button>
-      <input
-        className="volume-slider"
-        type="range"
-        min={0}
-        max={100}
-        step={5}
-        value={Math.round(volume * 100)}
-        onChange={(event) => changeVolume(Number(event.target.value) / 100)}
-        aria-label="Volume"
-        title={`Volume ${Math.round(volume * 100)}%`}
-      />
-      <button
-        className={`${compact ? 'icon-button' : ''} ${bgm ? '' : 'off'}`}
-        onClick={toggleBgm}
-        aria-pressed={bgm}
-        aria-label={bgm ? 'Turn background music off' : 'Turn background music on'}
-      >
-        <Music />{!compact && <span>Music</span>}
-      </button>
+      {!compact && (
+        <>
+          <input
+            className="volume-slider"
+            type="range"
+            min={0}
+            max={100}
+            step={5}
+            value={Math.round(volume * 100)}
+            onChange={(event) => changeVolume(Number(event.target.value) / 100)}
+            aria-label="Volume"
+            title={`Volume ${Math.round(volume * 100)}%`}
+          />
+          <button
+            className={bgm ? '' : 'off'}
+            onClick={toggleBgm}
+            aria-pressed={bgm}
+            aria-label={bgm ? 'Turn background music off' : 'Turn background music on'}
+          >
+            <Music /><span>Music</span>
+          </button>
+        </>
+      )}
     </div>
+  );
+}
+
+function SettingsPanel({ state, dispatch, onClose }: { state: GameState; dispatch: Dispatch; onClose: () => void }) {
+  const locale = useLocale();
+  const [unlocked, setUnlocked] = useState(isDystopiaUnlocked);
+  const [code, setCode] = useState('');
+  const [wrong, setWrong] = useState(false);
+  const [shake, setShake] = useState(false);
+  const submitCode = (event?: React.FormEvent) => {
+    event?.preventDefault();
+    if (verifyFriendCode(code)) {
+      persistDystopiaUnlock();
+      setUnlocked(true);
+      setWrong(false);
+      setCode('');
+      return;
+    }
+    setWrong(true);
+    setShake(true);
+    window.setTimeout(() => setShake(false), 350);
+  };
+  return (
+    <Modal title={tr(locale, 'Settings', 'Pengaturan')} onClose={onClose} className="settings-modal">
+      <section className="settings-section">
+        <h3>{tr(locale, 'Sound & music', 'Suara & musik')}</h3>
+        <AudioControls state={state} dispatch={dispatch} />
+      </section>
+      <section className={`settings-section settings-gate${shake ? ' shake' : ''}`}>
+        {unlocked ? (
+          <>
+            <p className="settings-hint">{tr(locale, 'Dark version unlocked.', 'Versi gelap kebuka.')}</p>
+            <a className="settings-link" href={DYSTOPIA_URL} target="_blank" rel="noopener noreferrer">
+              Deck of Capitalist
+            </a>
+          </>
+        ) : (
+          <>
+            <p className="settings-hint">{tr(locale, 'Got a code? Enter it here.', 'Punya kode? Isi di sini.')}</p>
+            <form className="settings-code-row" onSubmit={submitCode}>
+              <input
+                type="password"
+                value={code}
+                onChange={(event) => { setCode(event.target.value); setWrong(false); }}
+                placeholder={tr(locale, 'Friend code', 'Kode teman')}
+                autoComplete="off"
+                spellCheck={false}
+                aria-invalid={wrong}
+              />
+              <button type="submit">{tr(locale, 'Unlock', 'Buka')}</button>
+            </form>
+            {wrong && <p className="settings-error" role="alert">{tr(locale, 'Wrong.', 'Salah.')}</p>}
+          </>
+        )}
+      </section>
+    </Modal>
   );
 }
 
@@ -470,6 +544,7 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
   const [companion, setCompanion] = useState<GameState['companion']>('abah');
   const [guide, setGuide] = useState(false);
   const [compendium, setCompendium] = useState(false);
+  const [settings, setSettings] = useState(false);
   return (
     <main className="menu-screen game-frame">
       <div className="menu-shade" />
@@ -508,11 +583,12 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
         <div className="menu-subactions">
           <button onClick={() => setGuide(true)}><BookOpen /> <span>{tr(locale, 'How to play', 'Cara main')}</span></button>
           <button onClick={() => setCompendium(true)}><Building2 /> <span>{tr(locale, 'Cards', 'Kartu')}</span></button>
-          <AudioControls state={state} dispatch={dispatch} />
+          <button onClick={() => setSettings(true)}><Settings /> <span>{tr(locale, 'Settings', 'Pengaturan')}</span></button>
         </div>
       </section>
       {guide && <Guide onClose={() => setGuide(false)} />}
       {compendium && <Compendium onClose={() => setCompendium(false)} />}
+      {settings && <SettingsPanel state={state} dispatch={dispatch} onClose={() => setSettings(false)} />}
     </main>
   );
 }
@@ -520,6 +596,7 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
 function Hud({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
   const locale = useLocale();
   const [guide, setGuide] = useState(false);
+  const [settings, setSettings] = useState(false);
   const target = marketTarget(state.round, state.difficulty, state.modifier);
   return (
     <>
@@ -537,12 +614,14 @@ function Hud({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
         </div>
         <div className="hud-actions">
           <AudioControls state={state} dispatch={dispatch} compact />
+          <button className="icon-button" onClick={() => setSettings(true)} aria-label={tr(locale, 'Settings', 'Pengaturan')}><Settings /></button>
           <FullscreenButton />
           <button className="icon-button" onClick={() => setGuide(true)} aria-label="Open rules"><BookOpen /></button>
           <button className="icon-button" onClick={() => dispatch({ type: 'GO_MENU' })} aria-label="Return to menu"><X /></button>
         </div>
       </header>
       {guide && <Guide onClose={() => setGuide(false)} />}
+      {settings && <SettingsPanel state={state} dispatch={dispatch} onClose={() => setSettings(false)} />}
     </>
   );
 }
