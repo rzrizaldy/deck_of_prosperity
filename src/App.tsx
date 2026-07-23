@@ -187,20 +187,20 @@ function SettingsPanel({ state, dispatch, onClose }: { state: GameState; dispatc
       <section className={`settings-section settings-gate${shake ? ' shake' : ''}`}>
         {unlocked ? (
           <>
-            <p className="settings-hint">{tr(locale, 'Dark version unlocked.', 'Versi gelap kebuka.')}</p>
+            <p className="settings-hint">{tr(locale, 'Joker Mode unlocked. 🃏', 'Mode Joker kebuka. 🃏')}</p>
             <a className="settings-link" href={DYSTOPIA_URL} target="_blank" rel="noopener noreferrer">
               Deck of Capitalist
             </a>
           </>
         ) : (
           <>
-            <p className="settings-hint">{tr(locale, 'Got a code? Enter it here.', 'Punya kode? Isi di sini.')}</p>
+            <p className="settings-hint">{tr(locale, 'Joker Mode 🃏? NSFW', 'Mode Joker 🃏? NSFW')}</p>
             <form className="settings-code-row" onSubmit={submitCode}>
               <input
                 type="password"
                 value={code}
                 onChange={(event) => { setCode(event.target.value); setWrong(false); }}
-                placeholder={tr(locale, 'Friend code', 'Kode teman')}
+                placeholder={tr(locale, 'Password', 'Kata sandi')}
                 autoComplete="off"
                 spellCheck={false}
                 aria-invalid={wrong}
