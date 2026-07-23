@@ -133,8 +133,8 @@ function chipsForMarket(card: Card, modifier?: MarketModifier): number {
   const chips = card.chips + card.bonus;
   if (!modifier) return chips;
   if (modifier.id === 'BANJIR' && card.group === 'RESIDENTIAL') return 0;
-  if (modifier.id === 'MACET' && card.group === 'TRANSPORT') return Math.floor(chips / 2);
-  if (modifier.id === 'MATI_LAMPU' && card.group === 'UTILITY') return 0;
+  if (modifier.id === 'MACET' && card.group === 'INFRASTRUCTURE') return Math.floor(chips / 2);
+  if (modifier.id === 'MATI_LAMPU' && card.group === 'INFRASTRUCTURE') return 0;
   if (modifier.id === 'GANJIL_GENAP' && chips % 2 !== (modifier.parity === 'odd' ? 1 : 0)) return 0;
   if (modifier.id === 'MUSIM_KAWIN') return card.group === 'COMMERCIAL' ? chips * 2 : Math.floor(chips * 0.8);
   return chips;

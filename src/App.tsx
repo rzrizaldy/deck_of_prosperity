@@ -20,7 +20,7 @@ const LOCALE_KEY = 'doc-locale';
 const LocaleContext = createContext<Locale>('id');
 const useLocale = () => useContext(LocaleContext);
 const tr = (locale: Locale, english: string, indonesian: string) => locale === 'id' ? indonesian : english;
-const localizedGroup = (group: keyof typeof GROUPS, locale: Locale) => tr(locale, ({ RESIDENTIAL: 'Residential', COMMERCIAL: 'Commercial', INDUSTRIAL: 'Industrial', UTILITY: 'Utility', TRANSPORT: 'Transport' } as const)[group], GROUPS[group].label);
+const localizedGroup = (group: keyof typeof GROUPS, locale: Locale) => tr(locale, ({ RESIDENTIAL: 'Residential', COMMERCIAL: 'Commercial', INNOVATION: 'Industry & Innovation', INFRASTRUCTURE: 'Public Infrastructure' } as const)[group], GROUPS[group].label);
 const localizedHand = (hand: ScoreBreakdown['hand'], locale: Locale) => tr(locale, ({ HIGH_ASSET: 'High Asset', PAIR: 'Pair', TWO_PAIRS: 'Two Pairs', THREE_KIND: 'Three of a Kind', STRAIGHT: 'Straight', FLUSH: 'Flush', FULL_HOUSE: 'Full House', FOUR_KIND: 'Four of a Kind', STRAIGHT_FLUSH: 'Straight Flush' } as const)[hand], HANDS[hand].name);
 const localizedModifier = (modifier: GameState['modifier'], locale: Locale) => {
   const english = ({ BANJIR: ['Rainy Season', 'Residential assets rest for this market.'], MACET: ['Rush Hour', 'Transport assets score half chips this market.'], MATI_LAMPU: ['Network Care', 'Utility assets rest for this market.'], GANJIL_GENAP: ['Rotating Route', `Only ${modifier.parity ?? 'odd'}-chip assets score this market.`], SIDAK: ['Open Audit', 'Community partner effects pause this market.'], MUSIM_KAWIN: ['Market Festival', 'Commercial chips double; all other asset chips are −20%.'], REKLAMASI: ['District Renewal', 'Three random assets rest for this market only.'] } as const)[modifier.id];
@@ -37,8 +37,8 @@ const localizedConsumable = (item: Consumable, locale: Locale) => locale === 'id
 const money = (value: number) => value.toLocaleString('en-US');
 /** Every deed now draws from a shared, daylight illustration family by class.
  * Names, ranks, chips, and all scoring logic remain unchanged. */
-const cardArt = (card: Card) => `/assets/cards/prosperity-${card.group.toLowerCase()}.png`;
-const GROUP_SORT_ORDER = { RESIDENTIAL: 0, COMMERCIAL: 1, INDUSTRIAL: 2, UTILITY: 3, TRANSPORT: 4 } as const;
+const cardArt = (card: Card) => `/assets/cards/${card.artId}.png`;
+const GROUP_SORT_ORDER = { RESIDENTIAL: 0, COMMERCIAL: 1, INNOVATION: 2, INFRASTRUCTURE: 3 } as const;
 const clearedPercent = (score: number, target: number) =>
   Math.max(0, Math.min(100, Math.round((score / Math.max(1, target)) * 100)));
 
@@ -328,10 +328,10 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 }
 
 const HAND_RECIPES: Record<string, string[]> = {
-  HIGH_ASSET: ['RESIDENTIAL'], PAIR: ['RESIDENTIAL', 'COMMERCIAL'], TWO_PAIRS: ['RESIDENTIAL', 'COMMERCIAL', 'UTILITY', 'TRANSPORT'],
-  THREE_KIND: ['RESIDENTIAL', 'COMMERCIAL', 'INDUSTRIAL'], STRAIGHT: ['RESIDENTIAL', 'COMMERCIAL', 'INDUSTRIAL', 'UTILITY', 'TRANSPORT'],
-  FLUSH: ['TRANSPORT', 'TRANSPORT', 'TRANSPORT', 'TRANSPORT', 'TRANSPORT'], FULL_HOUSE: ['RESIDENTIAL', 'COMMERCIAL', 'INDUSTRIAL', 'UTILITY', 'TRANSPORT'],
-  FOUR_KIND: ['RESIDENTIAL', 'COMMERCIAL', 'INDUSTRIAL', 'UTILITY'], STRAIGHT_FLUSH: ['TRANSPORT', 'TRANSPORT', 'TRANSPORT', 'TRANSPORT', 'TRANSPORT'],
+  HIGH_ASSET: ['RESIDENTIAL'], PAIR: ['RESIDENTIAL', 'COMMERCIAL'], TWO_PAIRS: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION', 'INFRASTRUCTURE'],
+  THREE_KIND: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION'], STRAIGHT: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION', 'INFRASTRUCTURE', 'RESIDENTIAL'],
+  FLUSH: ['INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE'], FULL_HOUSE: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION', 'INFRASTRUCTURE', 'RESIDENTIAL'],
+  FOUR_KIND: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION', 'INFRASTRUCTURE'], STRAIGHT_FLUSH: ['INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE'],
 };
 
 /**
@@ -361,7 +361,7 @@ function PortfolioRecipe({ hand }: { hand: keyof typeof HANDS }) {
  */
 function ScoringExample() {
   const locale = useLocale();
-  const transport = GROUPS.TRANSPORT;
+  const transport = GROUPS.INFRASTRUCTURE;
   const swatch = { '--recipe-color': transport.color, '--recipe-ink': transport.ink } as React.CSSProperties;
   return (
     <figure className="scoring-example">
@@ -450,7 +450,11 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
       <section className="menu-brand">
         <LanguageSwitch locale={locale} setLocale={setLocale} />
         <div className="title-lockup">
-          <div className="prosperity-logo" aria-label="Deck of Prosperity"><span>DECK OF</span><strong>PROSPERITY</strong></div>
+          <div className="prosperity-brand" aria-label="Deck of Prosperity">
+            <img className="prosperity-emblem" src="/assets/logo-prosperity-emblem-pixel.png" alt="Emblem Deck of Prosperity dengan pita Merah Putih" />
+            <div className="prosperity-logo"><span>DECK OF</span><strong>PROSPERITY</strong></div>
+            <span className="indonesia-flag" aria-label="Bendera Indonesia"><i /><b /></span>
+          </div>
         </div>
         <p className="eyebrow">{tr(locale, 'Build value across the archipelago', 'Tumbuhkan nilai di seluruh kepulauan')}</p>
         <h1>{tr(locale, 'Make progress together.', 'Bertumbuh bersama.')}</h1>

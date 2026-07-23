@@ -17,7 +17,7 @@ describe('campaign reducer', () => {
   it('creates a seeded solo market deck', () => {
     const run = createRun('trader', 100);
     expect(run.player.hand).toHaveLength(8);
-    expect(run.player.hand.length + run.player.drawPile.length + run.marketExile.length).toBe(50);
+    expect(run.player.hand.length + run.player.drawPile.length + run.marketExile.length).toBe(52);
     expect(run.marketExile).toHaveLength(run.modifier.id === 'REKLAMASI' ? 3 : 0);
     expect(run.player.hand.map((card) => card.instanceId)).toEqual(createRun('trader', 100).player.hand.map((card) => card.instanceId));
   });

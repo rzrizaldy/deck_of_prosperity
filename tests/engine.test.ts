@@ -19,50 +19,50 @@ describe('authoritative scoring engine', () => {
     expect(marketTarget(8, 'trader')).toBeLessThan(marketTarget(8, 'tycoon'));
   });
 
-  it('creates the specified 50-card ranked trading deck', () => {
+  it('creates the specified 52-card ranked trading deck', () => {
     const deck = createStartingDeck('test');
-    expect(deck).toHaveLength(50);
-    expect(new Set(deck.map((item) => `${item.group}-${item.rank}`)).size).toBe(50);
+    expect(deck).toHaveLength(52);
+    expect(new Set(deck.map((item) => `${item.group}-${item.rank}`)).size).toBe(52);
   });
 
-  it('has ten ranked assets in each of five classes', () => {
+  it('has thirteen ranked assets in each of four classes', () => {
     const groups = new Set(CARD_TEMPLATES.map((item) => item.group));
-    expect(groups.size).toBe(5);
+    expect(groups.size).toBe(4);
     for (const group of groups) {
       const assets = CARD_TEMPLATES.filter((item) => item.group === group);
-      expect(assets).toHaveLength(10);
-      expect(assets.map((item) => item.rank)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      expect(assets).toHaveLength(13);
+      expect(assets.map((item) => item.rank)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
     }
-    expect(new Set(CARD_TEMPLATES.map((item) => item.name)).size).toBe(50);
+    expect(new Set(CARD_TEMPLATES.map((item) => item.name)).size).toBe(52);
     expect(CARD_TEMPLATES.every((item) => Boolean(item.artId))).toBe(true);
     for (const asset of CARD_TEMPLATES) {
-      expect(existsSync(resolve(process.cwd(), `public/assets/cards/${asset.artId}.webp`))).toBe(true);
+      expect(existsSync(resolve(process.cwd(), `public/assets/cards/${asset.artId}.png`))).toBe(true);
     }
   });
 
   it.each([
     [[card('RESIDENTIAL', 9)], 'HIGH_ASSET'],
     [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4)], 'PAIR'],
-    [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4), card('UTILITY', 7), card('TRANSPORT', 7)], 'TWO_PAIRS'],
-    [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4), card('UTILITY', 4)], 'THREE_KIND'],
-    [[card('RESIDENTIAL', 3), card('COMMERCIAL', 4), card('UTILITY', 5), card('TRANSPORT', 6), card('INDUSTRIAL', 7)], 'STRAIGHT'],
+    [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4), card('INNOVATION', 7), card('INFRASTRUCTURE', 7)], 'TWO_PAIRS'],
+    [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4), card('INNOVATION', 4)], 'THREE_KIND'],
+    [[card('RESIDENTIAL', 3), card('COMMERCIAL', 4), card('INNOVATION', 5), card('INFRASTRUCTURE', 6), card('RESIDENTIAL', 7)], 'STRAIGHT'],
     [[card('RESIDENTIAL', 1), card('RESIDENTIAL', 3), card('RESIDENTIAL', 5), card('RESIDENTIAL', 7), card('RESIDENTIAL', 9)], 'FLUSH'],
-    [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4), card('UTILITY', 4), card('TRANSPORT', 7), card('INDUSTRIAL', 7)], 'FULL_HOUSE'],
-    [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4), card('UTILITY', 4), card('TRANSPORT', 4)], 'FOUR_KIND'],
-    [[card('TRANSPORT', 3), card('TRANSPORT', 4), card('TRANSPORT', 5), card('TRANSPORT', 6), card('TRANSPORT', 7)], 'STRAIGHT_FLUSH'],
+    [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4), card('INNOVATION', 4), card('INFRASTRUCTURE', 7), card('RESIDENTIAL', 7)], 'FULL_HOUSE'],
+    [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4), card('INNOVATION', 4), card('INFRASTRUCTURE', 4)], 'FOUR_KIND'],
+    [[card('INFRASTRUCTURE', 3), card('INFRASTRUCTURE', 4), card('INFRASTRUCTURE', 5), card('INFRASTRUCTURE', 6), card('INFRASTRUCTURE', 7)], 'STRAIGHT_FLUSH'],
   ] as const)('recognizes a portfolio as %s', (cards, hand) => {
     expect(identifyHand([...cards])).toBe(hand);
   });
 
   it('applies chip, additive multiplier, then multiplicative effects', () => {
-    const cards = [card('INDUSTRIAL', 4), card('COMMERCIAL', 4), card('UTILITY', 4)];
+    const cards = [card('INNOVATION', 4), card('COMMERCIAL', 4), card('INFRASTRUCTURE', 4)];
     const project = TYCOONS.find((item) => item.id === 'bos-proyek')!;
     const flat = TYCOONS.find((item) => item.id === 'pak-notaris')!;
     const base = scoreHand(cards, [project, flat]);
     expect(base.cardChips).toBe(60);
     expect(base.bonusChips).toBe(25);
     expect(base.baseMultiplier).toBe(4);
-    const prime = scoreHand([card('TRANSPORT', 3), card('TRANSPORT', 4), card('TRANSPORT', 5), card('TRANSPORT', 6), card('TRANSPORT', 7)], [TYCOONS.find((item) => item.id === 'investor-bodong')!]);
+    const prime = scoreHand([card('INFRASTRUCTURE', 3), card('INFRASTRUCTURE', 4), card('INFRASTRUCTURE', 5), card('INFRASTRUCTURE', 6), card('INFRASTRUCTURE', 7)], [TYCOONS.find((item) => item.id === 'investor-bodong')!]);
     expect(prime.multiplicative).toBeCloseTo(3.1275);
   });
 
@@ -87,10 +87,10 @@ describe('authoritative scoring engine', () => {
     };
     const reclaimed = prepareMarket(side, 42, reclamation);
     expect(reclaimed.exiled).toHaveLength(3);
-    expect(reclaimed.side.hand.length + reclaimed.side.drawPile.length + reclaimed.exiled.length).toBe(50);
+    expect(reclaimed.side.hand.length + reclaimed.side.drawPile.length + reclaimed.exiled.length).toBe(52);
     const restored = prepareMarket(reclaimed.side, reclaimed.rngState, normal, reclaimed.exiled);
     expect(restored.exiled).toHaveLength(0);
-    expect(restored.side.hand.length + restored.side.drawPile.length).toBe(50);
+    expect(restored.side.hand.length + restored.side.drawPile.length).toBe(52);
   });
 
   it('reshuffles the discard pile when the draw pile is empty and reports it', () => {
@@ -106,7 +106,7 @@ describe('authoritative scoring engine', () => {
 
   it('does not report a reshuffle when the draw pile covers the deal', () => {
     const side: PlayerState = {
-      hand: [], drawPile: [card('RESIDENTIAL'), card('COMMERCIAL'), card('INDUSTRIAL')], discardPile: [card('UTILITY')],
+      hand: [], drawPile: [card('RESIDENTIAL'), card('COMMERCIAL'), card('INNOVATION')], discardPile: [card('INFRASTRUCTURE')],
       score: 0, cash: 4, tycoons: [], consumables: [], handsLeft: 4, discardsLeft: 3,
     };
     const result = drawToHand(side, 42, 2);

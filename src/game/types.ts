@@ -2,7 +2,7 @@ export type Difficulty = 'casual' | 'trader' | 'tycoon';
 export type CompanionId = 'sari' | 'bima';
 export type Phase = 'menu' | 'intro' | 'playing' | 'shop' | 'victory' | 'gameover';
 export type GroupKey =
-  | 'RESIDENTIAL' | 'COMMERCIAL' | 'INDUSTRIAL' | 'UTILITY' | 'TRANSPORT';
+  | 'RESIDENTIAL' | 'COMMERCIAL' | 'INNOVATION' | 'INFRASTRUCTURE';
 
 export type MarketModifierId =
   | 'BANJIR' | 'MACET' | 'MATI_LAMPU' | 'GANJIL_GENAP'
@@ -35,7 +35,7 @@ export interface CardTemplate {
   /** Reuses a commissioned card illustration when this named asset has one. */
   artId?: string;
   chips: number;
-  /** 1–10 rank. Five consecutive ranks form a Straight. */
+  /** 1–13 rank. Five consecutive ranks form a Straight. */
   rank: number;
 }
 
