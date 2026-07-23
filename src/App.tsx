@@ -192,6 +192,7 @@ function AssetCard({ card, selected = false, compact = false, departing = false,
 }) {
   const locale = useLocale();
   const group = GROUPS[card.group];
+  const cardNameClass = card.name.length > 23 ? 'card-name card-name--very-long' : card.name.length > 16 ? 'card-name card-name--long' : 'card-name';
   const holdTimer = useRef<number>();
   const hoverTimer = useRef<number>();
   const held = useRef(false);
@@ -241,7 +242,7 @@ function AssetCard({ card, selected = false, compact = false, departing = false,
       <span className="card-rank" aria-label={`Rank ${rankLabel(card.rank)}`}>{rankLabel(card.rank)}</span>
       {onInspect && <span className="inspect-hint" aria-hidden="true"><Eye /></span>}
       <span className="card-stripe">{localizedGroup(card.group, locale)}</span>
-      <strong className="card-name">{card.name}</strong>
+      <strong className={cardNameClass}>{card.name}</strong>
       {card.bonus > 0 && <span className="upgrade">+{card.bonus}</span>}
     </button>
   );
@@ -316,10 +317,10 @@ function ScoreFormula({ score, label }: { score: ScoreBreakdown | null; label: s
   );
 }
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+function Modal({ title, onClose, children, className = '' }: { title: string; onClose: () => void; children: React.ReactNode; className?: string }) {
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
-      <section className="modal" role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}>
+      <section className={`modal ${className}`.trim()} role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.stopPropagation()}>
         <header><h2>{title}</h2><button className="icon-button" onClick={onClose} aria-label="Close"><X /></button></header>
         <div className="modal-body">{children}</div>
       </section>
@@ -389,7 +390,7 @@ function ScoringExample() {
 function Guide({ onClose }: { onClose: () => void }) {
   const locale = useLocale();
   return (
-    <Modal title={tr(locale, 'The Market Ledger', 'Buku Besar Pasar')} onClose={onClose}>
+    <Modal title={tr(locale, 'The Market Ledger', 'Buku Besar Pasar')} onClose={onClose} className="guide-modal">
       <div className="guide-grid">
         <section>
           <h3>{tr(locale, 'Scoring, in one hand', 'Skor, dalam satu tangan')}</h3>
@@ -430,7 +431,7 @@ function Compendium({ onClose }: { onClose: () => void }) {
   const [inspectedCard, setInspectedCard] = useState<Card | null>(null);
   const collectionGroups: GroupKey[] = ['COMMERCIAL', 'INNOVATION', 'RESIDENTIAL', 'INFRASTRUCTURE'];
   return (
-    <Modal title={tr(locale, 'Property Compendium', 'Koleksi Aset')} onClose={onClose}>
+    <Modal title={tr(locale, 'Property Compendium', 'Koleksi Aset')} onClose={onClose} className="compendium-modal">
       <p className="compendium-hint">{tr(locale, 'Four category columns, Ace on top and 2 at the bottom. Click any deed for its full detail.', 'Empat kolom kategori, As paling atas dan 2 paling bawah. Klik aset untuk melihat detail penuh.')}</p>
       <div className="compendium">
         {collectionGroups.map((group) => (

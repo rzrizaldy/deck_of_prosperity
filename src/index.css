@@ -1158,3 +1158,55 @@ body { background: #fff8e8; } #root { background: radial-gradient(ellipse at 50%
 .guide-grid .scoring-example p, .guide-grid .scoring-example small { color: #e9e3c5; }
 .compendium-hint { color: #355b51; }
 .compendium .inspect-hint { display: none; }
+
+/* Final visual-QA corrections: preserve the calm paper/felt hierarchy at every scale. */
+.menu-copy { color: #4f7068; }
+.high-score { color: #55746b; }.high-score strong { color: #a55f0a; }
+.difficulty-picker legend, .companion-picker legend { color: #557068; }
+
+/* Dense instructions fit as a complete spread instead of ending mid-definition. */
+.guide-grid h3 { margin-bottom: calc(3 * var(--u, 1px)); }
+.guide-modal { width: min(1120px, 96%); }
+.guide-grid ol { margin-bottom: calc(6 * var(--u, 1px)); line-height: 1.38; }
+.guide-grid .scoring-example { margin-bottom: calc(8 * var(--u, 1px)); padding: calc(7 * var(--u, 1px)) calc(8 * var(--u, 1px)); gap: calc(3 * var(--u, 1px)); }
+.glossary { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: calc(9 * var(--u, 1px)); row-gap: calc(5 * var(--u, 1px)); }
+.glossary > div { display: block; }
+.glossary dt { margin-bottom: calc(1 * var(--u, 1px)); }
+
+@media (min-width: 1000px) {
+  .guide-modal .glossary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Long Indonesian landmark names scale inside the fixed footer instead of clipping. */
+.hand-cards .asset-card > .card-name { font-size: calc(9.2 * var(--u)); }
+.hand-cards .asset-card > .card-name--long { font-size: calc(8 * var(--u)); }
+.hand-cards .asset-card > .card-name--very-long { font-size: calc(6.9 * var(--u)); line-height: .98; }
+
+/* Keep the rotated fan inside its side of the dock and clear of the action rail. */
+.hand-cards { justify-content: center; padding-inline: calc(15 * var(--u)); box-sizing: border-box; }
+.hand-cards .asset-card { margin-left: calc(-19 * var(--u)); }
+.hand-cards .asset-card:first-child { margin-left: 0; }
+
+@media (min-height: 600px) {
+  .hand-cards .asset-card { margin-left: calc(-29 * var(--u)); }
+}
+
+/* The shared market is intentionally dark emerald; all copy follows that surface. */
+.shop-screen::before { background: rgba(3,31,25,.91); }
+.shop-heading h1, .shop-wrap h2, .acquisition h3, .deck-service h3 { color: #f5efd2; }
+.shop-wrap h2 small { color: #b7c9c0; }
+.shop-grid .tycoon-card-copy { background: linear-gradient(180deg, rgba(255,255,255,.06), #f4f8ea 16%); }
+.shop-grid .tycoon-card-copy > span { color: #a7660d; }
+.shop-grid .tycoon-card h3 { color: #184a3d; }
+.shop-grid .tycoon-card p { color: #496960; }
+.acquisition p, .deed-action small { color: #c7d6cf; }
+.acquisition h3 { color: #f2ce6a; }
+.deed-picker .asset-card > .card-stripe { bottom: calc(24 * var(--u)); height: calc(14 * var(--u)); font-size: calc(5.7 * var(--u)); }
+.deed-picker .asset-card > .card-name {
+  height: calc(24 * var(--u)); padding: calc(1 * var(--u)) calc(2 * var(--u));
+  white-space: normal; text-overflow: clip; font-size: calc(6.1 * var(--u)); line-height: .98;
+}
+@media (max-height: 370px) and (orientation: landscape) {
+  .compendium { --collection-u: min(.44px, var(--u, 1px)); }
+  .compendium-modal .modal-body { overflow: hidden; }
+}
