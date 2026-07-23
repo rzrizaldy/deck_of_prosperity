@@ -1016,17 +1016,63 @@ body { background: #fff8e8; } #root { background: radial-gradient(ellipse at 50%
 .difficulty-picker button.active, .companion-picker button.active { background: linear-gradient(135deg, rgba(176,232,206,.9), rgba(255,249,228,.92)); border-color: #44a58a; }
 .intro-screen { background: linear-gradient(rgba(240,252,246,.62), rgba(229,247,237,.90)), url('/assets/generated/prosperity-home-pixel.png') center/cover; }
 .intro-panel, .modal { background: rgba(255,252,242,.95); border-color: rgba(40,135,108,.35); box-shadow: 0 20px 60px rgba(31,98,78,.20); color: #244941; }
-.game-screen { background: radial-gradient(ellipse at 50% 42%, rgba(255,253,211,.92), transparent 48%), linear-gradient(145deg, #d7f1e6, #a8d8c5 52%, #d8f0e7); }
-.game-screen::before { opacity: .4; background: radial-gradient(ellipse at 50% 48%, transparent 0 42%, rgba(36,108,83,.16) 84%); }
-.game-hud { background: linear-gradient(180deg, rgba(255,253,244,.96), rgba(234,249,239,.91)); border-bottom-color: rgba(37,140,109,.45); box-shadow: 0 4px 14px rgba(40,112,87,.12); }
-.play-zone { border-color: rgba(41,139,108,.48); background: radial-gradient(ellipse at 50% 58%, rgba(255,249,202,.78), transparent 56%), linear-gradient(90deg, rgba(240,252,244,.42), transparent 15% 85%, rgba(240,252,244,.42)); }
+.intro-panel { background: rgba(255,251,231,.98); border-color: rgba(195,139,28,.58); box-shadow: 0 20px 60px rgba(14,70,52,.28); }
+.intro-panel h1 { color: #16483b; }
+.intro-panel .modifier-brief { background: #174d3e; border-color: rgba(236,190,72,.70); color: #f7f0cf; }
+.intro-panel .modifier-brief b { color: #f4cf69; }.intro-panel .modifier-brief span { color: #f7f0cf; }
+.intro-points li { background: #edf5e8; border-color: rgba(31,112,84,.28); color: #244d41; }
+.intro-points b { color: #174d3e; }
+.game-screen {
+  color: #fff7d3;
+  background:
+    radial-gradient(ellipse at 50% 39%, rgba(96,207,155,.28), transparent 45%),
+    linear-gradient(145deg, #0d4d3b, #176a50 52%, #093e32);
+}
+.game-screen::before {
+  opacity: .68;
+  background:
+    radial-gradient(ellipse at 50% 48%, transparent 0 43%, rgba(3,32,25,.42) 86%),
+    repeating-radial-gradient(ellipse at center, rgba(255,255,255,.025) 0 1px, transparent 1px 5px);
+}
+.game-hud { background: linear-gradient(180deg, #fffbe8, #edf6e8); border-bottom-color: #d3a637; box-shadow: 0 4px 16px rgba(4,42,32,.28); }
+.round-mark span { color: #715c27; }.round-mark strong { color: #bb780f; }.round-mark small { color: #796f53; }
+.market-progress { background: rgba(255,252,235,.96); border-color: rgba(174,126,27,.48); box-shadow: inset 0 1px 0 white; }
+.progress-figures span { color: #335e52; }.progress-figures em { color: #64796f; }.progress-figures strong { color: #0d8c68; }.progress-figures b { color: #a8610c; }
+.play-zone {
+  border-color: rgba(246,204,94,.78);
+  background:
+    radial-gradient(ellipse at 50% 56%, rgba(87,191,143,.32), transparent 57%),
+    linear-gradient(90deg, rgba(4,50,38,.58), rgba(15,94,70,.30) 20% 80%, rgba(4,50,38,.58));
+  box-shadow: inset 0 2px 0 rgba(255,244,177,.20), 0 -8px 35px rgba(3,39,29,.28);
+}
+.play-zone::before { border-color: rgba(255,221,123,.28); }
+.market-modifier { background: rgba(255,250,224,.96); color: #244c40; border-color: rgba(238,193,77,.72); box-shadow: 0 7px 18px rgba(3,43,32,.23); }
+.market-modifier b { color: #99580b; }.market-modifier span { color: #244c40; }
+.tycoon-shelf { background: rgba(4,55,42,.68); border-color: rgba(255,217,111,.34); }
+.played-tray { background: radial-gradient(ellipse at center, rgba(2,39,29,.60), rgba(3,49,37,.18) 68%, transparent); border-color: rgba(245,205,94,.34); }
+.score-formula { background: rgba(4,49,37,.72); }
 .asset-card, .tycoon-card { background: #fffdf4; box-shadow: 0 5px 14px rgba(36,99,77,.18); }
 .asset-card::after { background: linear-gradient(180deg, transparent 47%, rgba(255,252,239,.1) 56%, rgba(255,252,239,.94) 86%); }
 .asset-card strong, .asset-card .card-value, .tycoon-card h3 { color: #1e4a42; }
 .tycoon-card-copy { background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(247,253,243,.97)); }
 .shop-screen { background: linear-gradient(135deg, #edf9f0, #fff7df); }
-.hand-dock { background: linear-gradient(transparent, rgba(225,244,232,.86) 26%); }
-.play-actions, .hand-sort { background: rgba(255,253,244,.94); border-color: rgba(43,132,105,.36); box-shadow: 0 8px 22px rgba(35,111,84,.18); }
+.hand-dock { background: linear-gradient(transparent, rgba(3,41,31,.93) 27%); }
+.play-actions { background: rgba(255,252,233,.97); border-color: rgba(236,190,68,.82); box-shadow: 0 8px 24px rgba(2,34,25,.38); }
+.hand-sort { background: #123f34; border-color: rgba(240,199,84,.66); box-shadow: none; }
+.hand-sort button { color: #d8e9df; }.hand-sort button.active { color: #153d32; background: #f2ca59; border-color: #ffe99e; }
+.companion-picker button strong { color: #194c40; }.companion-picker button small { color: #55766d; }
+.companion-picker button { min-height: calc(72 * var(--u)); }
+.companion-picker button img { width: calc(65 * var(--u)); height: calc(70 * var(--u)); object-fit: cover; object-position: top; image-rendering: pixelated; filter: drop-shadow(0 4px 4px rgba(24,65,49,.22)); }
+.intro-companion img { object-fit: cover; object-position: top; image-rendering: pixelated; filter: drop-shadow(0 4px 5px rgba(24,65,49,.25)); }
+.companion-rail > img { image-rendering: pixelated; }
+.intro-companion b { color: #146f57; }.intro-companion span { color: #355f54; }
+.companion-bubble { width: calc(100 * var(--u)); background: rgba(255,250,225,.97); border-color: #e5b94e; box-shadow: 0 6px 15px rgba(3,42,31,.28); }
+.companion-bubble::after { border-top-color: #e5b94e; }.companion-bubble b { color: #9e5b0a; }.companion-bubble span { color: #173e34; }
+.market-log { background: rgba(4,47,36,.90); border-color: rgba(244,203,93,.50); }.market-log p { color: #eff8e9; }.market-log span { color: #f4ce69; }
+.commentary-panel { border-right: 1px solid rgba(248,212,112,.28); padding-right: calc(6 * var(--u)); }
+.player-panel { border-left: 1px solid rgba(248,212,112,.28); }
+.player-panel::before { color: #ffe49a; }
+.consumable-rack { color: #f4efd7; }.consumable-rack small { color: #d1dfd6; }
 .hand-cards .asset-card { width: calc(82 * var(--u)); }
 .hand-cards .asset-card strong { font-size: calc(11 * var(--u)); }
 /* Anchor the fan to the reserved hand column; the rightmost rotated card cannot enter the action column. */

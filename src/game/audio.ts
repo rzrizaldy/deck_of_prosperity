@@ -146,7 +146,7 @@ export function playSound(name: SoundName, muted: boolean): void {
 /** Play the selected Konco's short callout when the player commits a hand. */
 export function playCompanionSfx(companion: CompanionId, muted: boolean): boolean {
   if (muted || volume <= 0) return false;
-  playSound(companion === 'sari' ? 'multiplier' : 'chips', muted);
+  playSound(companion === 'abah' ? 'multiplier' : 'chips', muted);
   return true;
 }
 

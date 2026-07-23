@@ -14,7 +14,7 @@ export function createRun(
   difficulty: GameState['difficulty'] = 'trader',
   seed = Date.now() >>> 0,
   muted = false,
-  companion: GameState['companion'] = 'sari',
+  companion: GameState['companion'] = 'abah',
 ): GameState {
   const player = createPlayer('player', seed);
   const market = chooseMarketModifier(player.rngState);
@@ -79,7 +79,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...action.state,
         difficulty: action.state.difficulty ?? 'trader',
-        companion: action.state.companion ?? 'sari',
+        companion: action.state.companion ?? 'abah',
         modifier: action.state.modifier ?? emptyState().modifier,
         marketExile: action.state.marketExile ?? [],
         player: { ...action.state.player, consumables: action.state.player.consumables ?? [] },

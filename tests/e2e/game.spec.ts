@@ -307,11 +307,11 @@ test('the in-game HUD exposes mute and volume', async ({ page }) => {
 
 test('a chosen Konco follows the run from briefing to table', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Bima Pradana.*Penggerak Koperasi/i }).click();
+  await page.getByRole('button', { name: /Azah.*Perancang Strategi/i }).click();
   await page.getByRole('button', { name: /Start market run/i }).click();
-  await expect(page.getByText('Bima Pradana', { exact: true })).toBeVisible();
+  await expect(page.getByText('Azah', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: /Deal market one/i }).click();
-  await expect(page.getByRole('region', { name: /Bima Pradana, your Konco/i })).toBeVisible();
+  await expect(page.getByRole('region', { name: /Azah, your Konco/i })).toBeVisible();
 });
 
 test('holding a gameplay card opens its large artwork preview', async ({ page }) => {

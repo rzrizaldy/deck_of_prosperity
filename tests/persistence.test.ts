@@ -24,6 +24,16 @@ describe('versioned local persistence', () => {
     expect(loadSave()).toBeNull();
   });
 
+  it('migrates the published placeholder companions to Abah and Azah', () => {
+    const run = createRun('trader', 42);
+    const oldSave = { version: 2, savedAt: 1, state: { ...run, companion: 'sari' } };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(oldSave));
+    expect(loadSave()?.companion).toBe('abah');
+    oldSave.state.companion = 'bima';
+    localStorage.setItem(SAVE_KEY, JSON.stringify(oldSave));
+    expect(loadSave()?.companion).toBe('azah');
+  });
+
   it('retires an incompatible prototype save', () => {
     localStorage.setItem(LEGACY_SAVE_KEY, '{}');
     expect(migrateLegacySave()).toBe(true);

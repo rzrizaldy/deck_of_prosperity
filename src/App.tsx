@@ -43,17 +43,17 @@ const clearedPercent = (score: number, target: number) =>
   Math.max(0, Math.min(100, Math.round((score / Math.max(1, target)) * 100)));
 
 const COMPANIONS = {
-  sari: {
-    name: 'Sari Pertiwi',
-    title: 'Arsitek Warga',
-    asset: '/assets/companions/sari-pertiwi.png',
-    intro: 'Mulai dari yang kuat, lalu tumbuhkan nilai bersama.',
+  abah: {
+    name: 'Abah',
+    title: 'Mentor Warga',
+    asset: '/assets/companions/abah.png',
+    intro: 'Baca situasi dengan tenang, lalu pilih langkah yang paling masuk akal.',
   },
-  bima: {
-    name: 'Bima Pradana',
-    title: 'Penggerak Koperasi',
-    asset: '/assets/companions/bima-pradana.png',
-    intro: 'Langkah kecil yang rapi bisa membangun banyak hal.',
+  azah: {
+    name: 'Azah',
+    title: 'Perancang Strategi',
+    asset: '/assets/companions/azah.png',
+    intro: 'Rapikan peluangnya; kemajuan besar selalu dimulai dari pilihan cerdas.',
   },
 } as const;
 
@@ -446,7 +446,7 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
   state: GameState; saved: GameState | null; highScore: number; legacyCleared: boolean; dispatch: Dispatch; locale: Locale; setLocale: (locale: Locale) => void;
 }) {
   const [difficulty, setDifficulty] = useState<Difficulty>('trader');
-  const [companion, setCompanion] = useState<GameState['companion']>('sari');
+  const [companion, setCompanion] = useState<GameState['companion']>('abah');
   const [guide, setGuide] = useState(false);
   const [compendium, setCompendium] = useState(false);
   return (
@@ -556,23 +556,23 @@ function Intro({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
 type KoncoMoment = 'opening' | 'ready' | 'bigScore' | 'whiff' | 'lastHand' | 'event' | 'default';
 
 const KONCO_LINES: Record<keyof typeof COMPANIONS, Record<KoncoMoment, string[]>> = {
-  sari: {
-    opening: ['Pasar baru, peluang baru. Kita mulai dengan tenang!', 'Lihat event-nya, lalu rancang langkah pertama.', 'Tangan pertama bisa jadi pondasi yang kuat.', 'Meja sudah siap. Mari bangun sesuatu yang baik.'],
-    ready: ['{selected} aset sudah siap. Yuk, wujudkan idenya!', 'Pola sudah terlihat. Saatnya bergerak bersama.', 'Multiplier-nya menjanjikan. Coba kita jalankan!', 'Portofolio sudah rapi. Mainkan dengan yakin.'],
-    bigScore: ['{hand} untuk {score}! Kerja sama yang indah!', 'Nilainya tumbuh. Pertahankan ritme baik ini!', 'Hebat! Satu langkah lagi menuju target.', 'Itu contoh rencana yang berkembang dengan sehat.'],
-    whiff: ['{score} adalah awal yang jujur. Kita bisa menyusun ulang.', 'Tidak apa-apa, selalu ada langkah berikutnya.', 'Kartu ini memberi kita informasi untuk keputusan yang lebih baik.', 'Setiap percobaan membuat portofolio makin matang.'],
-    lastHand: ['Tangan terakhir. Pilih kombinasi yang paling kamu percaya.', 'Satu kesempatan lagi—tarik napas dan lihat polanya.', 'Kita sudah sampai sejauh ini. Mari selesaikan dengan baik.', 'Saatnya membuat nilai terbaik dari kartu yang ada.'],
-    event: ['Kondisi berubah; rencana yang baik ikut menyesuaikan.', 'Alat baru membuka cara pandang baru.', 'Mari baca situasinya dan lanjutkan dengan optimis.', 'Perubahan kecil bisa membuka peluang besar.'],
-    default: ['{remaining} lagi. Sedikit demi sedikit, target akan dekat.', 'Lihat pola, pilih langkah, lalu tumbuh.', 'Masih banyak ruang untuk keputusan yang cerdas.', 'Kita membangun nilai, satu portofolio pada satu waktu.'],
+  abah: {
+    opening: ['Pasar baru. Kita baca situasinya sebelum bergerak.', 'Lihat event-nya; kebijakan yang baik dimulai dari data.', 'Empat tangan, satu tujuan. Kita susun dengan tenang.', 'Meja sudah siap. Mari bangun nilai yang terasa manfaatnya.'],
+    ready: ['{selected} aset sudah siap. Pastikan polanya bekerja.', 'Pola sudah terlihat. Sekarang jalankan dengan yakin.', 'Multiplier-nya sehat. Kita dorong bersama.', 'Portofolio sudah rapi. Saatnya membuktikan hitungannya.'],
+    bigScore: ['{hand} untuk {score}. Kemajuan yang bisa kita ukur!', 'Nilainya tumbuh. Pertahankan arah baik ini.', 'Bagus. Satu langkah konkret menuju target.', 'Rencana yang matang memang memberi hasil.'],
+    whiff: ['{score} memberi kita data baru. Susun ulang.', 'Belum cukup, tapi jalannya mulai terlihat.', 'Baca kartunya lagi; peluang berikutnya masih terbuka.', 'Evaluasi sebentar, lalu kembali dengan kombinasi lebih kuat.'],
+    lastHand: ['Tangan terakhir. Pilih yang paling masuk akal.', 'Satu kesempatan lagi—tenang, lihat pola, putuskan.', 'Kita sudah sejauh ini. Selesaikan dengan perhitungan baik.', 'Saatnya membuat nilai terbaik dari kartu yang tersedia.'],
+    event: ['Kondisi berubah; rencana yang baik ikut menyesuaikan.', 'Alat baru membuka pilihan kebijakan baru.', 'Kita baca situasinya, lalu bergerak optimistis.', 'Perubahan kecil bisa membuka manfaat besar.'],
+    default: ['{remaining} lagi. Sedikit demi sedikit, target mendekat.', 'Baca pola, pilih langkah, lalu bergerak.', 'Masih ada ruang untuk keputusan yang lebih kuat.', 'Kita membangun kemajuan, satu portofolio setiap kali.'],
   },
-  bima: {
-    opening: ['Pasar baru terbuka. Kita punya ruang untuk membuat pilihan yang baik.', 'Atur napas. Event sudah memberi arah pertama.', 'Empat tangan cukup bila digunakan dengan penuh perhatian.', 'Mari mulai dari pola yang paling jelas.'],
-    ready: ['{selected} aset sudah dipilih. Periksa kembali sinerginya.', 'Portofolio siap. Kombinasi yang rapi selalu punya potensi.', 'Multiplier sudah terlihat. Keputusanmu bisa dibuat dengan tenang.', 'Pilihan ada di meja. Mari jalankan yang paling bermakna.'],
-    bigScore: ['{hand}, {score}. Nilai yang tumbuh dari rencana yang baik.', 'Pasar merespons. Simpan ritme ini untuk langkah berikutnya.', 'Itu skor yang sehat. Rayakan, lalu lanjutkan dengan bijak.', 'Bagus. Perencanaan yang konsisten memang terasa seperti ini.'],
-    whiff: ['{score}. Kita belajar sesuatu untuk tangan berikutnya.', 'Kecil, tapi tetap sebuah langkah maju.', 'Angka itu sedang tumbuh. Beri ia kombinasi yang tepat.', 'Setiap portofolio memberi petunjuk untuk yang lebih baik.'],
-    lastHand: ['Tangan terakhir. Percayai hitungan dan intuisi yang sudah kamu bangun.', 'Sisa satu kesempatan. Pilih kombinasi yang paling selaras.', 'Tarik napas, hitung lagi, lalu mainkan dengan mantap.', 'Ini saatnya angka bekerja untuk rencana kita.'],
-    event: ['Pasar berubah, dan kita dapat beradaptasi dengan tenang.', 'Alat baru siap membantu. Gunakan saat momennya tepat.', 'Kondisi bergeser. Portofolio yang baik tahu cara ikut bergerak.', 'Catat event-nya; setiap perubahan membawa pelajaran.'],
-    default: ['{remaining} lagi. Pelan dan rapi, target akan mendekat.', 'Target masih ada. Mari lihat jalan menuju jumlahnya.', 'Jangan lihat jumlahnya saja. Lihat sinergi di baliknya.', 'Masih ada ruang untuk keputusan yang lebih indah.'],
+  azah: {
+    opening: ['Pasar baru. Aku sudah tandai tiga peluang pertamanya.', 'Event-nya jelas; sekarang kita cari kombinasi paling efisien.', 'Empat tangan cukup kalau urutannya tepat.', 'Mulai dari pola yang paling bernilai, lalu kembangkan.'],
+    ready: ['{selected} aset dipilih. Cek lagi sinergi dan rank-nya.', 'Portofolio siap. Kombinasi rapi selalu punya daya ungkit.', 'Multiplier terlihat. Ini momen yang tepat.', 'Pilihan sudah di meja. Jalankan strategi terbaikmu.'],
+    bigScore: ['{hand}, {score}. Strateginya bekerja sempurna!', 'Pasar merespons. Simpan momentum ini.', 'Skor sehat. Nikmati sebentar, lalu susun langkah berikutnya.', 'Tepat sasaran. Konsistensi membuat nilai bertumbuh.'],
+    whiff: ['{score}. Kita punya informasi untuk optimasi berikutnya.', 'Masih kecil, tetapi arah perbaikannya jelas.', 'Angkanya butuh kombinasi yang lebih tajam.', 'Setiap portofolio memberi petunjuk untuk strategi berikutnya.'],
+    lastHand: ['Tangan terakhir. Percayai hitungan yang sudah kita susun.', 'Satu kesempatan. Pilih kombinasi dengan daya ungkit tertinggi.', 'Hitung lagi, lalu mainkan dengan mantap.', 'Sekarang biarkan angka bekerja untuk rencana kita.'],
+    event: ['Pasar berubah; strategi kita ikut beradaptasi.', 'Alat baru tersedia. Pakai pada titik paling berdampak.', 'Kondisi bergeser. Kita masih punya rute menuju target.', 'Catat event-nya; perubahan ini bisa jadi keuntungan.'],
+    default: ['{remaining} lagi. Rapikan rank dan kategori.', 'Target masih ada. Cari jalur paling efisien.', 'Jangan lihat jumlahnya saja; cari sinerginya.', 'Masih ada ruang untuk kombinasi yang lebih elegan.'],
   },
 };
 

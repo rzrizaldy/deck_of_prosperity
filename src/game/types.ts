@@ -1,5 +1,5 @@
 export type Difficulty = 'casual' | 'trader' | 'tycoon';
-export type CompanionId = 'sari' | 'bima';
+export type CompanionId = 'abah' | 'azah';
 export type Phase = 'menu' | 'intro' | 'playing' | 'shop' | 'victory' | 'gameover';
 export type GroupKey =
   | 'RESIDENTIAL' | 'COMMERCIAL' | 'INNOVATION' | 'INFRASTRUCTURE';
