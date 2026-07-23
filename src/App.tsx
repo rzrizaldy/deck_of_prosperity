@@ -21,7 +21,7 @@ const LocaleContext = createContext<Locale>('id');
 const useLocale = () => useContext(LocaleContext);
 const tr = (locale: Locale, english: string, indonesian: string) => locale === 'id' ? indonesian : english;
 const localizedGroup = (group: keyof typeof GROUPS, locale: Locale) => tr(locale, ({ RESIDENTIAL: 'Residential', COMMERCIAL: 'Commercial', INNOVATION: 'Industry & Innovation', INFRASTRUCTURE: 'Public Infrastructure' } as const)[group], GROUPS[group].label);
-const localizedHand = (hand: ScoreBreakdown['hand'], locale: Locale) => tr(locale, ({ HIGH_ASSET: 'High Asset', PAIR: 'Pair', TWO_PAIRS: 'Two Pairs', THREE_KIND: 'Three of a Kind', STRAIGHT: 'Straight', FLUSH: 'Flush', FULL_HOUSE: 'Full House', FOUR_KIND: 'Four of a Kind', STRAIGHT_FLUSH: 'Straight Flush' } as const)[hand], HANDS[hand].name);
+const localizedHand = (hand: ScoreBreakdown['hand'], _locale: Locale) => HANDS[hand].name;
 const localizedModifier = (modifier: GameState['modifier'], locale: Locale) => {
   const english = ({ BANJIR: ['Rainy Season', 'Residential assets rest for this market.'], MACET: ['Rush Hour', 'Transport assets score half chips this market.'], MATI_LAMPU: ['Network Care', 'Utility assets rest for this market.'], GANJIL_GENAP: ['Rotating Route', `Only ${modifier.parity ?? 'odd'}-chip assets score this market.`], SIDAK: ['Open Audit', 'Community partner effects pause this market.'], MUSIM_KAWIN: ['Market Festival', 'Commercial chips double; all other asset chips are −20%.'], REKLAMASI: ['District Renewal', 'Three random assets rest for this market only.'] } as const)[modifier.id];
   return locale === 'en' ? { name: english[0], summary: english[1] } : modifier;
@@ -327,11 +327,16 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   );
 }
 
-const HAND_RECIPES: Record<string, string[]> = {
-  HIGH_ASSET: ['RESIDENTIAL'], PAIR: ['RESIDENTIAL', 'COMMERCIAL'], TWO_PAIRS: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION', 'INFRASTRUCTURE'],
-  THREE_KIND: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION'], STRAIGHT: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION', 'INFRASTRUCTURE', 'RESIDENTIAL'],
-  FLUSH: ['INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE'], FULL_HOUSE: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION', 'INFRASTRUCTURE', 'RESIDENTIAL'],
-  FOUR_KIND: ['RESIDENTIAL', 'COMMERCIAL', 'INNOVATION', 'INFRASTRUCTURE'], STRAIGHT_FLUSH: ['INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE', 'INFRASTRUCTURE'],
+const HAND_RECIPES: Record<ScoreBreakdown['hand'], Array<{ group: keyof typeof GROUPS; rank: number }>> = {
+  HIGH_ASSET: [{ group: 'RESIDENTIAL', rank: 13 }],
+  PAIR: [{ group: 'RESIDENTIAL', rank: 5 }, { group: 'COMMERCIAL', rank: 5 }],
+  TWO_PAIRS: [{ group: 'RESIDENTIAL', rank: 3 }, { group: 'COMMERCIAL', rank: 3 }, { group: 'INNOVATION', rank: 7 }, { group: 'INFRASTRUCTURE', rank: 7 }],
+  THREE_KIND: [{ group: 'RESIDENTIAL', rank: 6 }, { group: 'COMMERCIAL', rank: 6 }, { group: 'INNOVATION', rank: 6 }],
+  STRAIGHT: [{ group: 'RESIDENTIAL', rank: 3 }, { group: 'COMMERCIAL', rank: 4 }, { group: 'INNOVATION', rank: 5 }, { group: 'INFRASTRUCTURE', rank: 6 }, { group: 'RESIDENTIAL', rank: 7 }],
+  FLUSH: [{ group: 'INFRASTRUCTURE', rank: 2 }, { group: 'INFRASTRUCTURE', rank: 4 }, { group: 'INFRASTRUCTURE', rank: 6 }, { group: 'INFRASTRUCTURE', rank: 8 }, { group: 'INFRASTRUCTURE', rank: 11 }],
+  FULL_HOUSE: [{ group: 'RESIDENTIAL', rank: 7 }, { group: 'COMMERCIAL', rank: 7 }, { group: 'INNOVATION', rank: 7 }, { group: 'INFRASTRUCTURE', rank: 3 }, { group: 'RESIDENTIAL', rank: 3 }],
+  FOUR_KIND: [{ group: 'RESIDENTIAL', rank: 4 }, { group: 'COMMERCIAL', rank: 4 }, { group: 'INNOVATION', rank: 4 }, { group: 'INFRASTRUCTURE', rank: 4 }],
+  STRAIGHT_FLUSH: [{ group: 'INFRASTRUCTURE', rank: 3 }, { group: 'INFRASTRUCTURE', rank: 4 }, { group: 'INFRASTRUCTURE', rank: 5 }, { group: 'INFRASTRUCTURE', rank: 6 }, { group: 'INFRASTRUCTURE', rank: 7 }],
 };
 
 /**
@@ -344,10 +349,10 @@ function PortfolioRecipe({ hand }: { hand: keyof typeof HANDS }) {
   return (
     <div className="portfolio-recipe" aria-label={`${localizedHand(hand, locale)} ${tr(locale, 'card pattern', 'pola kartu')} `}>
       <div className="recipe-cards">
-        {groups.map((group, index) => {
-          const visual = GROUPS[group as keyof typeof GROUPS];
-          return <span key={`${group}-${index}`} style={{ '--recipe-color': visual.color, '--recipe-ink': visual.ink } as React.CSSProperties}>
-            {localizedGroup(group as keyof typeof GROUPS, locale).slice(0, 1)}
+        {groups.map(({ group, rank }, index) => {
+          const visual = GROUPS[group];
+          return <span key={`${group}-${rank}-${index}`} style={{ '--recipe-color': visual.color, '--recipe-ink': visual.ink } as React.CSSProperties}>
+            <b>{rank}</b><small>{localizedGroup(group, locale).slice(0, 1)}</small>
           </span>;
         })}
       </div>
@@ -368,7 +373,7 @@ function ScoringExample() {
       <div className="example-cards">
         <span style={swatch}>3<b>15</b></span><span style={swatch}>4<b>20</b></span><span style={swatch}>5<b>25</b></span><span style={swatch}>6<b>30</b></span><span style={swatch}>7<b>35</b></span>
       </div>
-      <figcaption>{tr(locale, 'Five consecutive ranks make a Straight. Five in the same class make a Flush. Do both and it is a Straight Flush.', 'Lima rank berurutan membentuk Koridor. Lima kartu satu kelas membentuk Satu Kelas. Dapatkan keduanya untuk Koridor Prime.')}</figcaption>
+      <figcaption>{tr(locale, 'Five consecutive ranks make a Straight. Five in the same category make a Flush. Do both and it is a Straight Flush.', 'Lima rank berurutan membentuk Straight. Lima kartu satu kategori membentuk Flush. Dapatkan keduanya untuk Straight Flush.')}</figcaption>
       <div className="example-maths">
         <span><small>{tr(locale, 'chips', 'chip')}</small><strong>125</strong></span>
         <i>×</i>
@@ -376,7 +381,7 @@ function ScoringExample() {
         <i>=</i>
         <span className="example-total"><small>{tr(locale, 'score', 'skor')}</small><strong>2,000</strong></span>
       </div>
-      <figcaption>{tr(locale, 'Ranks are 1–10 in every class. Build runs for Straights, classes for Flushes, or matching ranks for pairs and houses.', 'Setiap kelas punya peringkat 1–10. Susun peringkat untuk Koridor, kumpulkan kelas untuk Satu Kelas, atau samakan peringkat untuk Pasangan dan Kawasan Lengkap.')}</figcaption>
+      <figcaption>{tr(locale, 'Ranks are 1–13 in every category. Build runs for Straights, categories for Flushes, or matching ranks for pairs and houses.', 'Setiap kategori punya rank 1–13. Susun rank untuk Straight, kumpulkan kategori untuk Flush, atau samakan rank untuk Pair dan Full House.')}</figcaption>
     </figure>
   );
 }
@@ -406,7 +411,7 @@ function Guide({ onClose }: { onClose: () => void }) {
         </section>
         <section>
           <h3>{tr(locale, 'Portfolio patterns', 'Pola portofolio')}</h3>
-          <p className="guide-note">{tr(locale, 'Every class holds ranks 1–10. Higher patterns are rarer and multiply much harder; the swatches show the required classes.', 'Setiap kelas memiliki peringkat 1–10. Pola tinggi lebih langka dan pengalinya lebih besar; kotak warna menunjukkan kelas yang diperlukan.')}</p>
+          <p className="guide-note">{tr(locale, 'Every category holds ranks 1–13. Higher poker hands are rarer and multiply much harder; the mini-cards show exact example ranks.', 'Setiap kategori memiliki rank 1–13. Poker hand tinggi lebih langka dan pengalinya lebih besar; kartu mini menunjukkan contoh rank yang tepat.')}</p>
           <div className="rank-list">
             {Object.entries(HANDS).map(([key, hand]) => (
               <div key={key} className="rank-row"><PortfolioRecipe hand={key as keyof typeof HANDS} /><span><strong>{localizedHand(key as keyof typeof HANDS, locale)}</strong><small>{locale === 'en' ? ({ HIGH_ASSET: 'No pattern; highest rank leads.', PAIR: 'Two matching ranks.', TWO_PAIRS: 'Two different matching ranks.', THREE_KIND: 'Three matching ranks.', STRAIGHT: 'Five consecutive ranks.', FLUSH: 'Five cards in one class.', FULL_HOUSE: 'Three matching ranks plus a pair.', FOUR_KIND: 'Four matching ranks.', STRAIGHT_FLUSH: 'Five consecutive ranks in one class.' } as Record<string, string>)[key] : hand.description}</small></span><b>×{hand.multiplier}</b></div>
@@ -449,13 +454,7 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
       <div className="menu-shade" />
       <section className="menu-brand">
         <LanguageSwitch locale={locale} setLocale={setLocale} />
-        <div className="title-lockup">
-          <div className="prosperity-brand" aria-label="Deck of Prosperity">
-            <img className="prosperity-emblem" src="/assets/logo-prosperity-emblem-pixel.png" alt="Emblem Deck of Prosperity dengan pita Merah Putih" />
-            <div className="prosperity-logo"><span>DECK OF</span><strong>PROSPERITY</strong></div>
-            <span className="indonesia-flag" aria-label="Bendera Indonesia"><i /><b /></span>
-          </div>
-        </div>
+        <div className="title-lockup"><img src="/assets/title-prosperity.png" alt="Deck of Prosperity" /></div>
         <p className="eyebrow">{tr(locale, 'Build value across the archipelago', 'Tumbuhkan nilai di seluruh kepulauan')}</p>
         <h1>{tr(locale, 'Make progress together.', 'Bertumbuh bersama.')}</h1>
         <p className="menu-copy">{tr(locale, 'Build a resilient portfolio that helps the city thrive.', 'Bangun portofolio tangguh yang ikut membuat kota berkembang.')}</p>

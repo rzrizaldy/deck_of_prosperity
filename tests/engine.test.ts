@@ -40,6 +40,15 @@ describe('authoritative scoring engine', () => {
     }
   });
 
+  it('places UI, UGM, and ITB at the top of the innovation value ladder', () => {
+    const innovation = CARD_TEMPLATES.filter((item) => item.group === 'INNOVATION');
+    expect(innovation.slice(-3).map(({ name, rank }) => [name, rank])).toEqual([
+      ['Universitas Indonesia', 11],
+      ['Universitas Gadjah Mada', 12],
+      ['Institut Teknologi Bandung', 13],
+    ]);
+  });
+
   it.each([
     [[card('RESIDENTIAL', 9)], 'HIGH_ASSET'],
     [[card('RESIDENTIAL', 4), card('COMMERCIAL', 4)], 'PAIR'],

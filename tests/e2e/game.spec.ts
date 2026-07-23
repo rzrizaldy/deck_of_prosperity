@@ -349,13 +349,15 @@ test('the guide states each rule once and shows a worked score', async ({ page }
   await expect(example).toContainText('mult');
   await expect(example).toContainText('125');
 
-  // The new 5×10 ruleset publishes each legal scoring pattern exactly once.
+  // The 4×13 ruleset publishes each legal poker hand exactly once.
   const rows = guide.locator('.guide-grid .rank-row');
   await expect(rows).toHaveCount(9);
   await expect(rows.locator('strong')).toHaveText([
-    'High Asset', 'Pair', 'Two Pairs', 'Three of a Kind', 'Straight',
+    'High Card', 'Pair', 'Two Pair', 'Three of a Kind', 'Straight',
     'Flush', 'Full House', 'Four of a Kind', 'Straight Flush',
   ]);
+  const fullHouse = rows.filter({ hasText: 'Full House' });
+  await expect(fullHouse.locator('.recipe-cards b')).toHaveText(['7', '7', '7', '3', '3']);
 });
 
 test('one word for one concept across briefing and table', async ({ page }) => {
@@ -371,6 +373,6 @@ test('one word for one concept across briefing and table', async ({ page }) => {
 test('compendium cards open a full-size artwork preview', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /^Cards$/i }).click();
-  await page.getByRole('button', { name: /^Kampung Pesisir, 5 chips/i }).click();
-  await expect(page.getByRole('dialog', { name: /Kampung Pesisir card preview/i })).toBeVisible();
+  await page.getByRole('button', { name: /^Kampung Naga, 5 chips/i }).click();
+  await expect(page.getByRole('dialog', { name: /Kampung Naga card preview/i })).toBeVisible();
 });

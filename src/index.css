@@ -89,13 +89,6 @@ body { background: #fff8e8; }
 .game-frame { box-shadow: 0 20px 70px rgba(37, 104, 82, .20); }
 .menu-screen { background: #dff4e9 url('/assets/generated/prosperity-home-pixel.png') center/cover no-repeat; }
 .menu-shade { background: linear-gradient(90deg, rgba(255, 251, 236, .96) 0%, rgba(255, 251, 236, .84) 47%, rgba(255, 251, 236, .22) 100%); }
-.prosperity-logo { display: grid; gap: calc(2 * var(--u)); font-family: Manrope, system-ui, sans-serif; line-height: .84; color: #177764; text-shadow: 0 2px 0 #fff8e8; }
-.prosperity-logo span { letter-spacing: .29em; font-size: calc(13 * var(--u)); font-weight: 800; color: #c36d22; }
-.prosperity-logo strong { font-size: calc(41 * var(--u)); letter-spacing: -.075em; }
-.prosperity-brand { display: flex; align-items: center; gap: calc(10 * var(--u)); }
-.prosperity-emblem { width: calc(68 * var(--u)); height: calc(68 * var(--u)); object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 3px 0 rgba(255, 248, 232, .78)); }
-.indonesia-flag { width: calc(31 * var(--u)); height: calc(21 * var(--u)); display: grid; grid-template-rows: 1fr 1fr; overflow: hidden; border: 1px solid rgba(48, 77, 48, .24); box-shadow: 0 2px 0 rgba(255,255,255,.68); }
-.indonesia-flag i { background: #e33f45; }.indonesia-flag b { background: #fff9ec; }
 .eyebrow, .menu-copy, .high-score { color: #4c6d65; }
 .menu-brand h1 { color: #16433e; }
 .primary { background: linear-gradient(135deg, #f2bd51, #dc7e30); color: #243622; box-shadow: 0 6px 20px rgba(213, 126, 48, .25); }
@@ -853,11 +846,13 @@ body { background: #fff8e8; }
 .recipe-cards span {
   --recipe-color: #777;
   width: calc(20 * var(--u, 1px)); height: calc(25 * var(--u, 1px)); margin-left: calc(-5 * var(--u, 1px));
-  display: grid; place-items: center;
+  display: grid; place-items: center; align-content: center;
   border: 1px solid color-mix(in srgb, var(--recipe-color), white 30%); border-radius: 4px;
   color: var(--recipe-ink); background: linear-gradient(145deg, color-mix(in srgb, var(--recipe-color), #05080d 20%), var(--recipe-color));
   box-shadow: 0 2px 6px rgba(0, 0, 0, .36); font: 700 var(--t-xs, .6rem) 'DM Mono', monospace;
 }
+.recipe-cards span b { color: inherit; font: 800 var(--t-xs, .6rem) 'DM Mono', monospace; line-height: .9; }
+.recipe-cards span small { color: inherit; font: 700 calc(var(--t-xs, .6rem) * .72) 'DM Mono', monospace; line-height: .9; opacity: .8; }
 .recipe-cards span:first-child { margin-left: 0; }
 
 /* Worked scoring example: the one thing the guide has to actually teach. */
@@ -1036,6 +1031,9 @@ body { background: #fff8e8; } #root { background: radial-gradient(ellipse at 50%
 .hand-cards .asset-card strong { font-size: calc(11 * var(--u)); }
 /* Anchor the fan to the reserved hand column; the rightmost rotated card cannot enter the action column. */
 .hand-cards { justify-content: flex-start; }
-/* Keep commissioned pixel scenery fully visible above legacy noir card rules. */
+/* Keep commissioned pixel scenery visible while matching Capitalist's proven text contrast. */
 .asset-card .card-art { opacity: 1; mix-blend-mode: normal; image-rendering: pixelated; }
-.asset-card::after, .played-cards .asset-card::after { background: linear-gradient(180deg, transparent 45%, rgba(255,249,231,.10) 58%, rgba(255,249,231,.94) 91%); }
+.asset-card::after, .played-cards .asset-card::after { background: linear-gradient(180deg, transparent 24%, rgba(9,24,18,.18) 56%, rgba(5,16,12,.94)); }
+.asset-card strong { color: #fbfdfd; text-shadow: 0 1px 2px rgba(0,0,0,.95), 0 0 6px rgba(0,0,0,.82); }
+.asset-card .card-value { color: #ffdf9d; background: #07100c; border: 1px solid rgba(255,223,157,.2); box-shadow: 0 2px 6px rgba(0,0,0,.32); }
+.asset-card .card-rank { background: rgba(3,12,10,.88); color: #fff0b5; }
