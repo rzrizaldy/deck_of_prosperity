@@ -8,15 +8,15 @@ export const GROUPS: Record<GroupKey, { label: string; setSize: number; color: s
 };
 
 export const HANDS: Record<HandKey, { name: string; multiplier: number; description: string }> = {
-  HIGH_ASSET: { name: 'High Card', multiplier: 1, description: 'Tidak ada pola; rank tertinggi memimpin.' },
-  PAIR: { name: 'Pair', multiplier: 2, description: 'Dua kartu dengan rank sama.' },
-  TWO_PAIRS: { name: 'Two Pair', multiplier: 3, description: 'Dua pasang rank berbeda.' },
-  THREE_KIND: { name: 'Three of a Kind', multiplier: 4, description: 'Tiga kartu dengan rank sama.' },
+  HIGH_ASSET: { name: 'High Card', multiplier: 1, description: 'Nggak ada pola; rank tertinggi yang jalan.' },
+  PAIR: { name: 'Pair', multiplier: 2, description: 'Dua kartu rank sama.' },
+  TWO_PAIRS: { name: 'Two Pair', multiplier: 3, description: 'Dua pasang rank beda.' },
+  THREE_KIND: { name: 'Three of a Kind', multiplier: 4, description: 'Tiga kartu rank sama.' },
   STRAIGHT: { name: 'Straight', multiplier: 6, description: 'Lima rank berurutan, kategori bebas.' },
-  FLUSH: { name: 'Flush', multiplier: 7, description: 'Lima kartu dari kategori yang sama.' },
-  FULL_HOUSE: { name: 'Full House', multiplier: 9, description: 'Three of a Kind ditambah Pair (3+2).' },
-  FOUR_KIND: { name: 'Four of a Kind', multiplier: 12, description: 'Empat kartu dengan rank sama.' },
-  STRAIGHT_FLUSH: { name: 'Straight Flush', multiplier: 16, description: 'Lima rank berurutan dalam satu kategori.' },
+  FLUSH: { name: 'Flush', multiplier: 7, description: 'Lima kartu sewarna.' },
+  FULL_HOUSE: { name: 'Full House', multiplier: 9, description: 'Three of a Kind plus Pair (3+2).' },
+  FOUR_KIND: { name: 'Four of a Kind', multiplier: 12, description: 'Empat kartu rank sama.' },
+  STRAIGHT_FLUSH: { name: 'Straight Flush', multiplier: 16, description: 'Lima rank berurutan, sewarna.' },
 };
 
 /** Internal ranks stay 1–13 for scoring; the published deck reads like poker, 2 through Ace. */
@@ -25,21 +25,21 @@ export const rankLabel = (rank: number) => CARD_RANK_LABELS[rank - 1] ?? String(
 
 /** Market events are public constraints, not surprise punishments. */
 export const MARKET_MODIFIERS: MarketModifier[] = [
-  { id: 'BANJIR', name: 'Musim Hujan', summary: 'Aset Hunian beristirahat satu pasar ini.', art: 'banjir' },
-  { id: 'MACET', name: 'Jam Sibuk', summary: 'Aset Infrastruktur menghasilkan setengah chip di pasar ini.', art: 'macet' },
-  { id: 'MATI_LAMPU', name: 'Perawatan Jaringan', summary: 'Aset Infrastruktur beristirahat satu pasar ini.', art: 'mati-lampu' },
-  { id: 'GANJIL_GENAP', name: 'Rute Bergilir', summary: 'Hanya aset chip ganjil yang bernilai di pasar ini.', art: 'ganjil-genap', parity: 'odd' },
-  { id: 'SIDAK', name: 'Audit Terbuka', summary: 'Efek semua rekan berhenti sejenak di pasar ini.', art: 'sidak' },
-  { id: 'MUSIM_KAWIN', name: 'Festival Pasar', summary: 'Chip Komersial dua kali lipat; aset lain −20%.', art: 'musim-kawin' },
-  { id: 'REKLAMASI', name: 'Penataan Kawasan', summary: 'Tiga aset acak beristirahat hanya untuk pasar ini.', art: 'reklamasi' },
+  { id: 'BANJIR', name: 'Musim Hujan', summary: 'Aset Hunian libur pasar ini.', art: 'banjir' },
+  { id: 'MACET', name: 'Jam Sibuk', summary: 'Infrastruktur cuma dapat setengah chip.', art: 'macet' },
+  { id: 'MATI_LAMPU', name: 'Perawatan Jaringan', summary: 'Infrastruktur libur pasar ini.', art: 'mati-lampu' },
+  { id: 'GANJIL_GENAP', name: 'Rute Bergilir', summary: 'Cuma aset chip ganjil yang ngehasilin.', art: 'ganjil-genap', parity: 'odd' },
+  { id: 'SIDAK', name: 'Audit Terbuka', summary: 'Efek Orang Dalam dimatiin dulu.', art: 'sidak' },
+  { id: 'MUSIM_KAWIN', name: 'Festival Pasar', summary: 'Chip Komersial dobel; yang lain −20%.', art: 'musim-kawin' },
+  { id: 'REKLAMASI', name: 'Penataan Kawasan', summary: 'Tiga aset acak libur pasar ini aja.', art: 'reklamasi' },
 ];
 
 export const CONSUMABLES: Consumable[] = [
-  { id: 'SERTIFIKAT', name: 'Sertifikat', description: 'Ubah satu aset terpilih ke grup aset berikutnya.', cost: 3, art: 'sertifikat' },
-  { id: 'NOTARIS', name: 'Notaris', description: 'Salin satu aset terpilih ke tumpukan buangan.', cost: 4, art: 'notaris' },
-  { id: 'PUNGLI', name: 'Musyawarah', description: 'Acak ulang event pasar publik. Penataan Kawasan tidak ikut.', cost: 3, art: 'pungli' },
-  { id: 'UANG_PELICIN', name: 'Semangat Gotong Royong', description: 'Dapatkan satu tangan ekstra hanya untuk pasar ini.', cost: 4, art: 'uang-pelicin' },
-  { id: 'SITA', name: 'Kurasi Portofolio', description: 'Singkirkan tepat tiga aset terpilih dari tanganmu.', cost: 4, art: 'sita' },
+  { id: 'SERTIFIKAT', name: 'Sertifikat', description: 'Ubah satu aset ke grup berikutnya.', cost: 3, art: 'sertifikat' },
+  { id: 'NOTARIS', name: 'Notaris', description: 'Salin satu aset ke tumpukan buangan.', cost: 4, art: 'notaris' },
+  { id: 'PUNGLI', name: 'Musyawarah', description: 'Acak ulang event pasar. Penataan Kawasan nggak ikut.', cost: 3, art: 'pungli' },
+  { id: 'UANG_PELICIN', name: 'Gotong Royong', description: 'Dapat satu tangan ekstra di pasar ini.', cost: 4, art: 'uang-pelicin' },
+  { id: 'SITA', name: 'Kurasi', description: 'Buang tepat tiga aset dari tangan.', cost: 4, art: 'sita' },
 ];
 
 const ASSET_CLASSES: Array<{ group: GroupKey; assets: Array<{ name: string; artId?: string }> }> = [
@@ -71,16 +71,16 @@ export const CARD_TEMPLATES: CardTemplate[] = ASSET_CLASSES.flatMap(({ group, as
 export const STARTING_DUPLICATES: string[] = [];
 
 const TYCOON_ROSTER: Tycoon[] = [
-  { id: 'pak-notaris', name: 'Pak Notaris', description: '×1.5 multiplier. Dokumennya selalu rapi.', cost: 8, effect: { kind: 'xmult_flat', amount: 1.5 } },
+  { id: 'pak-notaris', name: 'Pak Notaris', description: '×1.5 multiplier. Dokumennya rapi.', cost: 8, effect: { kind: 'xmult_flat', amount: 1.5 } },
   { id: 'makelar-tanah', artId: 'red-baron', name: 'Bu Rani Hunian', description: '+3 multiplier untuk tiap aset Hunian.', cost: 5, effect: { kind: 'mult_per_group', group: 'RESIDENTIAL', amount: 3 } },
-  { id: 'oknum', artId: 'insider', name: 'Kak Dimas Data', description: '×1.35 multiplier. Keputusan berbasis data.', cost: 9, effect: { kind: 'xmult_flat', amount: 1.35 } },
+  { id: 'oknum', artId: 'insider', name: 'Kak Dimas Data', description: '×1.35 multiplier. Hitungan dingin.', cost: 9, effect: { kind: 'xmult_flat', amount: 1.35 } },
   { id: 'anak-pejabat', artId: 'banker', name: 'Bu Sinta Koperasi', description: 'Semua harga Pasar Bersama 40% lebih murah.', cost: 7, effect: { kind: 'shop_discount', amount: 0.6 } },
   { id: 'bos-proyek', artId: 'power-player', name: 'Mas Arif Karya', description: '+25 chip untuk tiap aset Industri & Inovasi.', cost: 6, effect: { kind: 'chips_per_group', group: 'INNOVATION', amount: 25 } },
   { id: 'juragan-kos', artId: 'heritage-trust', name: 'Ibu Mira Hunian', description: '+20 chip untuk tiap aset Hunian.', cost: 6, effect: { kind: 'chips_per_group', group: 'RESIDENTIAL', amount: 20 } },
   { id: 'sultan-andara', artId: 'blue-chip', name: 'Kak Naya Niaga', description: '×2 multiplier saat aset Komersial ikut dimainkan.', cost: 10, effect: { kind: 'xmult_per_group', group: 'COMMERCIAL', amount: 2 } },
   { id: 'tukang-palak', artId: 'lone-wolf', name: 'Pak Joko Usaha', description: '+4 multiplier untuk tiap aset Komersial.', cost: 6, effect: { kind: 'mult_per_group', group: 'COMMERCIAL', amount: 4 } },
   { id: 'pak-rt', artId: 'green-corridor', name: 'Pak RT', description: 'Batas bunga naik menjadi $10.', cost: 5, effect: { kind: 'interest_cap', amount: 10 } },
-  { id: 'investor-bodong', artId: 'diversifier', name: 'Bu Laras Strategi', description: '×2.25 pada Straight Flush. Rencananya matang.', cost: 8, effect: { kind: 'xmult_per_hand', hand: 'STRAIGHT_FLUSH', amount: 2.25 } },
+  { id: 'investor-bodong', artId: 'diversifier', name: 'Bu Laras Strategi', description: '×2.25 pada Straight Flush.', cost: 8, effect: { kind: 'xmult_per_hand', hand: 'STRAIGHT_FLUSH', amount: 2.25 } },
   { id: 'raja-kavling', artId: 'red-baron', name: 'Pak Wira Kawasan', description: '×1.35 multiplier untuk tiap aset Hunian.', cost: 8, effect: { kind: 'xmult_per_group', group: 'RESIDENTIAL', amount: 1.35 } },
   { id: 'ibu-ibu-arisan', artId: 'heritage-trust', name: 'Ibu-Ibu Arisan', description: '+70 chip pada Pair.', cost: 5, effect: { kind: 'chips_for_hand', hand: 'PAIR', amount: 70 } },
   { id: 'mafia-parkir', artId: 'lone-wolf', name: 'Mbak Rosi Mobilitas', description: '×1.8 multiplier saat hanya memainkan satu kartu.', cost: 5, effect: { kind: 'xmult_hand_size', size: 1, amount: 1.8 } },
@@ -88,7 +88,7 @@ const TYCOON_ROSTER: Tycoon[] = [
   { id: 'pengusaha-kafe', artId: 'green-corridor', name: 'Pengusaha Kafe', description: '+22 chip untuk tiap aset Komersial.', cost: 6, effect: { kind: 'chips_per_group', group: 'COMMERCIAL', amount: 22 } },
   { id: 'penguasa-sudirman', artId: 'green-corridor', name: 'Penguasa Sudirman', description: '+4 multiplier untuk tiap aset Komersial.', cost: 7, effect: { kind: 'mult_per_group', group: 'COMMERCIAL', amount: 4 } },
   { id: 'tuan-tanah', artId: 'blue-chip', name: 'Bu Tania Tata Ruang', description: '×2 multiplier pada Full House.', cost: 9, effect: { kind: 'xmult_per_hand', hand: 'FULL_HOUSE', amount: 2 } },
-  { id: 'pialang-saham', artId: 'banker', name: 'Pak Bayu Finansial', description: '×1.6 multiplier. Angkanya terarah.', cost: 8, effect: { kind: 'xmult_flat', amount: 1.6 } },
+  { id: 'pialang-saham', artId: 'banker', name: 'Pak Bayu Finansial', description: '×1.6 multiplier.', cost: 8, effect: { kind: 'xmult_flat', amount: 1.6 } },
   { id: 'bos-pelabuhan', artId: 'rail-magnate', name: 'Kak Raka Pelabuhan', description: '+30 chip untuk tiap aset Infrastruktur.', cost: 7, effect: { kind: 'chips_per_group', group: 'INFRASTRUCTURE', amount: 30 } },
   { id: 'sultan-kontainer', artId: 'power-player', name: 'Mbak Sasa Energi', description: '+45 chip untuk tiap aset Infrastruktur.', cost: 6, effect: { kind: 'chips_per_group', group: 'INFRASTRUCTURE', amount: 45 } },
   { id: 'ibu-cosplay', artId: 'diversifier', name: 'Ibu Cosplay', description: '×1.9 multiplier pada Flush.', cost: 8, effect: { kind: 'xmult_per_hand', hand: 'FLUSH', amount: 1.9 } },

@@ -41,7 +41,7 @@ export function chooseMarketModifier(rngState: number): { modifier: MarketModifi
   // Ganjil-Genap alternates its permitted parity from the seeded cursor.
   const modifier = picked.item.id === 'GANJIL_GENAP'
     ? { ...picked.item, parity: picked.state % 2 === 0 ? 'even' as const : 'odd' as const,
-      summary: `Hanya aset dengan chip ${(picked.state % 2 === 0 ? 'genap' : 'ganjil')} yang bernilai di pasar ini.` }
+      summary: `Cuma aset chip ${(picked.state % 2 === 0 ? 'genap' : 'ganjil')} yang ngehasilin.` }
     : picked.item;
   return { modifier, rngState: picked.state };
 }

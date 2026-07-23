@@ -49,7 +49,7 @@ describe('campaign reducer', () => {
     const recycled = gameReducer(drained, { type: 'PLAYER_DISCARD' });
     expect(recycled.player.hand).toHaveLength(8);
     expect(recycled.reshuffles).toBe(1);
-    expect(recycled.events.at(-1)?.message).toMatch(/diacak kembali/i);
+    expect(recycled.events.at(-1)?.message).toMatch(/diacak balik/i);
   });
 
   it('caps selection at five cards and rejects empty plays', () => {

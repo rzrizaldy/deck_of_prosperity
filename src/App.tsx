@@ -11,7 +11,7 @@ import { CARD_TEMPLATES, GROUPS, HANDS, rankLabel } from './game/data';
 import { allCards, deckSize, MARKET_DIFFICULTY, marketTarget, MAX_TYCOONS, MIN_DECK_SIZE, priceFor, scoreHand } from './game/engine';
 import { clearSave, loadSave, migrateLegacySave, recordHighScore, saveGame } from './game/persistence';
 import { gameReducer, initialState } from './game/reducer';
-import type { Card, Consumable, GameState, GroupKey, ScoreBreakdown, Tycoon } from './game/types';
+import type { Card, Consumable, Difficulty, GameState, GroupKey, ScoreBreakdown, Tycoon } from './game/types';
 
 type Dispatch = React.Dispatch<Parameters<typeof gameReducer>[1]>;
 type Locale = 'id' | 'en';
@@ -45,15 +45,15 @@ const clearedPercent = (score: number, target: number) =>
 const COMPANIONS = {
   abah: {
     name: 'Abah',
-    title: 'Mentor Warga',
+    title: 'Mentor warga',
     asset: '/assets/companions/abah.png',
-    intro: 'Baca situasi dengan tenang, lalu pilih langkah yang paling masuk akal.',
+    intro: 'Santain dulu. Baca situasinya, baru main.',
   },
   azah: {
     name: 'Azah',
-    title: 'Perancang Strategi',
+    title: 'Ahli hitung cepat',
     asset: '/assets/companions/azah.png',
-    intro: 'Rapikan peluangnya; kemajuan besar selalu dimulai dari pilihan cerdas.',
+    intro: 'Cari combo yang nendang. Jangan buang tangan sia-sia.',
   },
 } as const;
 
@@ -268,16 +268,17 @@ function CardPreview({ card, onClose }: { card: Card; onClose: () => void }) {
 }
 
 function TycoonPreview({ tycoon, onClose }: { tycoon: Tycoon; onClose: () => void }) {
+  const locale = useLocale();
   return <div className="card-preview-backdrop" role="presentation" onMouseDown={onClose}>
     <section className="card-preview tycoon-preview" role="dialog" aria-modal="true" aria-label={`${tycoon.name} Tycoon card preview`} onMouseDown={(event) => event.stopPropagation()}>
       <button className="icon-button preview-close" onClick={onClose} aria-label="Close Tycoon preview"><X /></button>
       <img src="/assets/tycoons/community-partners.png" alt={`${tycoon.name} community partner artwork`} />
       <div className="preview-vignette" />
       <div className="preview-details">
-        <span><Crown /> Community partner</span>
+        <span><Crown /> {tr(locale, 'Community partner', 'Orang Dalam')}</span>
         <h2>{tycoon.name}</h2>
         <p>{tycoon.description}</p>
-        <small>Recruited helpers stay in your Inner Circle for the full run.</small>
+        <small>{tr(locale, 'Recruited helpers stay in your Inner Circle for the full run.', 'Orang Dalam nempel sampai akhir run.')}</small>
       </div>
     </section>
   </div>;
@@ -286,10 +287,11 @@ function TycoonPreview({ tycoon, onClose }: { tycoon: Tycoon; onClose: () => voi
 function TycoonCard({ tycoon, compact = false, bought = false, children, onInspect }: {
   tycoon: Tycoon; compact?: boolean; bought?: boolean; children?: React.ReactNode; onInspect?: () => void;
 }) {
+  const locale = useLocale();
   const content = <>
     <img src="/assets/tycoons/community-partners.png" alt={`${tycoon.name} community partner`} loading="lazy" />
     <div className="tycoon-card-copy">
-      <span><Crown aria-hidden="true" /> Partner</span>
+      <span><Crown aria-hidden="true" /> {tr(locale, 'Partner', 'Orang Dalam')}</span>
       <h3>{tycoon.name}</h3>
       {!compact && <p>{tycoon.description}</p>}
       {children}
@@ -301,18 +303,28 @@ function TycoonCard({ tycoon, compact = false, bought = false, children, onInspe
 
 function ScoreFormula({ score, label }: { score: ScoreBreakdown | null; label: string }) {
   const locale = useLocale();
-  if (!score) return <div className="score-formula muted"><span>{label}</span><strong>Select up to five deeds</strong></div>;
+  if (!score) {
+    return (
+      <div className="score-formula muted">
+        <span className="score-hand"><small>{label}</small></span>
+        <strong className="score-math">{tr(locale, 'Select up to five deeds', 'Pilih sampai lima kartu')}</strong>
+      </div>
+    );
+  }
   return (
     <div className="score-formula">
-      <span>{label} · {localizedHand(score.hand, locale)}</span>
-      <strong>
-        {score.cardChips + score.bonusChips}
-        <small> × </small>
-        {score.baseMultiplier + score.bonusMultiplier}
-        {score.multiplicative !== 1 && <em> × {score.multiplicative.toFixed(2)}</em>}
+      <span className="score-hand">
+        <small>{label}</small>
+        <em>{localizedHand(score.hand, locale)}</em>
+      </span>
+      <strong className="score-math" aria-label={`${score.cardChips + score.bonusChips} times ${score.baseMultiplier + score.bonusMultiplier} equals ${money(score.total)}`}>
+        <span>{score.cardChips + score.bonusChips}</span>
+        <i>×</i>
+        <span>{score.baseMultiplier + score.bonusMultiplier}</span>
+        {score.multiplicative !== 1 && <em>× {score.multiplicative.toFixed(2)}</em>}
         <b>= {money(score.total)}</b>
       </strong>
-      {score.notes.length > 0 && <small>{score.notes.join(' · ')}</small>}
+      {score.notes.length > 0 && <small className="score-notes">{score.notes.join(' · ')}</small>}
     </div>
   );
 }
@@ -374,7 +386,7 @@ function ScoringExample() {
       <div className="example-cards">
         <span style={swatch}>3<b>10</b></span><span style={swatch}>4<b>15</b></span><span style={swatch}>5<b>20</b></span><span style={swatch}>6<b>25</b></span><span style={swatch}>7<b>30</b></span>
       </div>
-      <figcaption>{tr(locale, 'Five consecutive ranks make a Straight. Five in the same category make a Flush. Do both and it is a Straight Flush.', 'Lima rank berurutan membentuk Straight. Lima kartu satu kategori membentuk Flush. Dapatkan keduanya untuk Straight Flush.')}</figcaption>
+      <figcaption>{tr(locale, 'Five consecutive ranks make a Straight. Five in the same category make a Flush. Do both and it is a Straight Flush.', 'Lima rank berurutan = Straight. Lima sewarna = Flush. Dua-duanya = Straight Flush.')}</figcaption>
       <div className="example-maths">
         <span><small>{tr(locale, 'chips', 'chip')}</small><strong>100</strong></span>
         <i>×</i>
@@ -382,7 +394,7 @@ function ScoringExample() {
         <i>=</i>
         <span className="example-total"><small>{tr(locale, 'score', 'skor')}</small><strong>1,600</strong></span>
       </div>
-      <figcaption>{tr(locale, 'Every category runs from 2 (lowest) to Ace (highest). Build runs for Straights, categories for Flushes, or matching ranks for pairs and houses.', 'Setiap kategori berurutan dari 2 (terendah) sampai As (tertinggi). Susun rank untuk Straight, kumpulkan kategori untuk Flush, atau samakan rank untuk Pair dan Full House.')}</figcaption>
+      <figcaption>{tr(locale, 'Every category runs from 2 (lowest) to Ace (highest). Build runs for Straights, categories for Flushes, or matching ranks for pairs and houses.', 'Tiap kategori dari 2 (paling kecil) ke As (paling gede). Urut = Straight, sewarna = Flush, sama rank = Pair/Full House.')}</figcaption>
     </figure>
   );
 }
@@ -390,36 +402,36 @@ function ScoringExample() {
 function Guide({ onClose }: { onClose: () => void }) {
   const locale = useLocale();
   return (
-    <Modal title={tr(locale, 'The Market Ledger', 'Buku Besar Pasar')} onClose={onClose} className="guide-modal">
+    <Modal title={tr(locale, 'The Market Ledger', 'Buku main')} onClose={onClose} className="guide-modal">
       <div className="guide-grid">
         <section>
-          <h3>{tr(locale, 'Scoring, in one hand', 'Skor, dalam satu tangan')}</h3>
+          <h3>{tr(locale, 'Scoring, in one hand', 'Cara ngehitung skor')}</h3>
           <ScoringExample />
-          <h3>{tr(locale, 'Each market', 'Setiap pasar')}</h3>
+          <h3>{tr(locale, 'Each market', 'Tiap pasar')}</h3>
           <ol>
-            <li>{tr(locale, 'You get four hands to beat the market target, and three discards to fix bad draws.', 'Kamu punya empat tangan untuk menembus target, dan tiga buang kartu untuk memperbaiki tangan buruk.')}</li>
-            <li>{tr(locale, 'Clear the target and you are paid, then the Community Market opens to strengthen your deck.', 'Tembus target, raih bayaran, lalu Pasar Bersama terbuka untuk memperkuat dekmu.')}</li>
-            <li>{tr(locale, 'Miss it and the run ends. Eight markets in a row wins the city.', 'Gagal dan permainan berakhir. Taklukkan delapan pasar untuk menguasai kota.')}</li>
+            <li>{tr(locale, 'You get four hands to beat the market target, and three discards to fix bad draws.', 'Ada empat tangan buat nembus target, plus tiga kali buang kalau draw-nya jelek.')}</li>
+            <li>{tr(locale, 'Clear the target and you are paid, then the Community Market opens to strengthen your deck.', 'Tembus target = dibayar, terus Pasar Bersama kebuka buat nge-boost dek.')}</li>
+            <li>{tr(locale, 'Miss it and the run ends. Eight markets in a row wins the city.', 'Gagal = run berakhir. Lolos delapan pasar = menang.')}</li>
           </ol>
-          <h3>{tr(locale, 'Words you will see', 'Istilah penting')}</h3>
+          <h3>{tr(locale, 'Words you will see', 'Istilah yang sering muncul')}</h3>
           <dl className="glossary">
-            <div><dt>{tr(locale, 'Deed', 'Aset')}</dt><dd>{tr(locale, 'One property card. Its 2–Ace rank builds poker patterns; inspect it to see its chips.', 'Satu kartu properti. Rank 2–As membentuk pola poker; zoom untuk melihat chipnya.')}</dd></div>
-            <div><dt>{tr(locale, 'Group', 'Grup')}</dt><dd>{tr(locale, 'Deeds sharing a colour. Matching groups makes multipliers grow.', 'Aset yang berbagi warna. Menyamakan grup membuat multiplier naik.')}</dd></div>
-            <div><dt>{tr(locale, 'Partner', 'Rekan')}</dt><dd>{tr(locale, 'A recruited community partner that adds chips or multiplier whenever its condition is met.', 'Rekan komunitas yang menambah chip atau pengali saat syaratnya terpenuhi.')}</dd></div>
-            <div><dt>{tr(locale, 'Renovate', 'Renovasi')}</dt><dd>{tr(locale, 'Pay to give one deed +5 chips, permanently.', 'Bayar untuk memberi satu aset +5 chip secara permanen.')}</dd></div>
-            <div><dt>{tr(locale, 'Liquidate', 'Likuidasi')}</dt><dd>{tr(locale, 'Destroy one deed for $1. A smaller deck draws your best cards more often.', 'Hancurkan satu aset demi $1. Dek lebih ramping lebih sering menarik kartu terbaik.')}</dd></div>
+            <div><dt>{tr(locale, 'Deed', 'Aset')}</dt><dd>{tr(locale, 'One property card. Its 2–Ace rank builds poker patterns; inspect it to see its chips.', 'Satu kartu properti. Rank 2–As buat pola poker; klik buat liat chip-nya.')}</dd></div>
+            <div><dt>{tr(locale, 'Group', 'Grup')}</dt><dd>{tr(locale, 'Deeds sharing a colour. Matching groups makes multipliers grow.', 'Kartu sewarna. Satu warna = multiplier naik.')}</dd></div>
+            <div><dt>{tr(locale, 'Partner', 'Orang Dalam')}</dt><dd>{tr(locale, 'A recruited community partner that adds chips or multiplier whenever its condition is met.', 'Teman yang nempel di meja. Nambah chip atau pengali kalau syaratnya kepenuhi.')}</dd></div>
+            <div><dt>{tr(locale, 'Renovate', 'Renov')}</dt><dd>{tr(locale, 'Pay to give one deed +5 chips, permanently.', 'Bayar biar satu aset +5 chip, permanen.')}</dd></div>
+            <div><dt>{tr(locale, 'Liquidate', 'Jual')}</dt><dd>{tr(locale, 'Destroy one deed for $1. A smaller deck draws your best cards more often.', 'Buang satu aset, dapat $1. Dek lebih tipis = kartu bagus lebih sering keluar.')}</dd></div>
           </dl>
         </section>
         <section>
-          <h3>{tr(locale, 'Portfolio patterns', 'Pola portofolio')}</h3>
-          <p className="guide-note">{tr(locale, 'Every category holds the same 2–Ace ladder. Higher poker hands are rarer and multiply much harder; the mini-cards show exact example ranks.', 'Setiap kategori punya urutan 2–As yang sama. Poker hand tinggi lebih langka dan pengalinya lebih besar; kartu mini menunjukkan contoh rank yang tepat.')}</p>
+          <h3>{tr(locale, 'Portfolio patterns', 'Pola tangan')}</h3>
+          <p className="guide-note">{tr(locale, 'Every category holds the same 2–Ace ladder. Higher poker hands are rarer and multiply much harder; the mini-cards show exact example ranks.', 'Tiap kategori punya tangga 2–As yang sama. Pola lebih tinggi lebih langka, tapi pengalinya lebih gila. Kartu mini = contoh rank-nya.')}</p>
           <div className="rank-list">
             {Object.entries(HANDS).map(([key, hand]) => (
               <div key={key} className="rank-row"><PortfolioRecipe hand={key as keyof typeof HANDS} /><span><strong>{localizedHand(key as keyof typeof HANDS, locale)}</strong><small>{locale === 'en' ? ({ HIGH_ASSET: 'No pattern; highest rank leads.', PAIR: 'Two matching ranks.', TWO_PAIRS: 'Two different matching ranks.', THREE_KIND: 'Three matching ranks.', STRAIGHT: 'Five consecutive ranks.', FLUSH: 'Five cards in one class.', FULL_HOUSE: 'Three matching ranks plus a pair.', FOUR_KIND: 'Four matching ranks.', STRAIGHT_FLUSH: 'Five consecutive ranks in one class.' } as Record<string, string>)[key] : hand.description}</small></span><b>×{hand.multiplier}</b></div>
             ))}
           </div>
-          <h3>{tr(locale, 'Keyboard', 'Papan tombol')}</h3>
-          <p>{tr(locale, '1–8 select cards · Enter commit · D discard · M mute', '1–8 pilih kartu · Enter mainkan · D buang · M senyap')}</p>
+          <h3>{tr(locale, 'Keyboard', 'Keyboard')}</h3>
+          <p>{tr(locale, '1–8 select cards · Enter commit · D discard · M mute', '1–8 pilih · Enter main · D buang · M mute')}</p>
         </section>
       </div>
     </Modal>
@@ -431,8 +443,8 @@ function Compendium({ onClose }: { onClose: () => void }) {
   const [inspectedCard, setInspectedCard] = useState<Card | null>(null);
   const collectionGroups: GroupKey[] = ['COMMERCIAL', 'INNOVATION', 'RESIDENTIAL', 'INFRASTRUCTURE'];
   return (
-    <Modal title={tr(locale, 'Property Compendium', 'Koleksi Aset')} onClose={onClose} className="compendium-modal">
-      <p className="compendium-hint">{tr(locale, 'Four category columns, Ace on top and 2 at the bottom. Click any deed for its full detail.', 'Empat kolom kategori, As paling atas dan 2 paling bawah. Klik aset untuk melihat detail penuh.')}</p>
+    <Modal title={tr(locale, 'Property Compendium', 'Katalog aset')} onClose={onClose} className="compendium-modal">
+      <p className="compendium-hint">{tr(locale, 'Four category columns, Ace on top and 2 at the bottom. Click any deed for its full detail.', 'Empat kolom kategori. As di atas, 2 di bawah. Klik buat detail.')}</p>
       <div className="compendium">
         {collectionGroups.map((group) => (
           <section className="collection-column" key={group} style={{ '--collection-color': GROUPS[group].color } as React.CSSProperties}>
@@ -464,23 +476,24 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
       <section className="menu-brand">
         <LanguageSwitch locale={locale} setLocale={setLocale} />
         <div className="title-lockup"><img src="/assets/title-prosperity.png" alt="Deck of Prosperity" /></div>
-        <p className="eyebrow">{tr(locale, 'Build value across the archipelago', 'Tumbuhkan nilai di seluruh kepulauan')}</p>
-        <h1>{tr(locale, 'Make progress together.', 'Bertumbuh bersama.')}</h1>
-        <p className="menu-copy">{tr(locale, 'Build a resilient portfolio that helps the city thrive.', 'Bangun portofolio tangguh yang ikut membuat kota berkembang.')}</p>
-        <div className="high-score"><Trophy /> {tr(locale, 'Best run', 'Rekor permainan')} <strong>{money(highScore)}</strong></div>
+        <p className="eyebrow">{tr(locale, 'Build value across the archipelago', 'Bangun nilai dari Sabang sampai Merauke')}</p>
+        <h1>{tr(locale, 'Make progress together.', 'Bareng-bareng naik kelas.')}</h1>
+        <p className="menu-copy">{tr(locale, 'Build a resilient portfolio that helps the city thrive.', 'Susun dek yang kuat. Kota ikut naik.')}</p>
+        <div className="high-score"><Trophy /> {tr(locale, 'Best run', 'Rekor terbaik')} <strong>{money(highScore)}</strong></div>
       </section>
       <section className="menu-panel">
-        {legacyCleared && <p className="notice">{tr(locale, 'The incompatible prototype save was retired. Your legacy high score remains.', 'Simpan prototipe lama tidak kompatibel telah dihapus. Rekor lamamu tetap tersimpan.')}</p>}
+        {legacyCleared && <p className="notice">{tr(locale, 'The incompatible prototype save was retired. Your legacy high score remains.', 'Save lama udah diganti. Rekornya tetap aman.')}</p>}
         <fieldset className="difficulty-picker">
-          <legend>{tr(locale, 'Market difficulty · changes target scores only', 'Tingkat pasar · hanya mengubah target skor')}</legend>
+          <legend>{tr(locale, 'Market difficulty · changes target scores only', 'Kesulitan · cuma ngubah target')}</legend>
           {(['casual', 'trader', 'tycoon'] as Difficulty[]).map((item) => (
             <button key={item} className={difficulty === item ? 'active' : ''} onClick={() => setDifficulty(item)} type="button">
-              <strong>{MARKET_DIFFICULTY[item].label}</strong><small>{MARKET_DIFFICULTY[item].description}</small>
+              <strong>{tr(locale, MARKET_DIFFICULTY[item].label, ({ casual: 'Jalanan', trader: 'Pasar', tycoon: 'Kelas berat' } as const)[item])}</strong>
+              <small>{tr(locale, MARKET_DIFFICULTY[item].description, ({ casual: 'Target 62%', trader: 'Target normal', tycoon: 'Target 250%' } as const)[item])}</small>
             </button>
           ))}
         </fieldset>
         <fieldset className="companion-picker">
-          <legend>Choose your Konco</legend>
+          <legend>{tr(locale, 'Choose your Konco', 'Pilih Konco')}</legend>
           {(Object.entries(COMPANIONS) as [GameState['companion'], typeof COMPANIONS[keyof typeof COMPANIONS]][]).map(([id, buddy]) => (
             <button key={id} className={companion === id ? 'active' : ''} onClick={() => setCompanion(id)} type="button" aria-pressed={companion === id}>
               <img src={buddy.asset} alt="" />
@@ -489,12 +502,12 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
           ))}
         </fieldset>
         <div className="menu-actions">
-          <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty, companion })}><Sparkles /> {tr(locale, 'Start market run', 'Mulai pasar')}</button>
+          <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty, companion })}><Sparkles /> {tr(locale, 'Start market run', 'Mulai main')}</button>
           {saved && <button className="secondary large" onClick={() => dispatch({ type: 'LOAD', state: saved })}>{tr(locale, 'Continue round', 'Lanjut ronde')} {saved.round}</button>}
         </div>
         <div className="menu-subactions">
-          <button onClick={() => setGuide(true)}><BookOpen /> <span>{tr(locale, 'How to play', 'Cara bermain')}</span></button>
-          <button onClick={() => setCompendium(true)}><Building2 /> <span>Cards</span></button>
+          <button onClick={() => setGuide(true)}><BookOpen /> <span>{tr(locale, 'How to play', 'Cara main')}</span></button>
+          <button onClick={() => setCompendium(true)}><Building2 /> <span>{tr(locale, 'Cards', 'Kartu')}</span></button>
           <AudioControls state={state} dispatch={dispatch} />
         </div>
       </section>
@@ -511,12 +524,12 @@ function Hud({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
   return (
     <>
       <header className="game-hud">
-        <div className="round-mark"><span>Market round</span><strong>{state.round}<small>/8</small></strong></div>
+        <div className="round-mark"><span>{tr(locale, 'Market round', 'Ronde pasar')}</span><strong>{state.round}<small>/8</small></strong></div>
         <div className="market-progress" aria-label="Market progress">
           <div className="progress-figures">
-            <span>Portfolio</span>
+            <span>{tr(locale, 'Portfolio', 'Portofolio')}</span>
             <strong><AnimatedNumber value={state.player.score} active /></strong>
-            <em>of</em>
+            <em>{tr(locale, 'of', 'dari')}</em>
             <span>{tr(locale, 'Target', 'Target')}</span>
             <b>{money(target)}</b>
           </div>
@@ -542,7 +555,7 @@ function Intro({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
   return <main className="intro-screen game-frame">
     <div className="intro-panel">
       <span className="eyebrow">{tr(locale, 'Market', 'Pasar')} 1 · {MARKET_DIFFICULTY[state.difficulty].label}</span>
-      <h1>{tr(locale, `Reach ${target} in four hands.`, `Raih ${target} dalam empat tangan.`)}</h1>
+      <h1>{tr(locale, `Reach ${target} in four hands.`, `Kejar ${target} dalam empat tangan.`)}</h1>
       <div className="modifier-brief" role="note">
         <img src={`/assets/modifiers/${state.modifier.art}.webp`} alt="" />
         <span><b>{modifier.name}</b>{modifier.summary}</span>
@@ -550,13 +563,13 @@ function Intro({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
       {/* The first three things the player will actually touch, in order. The
           Night Market is deliberately left out — they meet it when they win. */}
       <ul className="intro-points">
-        <li><Building2 aria-hidden="true" /><span>{tr(locale, 'Tap one to five deeds, then commit. Deeds of the same colour score far harder together.', 'Pilih satu sampai lima aset, lalu mainkan. Aset dengan warna sama menghasilkan skor jauh lebih besar.')}</span></li>
-        <li><RotateCcw aria-hidden="true" /><span>{tr(locale, 'Bad draw? Discard up to three times to swap cards for new ones.', 'Kartu jelek? Buang kartu sampai tiga kali untuk menarik kartu baru.')}</span></li>
-        <li><Target aria-hidden="true" /><span>{tr(locale, 'The bar at the top tracks how close you are. Run out of hands short of the target and the run ends.', 'Bar di atas menunjukkan jarak ke target. Kehabisan tangan sebelum target berarti permainan berakhir.')}</span></li>
+        <li><Building2 aria-hidden="true" /><span>{tr(locale, 'Tap one to five deeds, then commit. Deeds of the same colour score far harder together.', 'Pilih satu sampai lima kartu, lalu main. Warna sama = skor jauh lebih gede.')}</span></li>
+        <li><RotateCcw aria-hidden="true" /><span>{tr(locale, 'Bad draw? Discard up to three times to swap cards for new ones.', 'Kartu jelek? Buang sampai tiga kali buat ganti.')}</span></li>
+        <li><Target aria-hidden="true" /><span>{tr(locale, 'The bar at the top tracks how close you are. Run out of hands short of the target and the run ends.', 'Bar di atas = jarak ke target. Habis tangan sebelum tembus = run selesai.')}</span></li>
       </ul>
       <div className="intro-companion"><img src={buddy.asset} alt="" /><p><b>{buddy.name}</b><span>“{buddy.intro}”</span></p></div>
       <div className="intro-actions">
-        <button className="primary large" onClick={() => dispatch({ type: 'BEGIN_RUN' })}><Sparkles /> {tr(locale, 'Deal market one', 'Buka pasar pertama')}</button>
+        <button className="primary large" onClick={() => dispatch({ type: 'BEGIN_RUN' })}><Sparkles /> {tr(locale, 'Deal market one', 'Deal pasar pertama')}</button>
       </div>
     </div>
   </main>;
@@ -566,22 +579,22 @@ type KoncoMoment = 'opening' | 'ready' | 'bigScore' | 'whiff' | 'lastHand' | 'ev
 
 const KONCO_LINES: Record<keyof typeof COMPANIONS, Record<KoncoMoment, string[]>> = {
   abah: {
-    opening: ['Pasar baru. Kita baca situasinya sebelum bergerak.', 'Lihat event-nya; kebijakan yang baik dimulai dari data.', 'Empat tangan, satu tujuan. Kita susun dengan tenang.', 'Meja sudah siap. Mari bangun nilai yang terasa manfaatnya.'],
-    ready: ['{selected} aset sudah siap. Pastikan polanya bekerja.', 'Pola sudah terlihat. Sekarang jalankan dengan yakin.', 'Multiplier-nya sehat. Kita dorong bersama.', 'Portofolio sudah rapi. Saatnya membuktikan hitungannya.'],
-    bigScore: ['{hand} untuk {score}. Kemajuan yang bisa kita ukur!', 'Nilainya tumbuh. Pertahankan arah baik ini.', 'Bagus. Satu langkah konkret menuju target.', 'Rencana yang matang memang memberi hasil.'],
-    whiff: ['{score} memberi kita data baru. Susun ulang.', 'Belum cukup, tapi jalannya mulai terlihat.', 'Baca kartunya lagi; peluang berikutnya masih terbuka.', 'Evaluasi sebentar, lalu kembali dengan kombinasi lebih kuat.'],
-    lastHand: ['Tangan terakhir. Pilih yang paling masuk akal.', 'Satu kesempatan lagi—tenang, lihat pola, putuskan.', 'Kita sudah sejauh ini. Selesaikan dengan perhitungan baik.', 'Saatnya membuat nilai terbaik dari kartu yang tersedia.'],
-    event: ['Kondisi berubah; rencana yang baik ikut menyesuaikan.', 'Alat baru membuka pilihan kebijakan baru.', 'Kita baca situasinya, lalu bergerak optimistis.', 'Perubahan kecil bisa membuka manfaat besar.'],
-    default: ['{remaining} lagi. Sedikit demi sedikit, target mendekat.', 'Baca pola, pilih langkah, lalu bergerak.', 'Masih ada ruang untuk keputusan yang lebih kuat.', 'Kita membangun kemajuan, satu portofolio setiap kali.'],
+    opening: ['Pasar baru. Santai dulu, baca situasinya.', 'Lihat event-nya dulu sebelum main.', 'Empat tangan. Jangan buru-buru.', 'Meja siap. Kita main pelan tapi yakin.'],
+    ready: ['{selected} kartu. Cek polanya dulu.', 'Udah kebaca. Main aja.', 'Multiplier-nya oke. Dorong.', 'Rapi. Saatnya commit.'],
+    bigScore: ['{hand}, {score}. Mantap.', 'Nendang. Pertahankan.', 'Bagus. Satu langkah lagi ke target.', 'Hitungannya masuk. Lanjut.'],
+    whiff: ['{score}. Belum cukup, coba susun ulang.', 'Kecil, tapi masih ada tangan.', 'Baca lagi kartunya.', 'Oke, evaluasi sebentar.'],
+    lastHand: ['Tangan terakhir. Pilih yang paling masuk akal.', 'Satu kesempatan. Tenang dulu.', 'Udah sejauh ini. Selesaikan.', 'Ambil yang terbaik dari kartu yang ada.'],
+    event: ['Kondisi berubah. Ikuti aja.', 'Ada alat baru. Bisa kepake.', 'Baca situasinya, baru gerak.', 'Event nih. Jangan dilewat.'],
+    default: ['Kurang {remaining}. Pelan-pelan.', 'Baca pola, baru main.', 'Masih ada ruang buat naik.', 'Satu tangan lagi. Fokus.'],
   },
   azah: {
-    opening: ['Pasar baru. Aku sudah tandai tiga peluang pertamanya.', 'Event-nya jelas; sekarang kita cari kombinasi paling efisien.', 'Empat tangan cukup kalau urutannya tepat.', 'Mulai dari pola yang paling bernilai, lalu kembangkan.'],
-    ready: ['{selected} aset dipilih. Cek lagi sinergi dan rank-nya.', 'Portofolio siap. Kombinasi rapi selalu punya daya ungkit.', 'Multiplier terlihat. Ini momen yang tepat.', 'Pilihan sudah di meja. Jalankan strategi terbaikmu.'],
-    bigScore: ['{hand}, {score}. Strateginya bekerja sempurna!', 'Pasar merespons. Simpan momentum ini.', 'Skor sehat. Nikmati sebentar, lalu susun langkah berikutnya.', 'Tepat sasaran. Konsistensi membuat nilai bertumbuh.'],
-    whiff: ['{score}. Kita punya informasi untuk optimasi berikutnya.', 'Masih kecil, tetapi arah perbaikannya jelas.', 'Angkanya butuh kombinasi yang lebih tajam.', 'Setiap portofolio memberi petunjuk untuk strategi berikutnya.'],
-    lastHand: ['Tangan terakhir. Percayai hitungan yang sudah kita susun.', 'Satu kesempatan. Pilih kombinasi dengan daya ungkit tertinggi.', 'Hitung lagi, lalu mainkan dengan mantap.', 'Sekarang biarkan angka bekerja untuk rencana kita.'],
-    event: ['Pasar berubah; strategi kita ikut beradaptasi.', 'Alat baru tersedia. Pakai pada titik paling berdampak.', 'Kondisi bergeser. Kita masih punya rute menuju target.', 'Catat event-nya; perubahan ini bisa jadi keuntungan.'],
-    default: ['{remaining} lagi. Rapikan rank dan kategori.', 'Target masih ada. Cari jalur paling efisien.', 'Jangan lihat jumlahnya saja; cari sinerginya.', 'Masih ada ruang untuk kombinasi yang lebih elegan.'],
+    opening: ['Pasar baru. Aku udah tandai tiga peluang.', 'Event jelas. Cari combo paling hemat tangan.', 'Empat tangan cukup kalau urutannya bener.', 'Mulai dari yang paling nendang.'],
+    ready: ['{selected} dipilih. Cek sinergi + rank.', 'Siap. Combo rapi biasanya nendang.', 'Multiplier kelihatan. Gas.', 'Udah di meja. Mainin yang terbaik.'],
+    bigScore: ['{hand}, {score}. Pas banget.', 'Pasar nyaut. Jangan longgar.', 'Skor bagus. Nikmati sebentar, terus lanjut.', 'Tepat. Konsisten aja.'],
+    whiff: ['{score}. Info buat tangan berikutnya.', 'Masih kecil. Cari combo lebih tajam.', 'Angkanya kurang. Ganti susunan.', 'Tiap tangan ngasih petunjuk.'],
+    lastHand: ['Tangan terakhir. Percaya hitunganmu.', 'Satu kesempatan. Ambil yang paling nendang.', 'Hitung lagi, lalu main mantap.', 'Sekarang angka kerja.'],
+    event: ['Pasar geser. Kita ikut.', 'Alat baru. Pakai di titik paling sakit.', 'Kondisi berubah. Masih ada jalur.', 'Catat event-nya; bisa jadi untung.'],
+    default: ['Kurang {remaining}. Rapikan rank + kategori.', 'Target masih jauh. Cari jalur hemat.', 'Jangan cuma liat jumlah; cari sinergi.', 'Masih ada combo yang lebih enak.'],
   },
 };
 
@@ -596,7 +609,7 @@ function CompanionRail({ state }: { state: GameState }) {
   const selected = state.selectedIds.length;
   const remaining = Math.max(0, marketTarget(state.round, state.difficulty, state.modifier) - state.player.score);
   const lastEvent = state.events.at(-1)?.message ?? '';
-  const moment: KoncoMoment = /hired|bought|Sita|retitled|copied|Pungli/i.test(lastEvent)
+  const moment: KoncoMoment = /Ajak |Beli |Kurasi|Sita|sekarang jadi|Musyawarah|Gotong|Renov|Ambil |Lapak|hired|bought|Sita|retitled|copied|Pungli/i.test(lastEvent)
     ? 'event'
     : state.player.handsLeft === 1
       ? 'lastHand'
@@ -622,8 +635,8 @@ function ConsumableRack({ state, dispatch }: { state: GameState; dispatch: Dispa
     if (item.id === 'SITA') return selected === 3;
     return true;
   };
-  return <section className="consumable-rack" aria-label={tr(locale, 'Held market tools', 'Peralatan pasar tersimpan')}>
-    <header><span>{tr(locale, 'Market tools', 'Peralatan pasar')}</span><b>{state.player.consumables.length}/2</b></header>
+  return <section className="consumable-rack" aria-label={tr(locale, 'Held market tools', 'Alat yang dibawa')}>
+    <header><span>{tr(locale, 'Market tools', 'Alat pasar')}</span><b>{state.player.consumables.length}/2</b></header>
     {state.player.consumables.length ? <div>
       {state.player.consumables.map((item) => <article key={item.id}>
         <img src={`/assets/consumables/${item.art}.webp`} alt="" />
@@ -631,11 +644,11 @@ function ConsumableRack({ state, dispatch }: { state: GameState; dispatch: Dispa
         <button
           className="secondary"
           disabled={!canUse(item)}
-          title={!canUse(item) ? item.id === 'SITA' ? tr(locale, 'Select exactly three deeds first.', 'Pilih tepat tiga aset dulu.') : tr(locale, 'Select exactly one deed first.', 'Pilih tepat satu aset dulu.') : undefined}
+          title={!canUse(item) ? item.id === 'SITA' ? tr(locale, 'Select exactly three deeds first.', 'Pilih tepat tiga kartu dulu.') : tr(locale, 'Select exactly one deed first.', 'Pilih tepat satu kartu dulu.') : undefined}
           onClick={() => { unlockAudio(); dispatch({ type: 'USE_CONSUMABLE', consumableId: item.id }); playSound('purchase', state.muted); pulseHaptic(7); }}
         >{tr(locale, 'Use', 'Pakai')}</button>
       </article>)}
-    </div> : <p>{tr(locale, 'Win a market to buy one-use tools.', 'Tembus satu pasar untuk membeli alat sekali pakai.')}</p>}
+    </div> : <p>{tr(locale, 'Win a market to buy one-use tools.', 'Tembus satu pasar dulu baru bisa beli alat.')}</p>}
   </section>;
 }
 
@@ -722,13 +735,13 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
         <aside className="commentary-panel">
           <CompanionRail state={state} />
           <div className="market-log" aria-live="polite">
-            <span>Market desk</span>
+            <span>{tr(locale, 'Market desk', 'Meja pasar')}</span>
             <p>{busy
-              ? tr(locale, 'Portfolio settling…', 'Portofolio sedang dihitung…')
+              ? tr(locale, 'Portfolio settling…', 'Lagi ngehitung…')
               : state.lastPlayerScore
                 ? tr(locale,
                   `You scored ${money(state.lastPlayerScore.total)} with ${localizedHand(state.lastPlayerScore.hand, locale)}.`,
-                  `Kamu mencetak ${money(state.lastPlayerScore.total)} lewat ${localizedHand(state.lastPlayerScore.hand, locale)}.`)
+                  `Dapat ${money(state.lastPlayerScore.total)} dari ${localizedHand(state.lastPlayerScore.hand, locale)}.`)
                 : state.events.at(-1)?.message}</p>
           </div>
         </aside>
@@ -742,43 +755,47 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
             <span><Target aria-hidden="true" /> {MARKET_DIFFICULTY[state.difficulty].label} {tr(locale, 'target', 'target')}</span>
             <strong>{money(target)}</strong>
             <ProgressRail score={state.player.score} target={target} tone="table" />
-            <small>{remaining ? tr(locale, `${money(remaining)} to clear`, `${money(remaining)} lagi untuk tembus`) : tr(locale, 'Target cleared', 'Target tercapai')}</small>
+            <small>{remaining ? tr(locale, `${money(remaining)} to clear`, `kurang ${money(remaining)}`) : tr(locale, 'Target cleared', 'Tembus')}</small>
           </div>
           <div className="market-modifier" role="note" aria-label={`${modifier.name}: ${modifier.summary}`}>
             <img src={`/assets/modifiers/${state.modifier.art}.webp`} alt="" />
             <span><b>{modifier.name}</b>{modifier.summary}</span>
           </div>
+          <ScoreFormula score={prediction} label={tr(locale, 'Selected hand', 'Tangan ini')} />
           <section className="tycoon-shelf" aria-label="Your Tycoon helpers">
-            <header><Crown aria-hidden="true" /><span>{tr(locale, 'Inner circle', 'Lingkar dalam')}</span><b>{state.player.tycoons.length}/{MAX_TYCOONS}</b></header>
+            <header><Crown aria-hidden="true" /><span>{tr(locale, 'Inner circle', 'Orang Dalam')}</span><b>{state.player.tycoons.length}/{MAX_TYCOONS}</b></header>
             <div className="tycoon-lineup">
               {state.player.tycoons.length
                 ? state.player.tycoons.map((tycoon) => <TycoonCard key={tycoon.id} tycoon={tycoon} compact onInspect={() => setInspectedTycoon(tycoon)} />)
-                : <p>{tr(locale, 'Clear this market, then invite a partner at the Community Market.', 'Tembus pasar ini, lalu ajak rekan di Pasar Bersama.')}</p>}
+                : <p>{tr(locale, 'Clear this market, then invite a partner at the Community Market.', 'Tembus dulu, baru ajak Orang Dalam di Pasar Bersama.')}</p>}
             </div>
           </section>
-          <div className={`played-tray ${state.lastPlayedCards.length ? 'has-cards' : ''}`} aria-live="polite">
-            <span className="played-label">{state.lastPlayedCards.length ? tr(locale, 'Last portfolio played', 'Portofolio terakhir') : tr(locale, 'Play your first portfolio', 'Mainkan portofolio pertamamu')}</span>
-            <div className="played-cards">
-              {state.lastPlayedCards.map((card, index) => <AssetCard key={card.instanceId} card={card} compact index={index} onInspect={() => setInspectedCard(card)} />)}
-            </div>
+          <div className={`played-tray ${state.lastPlayedCards.length ? 'has-cards' : 'is-empty'}`} aria-live="polite">
+            {state.lastPlayedCards.length > 0 ? (
+              <>
+                <span className="played-label">{tr(locale, 'Last portfolio played', 'Tangan terakhir')}</span>
+                <div className="played-cards">
+                  {state.lastPlayedCards.map((card, index) => <AssetCard key={card.instanceId} card={card} compact index={index} onInspect={() => setInspectedCard(card)} />)}
+                </div>
+              </>
+            ) : null}
           </div>
           {sequence && <div className="score-sequence" aria-hidden="true">
             <div className="flight-cards">{sequence.cards.map((card, index) => <img key={card.instanceId} src={cardArt(card)} style={{ '--flight-index': index } as React.CSSProperties} alt="" />)}</div>
             <ScoreCascade sequence={sequence} />
           </div>}
           <div className="last-hands">
-            <ScoreFormula score={state.lastPlayerScore} label={tr(locale, 'Your last hand', 'Tangan terakhirmu')} />
+            <ScoreFormula score={state.lastPlayerScore} label={tr(locale, 'Your last hand', 'Tangan sebelumnya')} />
           </div>
-          <ScoreFormula score={prediction} label={tr(locale, 'Selected hand', 'Tangan terpilih')} />
         </section>
 
-        <aside className="player-panel">
+        <aside className="player-panel" data-label={tr(locale, 'YOUR BANK', 'DOMPETMU')}>
           <div className="player-resource"><span>{tr(locale, 'Hands', 'Tangan')}</span><strong>{state.player.handsLeft}</strong></div>
           <div className="player-resource"><span>{tr(locale, 'Discards', 'Buang')}</span><strong>{state.player.discardsLeft}</strong></div>
           <div className="player-resource gold"><span>{tr(locale, 'Capital', 'Modal')}</span><strong>${state.player.cash}</strong></div>
           <div className={`deck-count ${reshuffling ? 'reshuffling' : ''}`}>
-            <span>Deck</span><b>{deckSize(state.player)}</b>
-            {reshuffling && <em aria-hidden="true">reshuffled</em>}
+            <span>{tr(locale, 'Deck', 'Dek')}</span><b>{deckSize(state.player)}</b>
+            {reshuffling && <em aria-hidden="true">{tr(locale, 'reshuffled', 'diacak')}</em>}
           </div>
           <ConsumableRack state={state} dispatch={dispatch} />
         </aside>
@@ -789,13 +806,13 @@ function GameTable({ state, dispatch }: { state: GameState; dispatch: Dispatch }
           {sortedHand.map((card, index) => <AssetCard key={card.instanceId} card={card} index={index} selected={state.selectedIds.includes(card.instanceId)} departing={discardingIds.includes(card.instanceId)} onClick={() => toggle(card.instanceId)} onInspect={() => setInspectedCard(card)} />)}
         </div>
         <div className="play-actions">
-          <div className="hand-sort" role="group" aria-label={tr(locale, 'Sort your hand', 'Urutkan tangan')}>
+          <div className="hand-sort" role="group" aria-label={tr(locale, 'Sort your hand', 'Urutkan')}>
             <ArrowDownUp aria-hidden="true" />
             <button className={handSort === 'class' ? 'active' : ''} onClick={() => setHandSort('class')} type="button">{tr(locale, 'Class', 'Kelas')}</button>
-            <button className={handSort === 'rank' ? 'active' : ''} onClick={() => setHandSort('rank')} type="button">{tr(locale, 'Rank', 'Peringkat')}</button>
+            <button className={handSort === 'rank' ? 'active' : ''} onClick={() => setHandSort('rank')} type="button">{tr(locale, 'Rank', 'Rank')}</button>
           </div>
           <button className="secondary" disabled={!selected.length || state.player.discardsLeft < 1 || busy} onClick={discard}><RotateCcw /> {tr(locale, 'Discard', 'Buang')} <small>{selected.length || ''}</small></button>
-          <button className="primary" disabled={!selected.length || busy} onClick={play}><Coins /> {busy ? tr(locale, 'Scoring portfolio…', 'Menghitung portofolio…') : tr(locale, 'Commit portfolio', 'Mainkan portofolio')}</button>
+          <button className="primary" disabled={!selected.length || busy} onClick={play}><Coins /> {busy ? tr(locale, 'Scoring portfolio…', 'Ngehitung…') : tr(locale, 'Commit portfolio', 'Mainkan')}</button>
         </div>
       </section>
       {inspectedCard && <CardPreview card={inspectedCard} onClose={() => setInspectedCard(null)} />}
@@ -840,14 +857,14 @@ function Shop({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
       <Hud state={state} dispatch={dispatch} />
       <div className="shop-wrap">
         <header className="shop-heading">
-          <div><span>{tr(locale, `Round ${state.round} secured`, `Ronde ${state.round} diamankan`)}</span><h1>{tr(locale, 'Community Market', 'Pasar Bersama')}</h1><p>{tr(locale, 'Turn the last win into a stronger deck.', 'Ubah kemenangan tadi menjadi dek yang lebih kuat.')}</p></div>
+          <div><span>{tr(locale, `Round ${state.round} secured`, `Ronde ${state.round} beres`)}</span><h1>{tr(locale, 'Community Market', 'Pasar Bersama')}</h1><p>{tr(locale, 'Turn the last win into a stronger deck.', 'Menang tadi? Cuanin buat bikin dek lebih ganas.')}</p></div>
           <div className={`cash-pile ${spend ? 'spending' : ''}`}>
             <Coins /> ${state.player.cash}
             {spend && <b key={spend.id} className="spend-chip" aria-hidden="true">-${spend.amount}</b>}
           </div>
         </header>
         <section>
-          <h2><Crown /> {tr(locale, 'Partner invitations', 'Undangan rekan')} <small>{state.player.tycoons.length}/{MAX_TYCOONS} {tr(locale, 'invited', 'diajak')}</small></h2>
+          <h2><Crown /> {tr(locale, 'Partner invitations', 'Ajak Orang Dalam')} <small>{state.player.tycoons.length}/{MAX_TYCOONS} {tr(locale, 'invited', 'masuk')}</small></h2>
           <div className="shop-grid">
             {shop.tycoons.map((tycoon) => {
               const price = priceFor(state.player, tycoon.cost);
@@ -856,7 +873,7 @@ function Shop({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
                 <button
                   disabled={owned || state.player.cash < price || state.player.tycoons.length >= MAX_TYCOONS}
                   onClick={() => buy({ type: 'BUY_TYCOON', tycoonId: tycoon.id }, tycoon.id, price)}
-                >{owned ? 'Hired' : `Hire · $${price}`}</button>
+                >{owned ? tr(locale, 'Hired', 'Udah masuk') : tr(locale, `Hire · $${price}`, `Ajak · $${price}`)}</button>
               </TycoonCard>;
             })}
           </div>
@@ -867,13 +884,15 @@ function Shop({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
             <article className={`acquisition ${flash === 'acquire' ? 'bought' : ''}`}>
               <AssetCard card={{ ...shop.acquisition, instanceId: 'offer', bonus: 0 }} compact />
               <div>
-                <h3>{tr(locale, 'Acquire this deed', 'Akuisisi aset ini')}</h3>
-                <p>Adds an upgraded <b>{shop.acquisition.name}</b> (+8 chips) to your deck for the rest of the run. A contract must make the deck stronger, not just larger.</p>
-                <button disabled={state.player.cash < acquirePrice} onClick={() => buy({ type: 'BUY_ACQUISITION' }, 'acquire', acquirePrice)}>{tr(locale, 'Acquire', 'Akuisisi')} · ${acquirePrice}</button>
+                <h3>{tr(locale, 'Acquire this deed', 'Ambil aset ini')}</h3>
+                <p>{locale === 'id'
+                  ? <>Nambah <b>{shop.acquisition.name}</b> yang udah di-upgrade (+8 chip) ke dek sampai akhir run. Ambil yang bikin dek lebih ganas, bukan cuma lebih gemuk.</>
+                  : <>Adds an upgraded <b>{shop.acquisition.name}</b> (+8 chips) to your deck for the rest of the run. A contract must make the deck stronger, not just larger.</>}</p>
+                <button disabled={state.player.cash < acquirePrice} onClick={() => buy({ type: 'BUY_ACQUISITION' }, 'acquire', acquirePrice)}>{tr(locale, 'Acquire', 'Ambil')} · ${acquirePrice}</button>
               </div>
             </article>
             <article className={`deck-service ${flash === 'service' ? 'bought' : ''}`}>
-              <h3>{tr(locale, 'Work on a deed you already own', 'Kelola aset yang sudah kamu miliki')}</h3>
+              <h3>{tr(locale, 'Work on a deed you already own', 'Otak-atik aset yang udah punya')}</h3>
               {/* A scrolling rack of real cards — picking your own deed should feel
                   like handling the deck, not filling in a form. */}
               <div className="deed-picker" role="radiogroup" aria-label="Choose a deed from your deck">
@@ -890,22 +909,28 @@ function Shop({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
               <div className="deed-actions">
                 <div className="deed-action">
                   <button disabled={!picked || state.player.cash < renovatePrice} onClick={() => buy({ type: 'RENOVATE', cardId: activeId }, 'service', renovatePrice)}>
-                    <Wrench /> {tr(locale, 'Renovate', 'Renovasi')} · ${renovatePrice}
+                    <Wrench /> {tr(locale, 'Renovate', 'Renov')} · ${renovatePrice}
                   </button>
                   <small>
                     {picked
-                      ? <>Upgrade #{shop.renovations + 1}: permanently raises <b>{picked.name}</b> from {picked.chips + picked.bonus} to <b>{picked.chips + picked.bonus + 5 + Math.floor(picked.bonus / 5)} chips</b>. Repeated work compounds the deed.</>
-                      : 'Permanently upgrades the chosen deed. Repeated work compounds.'}
+                      ? locale === 'id'
+                        ? <>Upgrade #{shop.renovations + 1}: naikkan <b>{picked.name}</b> dari {picked.chips + picked.bonus} jadi <b>{picked.chips + picked.bonus + 5 + Math.floor(picked.bonus / 5)} chip</b>, permanen. Makin sering renov, makin nambah.</>
+                        : <>Upgrade #{shop.renovations + 1}: permanently raises <b>{picked.name}</b> from {picked.chips + picked.bonus} to <b>{picked.chips + picked.bonus + 5 + Math.floor(picked.bonus / 5)} chips</b>. Repeated work compounds the deed.</>
+                      : tr(locale, 'Permanently upgrades the chosen deed. Repeated work compounds.', 'Upgrade permanen. Bisa diulang, nambah terus.')}
                   </small>
                 </div>
                 <div className="deed-action">
                   <button disabled={shop.liquidated || !canLiquidate} onClick={() => buy({ type: 'LIQUIDATE', cardId: activeId }, 'service', 0)}>
-                    <Trash2 /> {shop.liquidated ? tr(locale, 'Liquidated', 'Dilikuidasi') : tr(locale, 'Liquidate · +$1', 'Likuidasi · +$1')}
+                    <Trash2 /> {shop.liquidated ? tr(locale, 'Liquidated', 'Udah dijual') : tr(locale, 'Liquidate · +$1', 'Jual · +$1')}
                   </button>
                   <small>
                     {canLiquidate
-                      ? <>Destroys <b>{picked ? picked.name : 'the chosen deed'}</b> for $1. A thinner deck ({deckSize(state.player) - 1} cards) draws your best deeds more often.</>
-                      : <>Your deck is at the {MIN_DECK_SIZE}-card minimum, so nothing can be destroyed.</>}
+                      ? locale === 'id'
+                        ? <>Jual <b>{picked ? picked.name : 'aset terpilih'}</b> buat $1. Dek lebih tipis ({deckSize(state.player) - 1} kartu) = kartu bagus lebih sering keluar.</>
+                        : <>Destroys <b>{picked ? picked.name : 'the chosen deed'}</b> for $1. A thinner deck ({deckSize(state.player) - 1} cards) draws your best deeds more often.</>
+                      : locale === 'id'
+                        ? <>Dek udah di batas {MIN_DECK_SIZE} kartu. Nggak bisa dijual lagi.</>
+                        : <>Your deck is at the {MIN_DECK_SIZE}-card minimum, so nothing can be destroyed.</>}
                   </small>
                 </div>
               </div>
@@ -913,7 +938,7 @@ function Shop({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
           </div>
         </section>
         <section className="consumable-market">
-          <h2><Coins /> {tr(locale, 'Market tools', 'Peralatan pasar')} <small>{state.player.consumables.length}/2 {tr(locale, 'held', 'disimpan')}</small></h2>
+          <h2><Coins /> {tr(locale, 'Market tools', 'Alat pasar')} <small>{state.player.consumables.length}/2 {tr(locale, 'held', 'dibawa')}</small></h2>
           <div className="consumable-offers">
             {shop.consumables.map((item) => {
               const price = priceFor(state.player, item.cost);
@@ -923,7 +948,7 @@ function Shop({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
                 <button disabled={state.player.cash < price || state.player.consumables.length >= 2} onClick={() => buy({ type: 'BUY_CONSUMABLE', consumableId: item.id }, item.id, price)}>{tr(locale, 'Buy', 'Beli')} · ${price}</button>
               </article>;
             })}
-            {!shop.consumables.length && <p className="sold-out">No tools left on this stall.</p>}
+            {!shop.consumables.length && <p className="sold-out">{tr(locale, 'No tools left on this stall.', 'Alat di lapak ini abis.')}</p>}
           </div>
         </section>
       </div>
@@ -939,18 +964,21 @@ function Shop({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
 function Ending({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
   const locale = useLocale();
   const won = state.phase === 'victory';
+  const art = won ? 'prosperity-archipelago.png' : 'prosperity-home-pixel.png';
   return (
-    <main className={`ending game-frame ${won ? 'won' : 'lost'}`} style={{ backgroundImage: `url(/assets/generated/${won ? 'victory-jakarta.webp' : 'bankruptcy-jakarta.webp'})` }}>
+    <main className={`ending game-frame ${won ? 'won' : 'lost'}`} style={{ backgroundImage: `url(/assets/generated/${art})` }}>
       <div className="ending-shade" />
       <section>
         {won ? <Trophy /> : <Coins />}
-        <span>{won ? tr(locale, 'Eight markets conquered', 'Delapan pasar ditaklukkan') : tr(locale, `Run ended in round ${state.round}`, `Permainan berakhir di ronde ${state.round}`)}</span>
-        <h1>{won ? tr(locale, 'The city thrives with you.', 'Kota ini tumbuh bersamamu.') : tr(locale, 'The next market can be brighter.', 'Pasar berikutnya bisa lebih cerah.')}</h1>
-        <p>{won ? 'The final market has cleared.' : `You needed ${money(marketTarget(state.round, state.difficulty, state.modifier))} and closed at ${money(state.player.score)}.`}</p>
-        <div className="ending-score"><span>{tr(locale, 'Run score', 'Skor permainan')}</span><strong>{money(state.runScore)}</strong></div>
+        <span>{won ? tr(locale, 'Eight markets conquered', 'Delapan pasar lolos') : tr(locale, `Run ended in round ${state.round}`, `Habis di ronde ${state.round}`)}</span>
+        <h1>{won ? tr(locale, 'The city thrives with you.', 'Kota naik bareng kamu.') : tr(locale, 'The next market can be brighter.', 'Lain kali bisa lebih oke.')}</h1>
+        <p>{won
+          ? tr(locale, 'The final market has cleared.', 'Pasar terakhir tembus.')
+          : tr(locale, `You needed ${money(marketTarget(state.round, state.difficulty, state.modifier))} and closed at ${money(state.player.score)}.`, `Butuh ${money(marketTarget(state.round, state.difficulty, state.modifier))}, tapi cuma ${money(state.player.score)}.`)}</p>
+        <div className="ending-score"><span>{tr(locale, 'Run score', 'Skor run')}</span><strong>{money(state.runScore)}</strong></div>
         <div className="ending-actions">
           <button className="primary large" onClick={() => dispatch({ type: 'NEW_RUN', difficulty: state.difficulty, companion: state.companion })}><Sparkles /> {tr(locale, 'Run it back', 'Main lagi')}</button>
-          <button className="ghost" onClick={() => dispatch({ type: 'GO_MENU' })}>{tr(locale, 'Return to title', 'Kembali ke judul')}</button>
+          <button className="ghost" onClick={() => dispatch({ type: 'GO_MENU' })}>{tr(locale, 'Return to title', 'Balik ke judul')}</button>
         </div>
       </section>
     </main>
