@@ -253,6 +253,7 @@ function CardPreview({ card, onClose }: { card: Card; onClose: () => void }) {
   return <div className="card-preview-backdrop" role="presentation" onMouseDown={onClose}>
     <section className="card-preview" role="dialog" aria-modal="true" aria-label={`${card.name} card preview`} onMouseDown={(event) => event.stopPropagation()}>
       <button className="icon-button preview-close" onClick={onClose} aria-label="Close card preview"><X /></button>
+      <span className="preview-rank" aria-label={`Rank ${card.rank}`}>{card.rank}</span>
       <img src={cardArt(card)} alt={`${card.name} optimistic prosperity illustration`} />
       <div className="preview-vignette" />
       <div className="preview-details">

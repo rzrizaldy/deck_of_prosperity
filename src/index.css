@@ -899,9 +899,20 @@ kbd { border: 1px solid #3b4852; background: #121b23; border-radius: 4px; paddin
 .card-preview > img { width: 100%; height: 100%; display: block; object-fit: cover; }
 .preview-vignette { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(2, 8, 12, .06) 25%, rgba(2, 8, 12, .12) 48%, rgba(2, 8, 12, .93) 100%); }
 .preview-close { position: absolute; z-index: 2; top: calc(8 * var(--u, 1px)); right: calc(8 * var(--u, 1px)); background: rgba(3, 8, 12, .72); border-color: rgba(255, 255, 255, .28); }
+.preview-rank {
+  position: absolute; z-index: 2; top: calc(8 * var(--u, 1px)); left: calc(8 * var(--u, 1px));
+  display: grid; place-items: center; min-width: calc(34 * var(--u, 1px)); height: calc(34 * var(--u, 1px));
+  padding: 0 calc(7 * var(--u, 1px)); border: 1px solid rgba(255,234,164,.82); border-radius: calc(7 * var(--u, 1px));
+  background: rgba(3,12,10,.88); color: #fff0b5; font: 800 var(--t-lg, 1.35rem) 'DM Mono', monospace;
+  box-shadow: 0 3px 10px rgba(0,0,0,.48);
+}
 .preview-details { position: absolute; z-index: 1; right: 0; bottom: 0; left: 0; padding: calc(14 * var(--u, 1px)); }
-.preview-details > span { color: var(--preview-group, var(--gold)); font: 700 var(--t-xs, .62rem) 'DM Mono', monospace; letter-spacing: .13em; text-transform: uppercase; }
-.preview-details h2 { margin: calc(3 * var(--u, 1px)) 0 calc(6 * var(--u, 1px)); font-size: var(--t-xl, 2rem); line-height: .95; letter-spacing: -.05em; }
+.preview-details > span {
+  display: inline-flex; padding-left: calc(6 * var(--u, 1px)); border-left: calc(3 * var(--u, 1px)) solid var(--preview-group, var(--gold));
+  color: #fff; font: 700 var(--t-xs, .62rem) 'DM Mono', monospace; letter-spacing: .13em; text-transform: uppercase;
+  text-shadow: 0 1px 4px rgba(0,0,0,.9);
+}
+.preview-details h2 { margin: calc(3 * var(--u, 1px)) 0 calc(6 * var(--u, 1px)); color: #fff; font-size: var(--t-xl, 2rem); line-height: .95; letter-spacing: -.05em; text-shadow: 0 2px 8px rgba(0,0,0,.9); }
 .preview-details > div { display: flex; align-items: center; gap: calc(6 * var(--u, 1px)); }
 .preview-details b {
   display: inline-flex; align-items: center; gap: calc(4 * var(--u, 1px)); color: var(--gold);

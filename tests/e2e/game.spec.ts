@@ -319,12 +319,16 @@ test('holding a gameplay card opens its large artwork preview', async ({ page })
   await startRun(page);
   const card = page.locator('.hand-cards .asset-card').first();
   const name = (await card.locator('strong').textContent())!.trim();
+  const rank = (await card.locator('.card-rank').textContent())!.trim();
   const box = (await card.boundingBox())!;
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
   await page.waitForTimeout(670);
   await page.mouse.up();
-  await expect(page.getByRole('dialog', { name: new RegExp(`${name} card preview`, 'i') })).toBeVisible();
+  const preview = page.getByRole('dialog', { name: new RegExp(`${name} card preview`, 'i') });
+  await expect(preview).toBeVisible();
+  await expect(preview.getByLabel(`Rank ${rank}`)).toHaveText(rank);
+  await expect(preview.locator('h2')).toHaveCSS('color', 'rgb(255, 255, 255)');
 });
 
 test('hovering a gameplay card for two seconds opens its large artwork preview', async ({ page }) => {
