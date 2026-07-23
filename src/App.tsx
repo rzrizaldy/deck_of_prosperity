@@ -242,7 +242,6 @@ function AssetCard({ card, selected = false, compact = false, departing = false,
       {onInspect && <span className="inspect-hint" aria-hidden="true"><Eye /></span>}
       <span className="card-stripe">{localizedGroup(card.group, locale)}</span>
       <strong>{card.name}</strong>
-      <span className="card-value"><Coins aria-hidden="true" /> {card.chips + card.bonus}</span>
       {card.bonus > 0 && <span className="upgrade">+{card.bonus}</span>}
     </button>
   );
