@@ -1034,6 +1034,8 @@ body { background: #fff8e8; } #root { background: radial-gradient(ellipse at 50%
 .play-actions, .hand-sort { background: rgba(255,253,244,.94); border-color: rgba(43,132,105,.36); box-shadow: 0 8px 22px rgba(35,111,84,.18); }
 .hand-cards .asset-card { width: calc(82 * var(--u)); }
 .hand-cards .asset-card strong { font-size: calc(11 * var(--u)); }
+/* Anchor the fan to the reserved hand column; the rightmost rotated card cannot enter the action column. */
+.hand-cards { justify-content: flex-start; }
 /* Keep commissioned pixel scenery fully visible above legacy noir card rules. */
 .asset-card .card-art { opacity: 1; mix-blend-mode: normal; image-rendering: pixelated; }
 .asset-card::after, .played-cards .asset-card::after { background: linear-gradient(180deg, transparent 45%, rgba(255,249,231,.10) 58%, rgba(255,249,231,.94) 91%); }
