@@ -12,6 +12,8 @@
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run test && npm run build",
     "bundle:itch": "npm run build && mkdir -p release && cd dist && zip -r -X ../release/deck-of-prosperity-itch.zip . -x '*.DS_Store'",
+    "push:itch": "npm run build && butler push dist \"${ITCH_TARGET:-rzrizaldy/deck-of-prosperity:html}\"",
+    "screenshots:itch": "npm run build && node scripts/capture-itch-screenshots.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
