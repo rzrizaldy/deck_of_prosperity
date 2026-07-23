@@ -11,6 +11,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run test && npm run build",
+    "bundle:itch": "npm run build && mkdir -p release && cd dist && zip -r -X ../release/deck-of-prosperity-itch.zip . -x '*.DS_Store'",
     "preview": "vite preview"
   },
   "dependencies": {
