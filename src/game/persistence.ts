@@ -1,4 +1,5 @@
 import type { GameState, SaveGameV2 } from './types';
+import { CARD_TEMPLATES } from './data';
 
 export const SAVE_KEY = 'deck-of-prosperity-save-v2';
 export const LEGACY_SAVE_KEY = 'cp_save_data';
@@ -15,6 +16,19 @@ export function loadSave(): GameState | null {
     const legacyCompanion = save.state.companion as string;
     if (legacyCompanion === 'gemoy' || legacyCompanion === 'sari') save.state.companion = 'abah';
     if (legacyCompanion === 'soloman' || legacyCompanion === 'bima') save.state.companion = 'azah';
+    // IDs encode group + internal rank, so refresh published names/art after a
+    // value-ladder rebalance while keeping each run's instances and upgrades.
+    const templates = new Map(CARD_TEMPLATES.map((template) => [template.id, template]));
+    const refreshCard = <T extends { id: string; bonus?: number }>(card: T): T => {
+      const template = templates.get(card.id);
+      return template ? { ...card, ...template, bonus: card.bonus } : card;
+    };
+    save.state.player.drawPile = save.state.player.drawPile.map(refreshCard);
+    save.state.player.discardPile = save.state.player.discardPile.map(refreshCard);
+    save.state.player.hand = save.state.player.hand.map(refreshCard);
+    save.state.marketExile = save.state.marketExile.map(refreshCard);
+    save.state.lastPlayedCards = save.state.lastPlayedCards.map(refreshCard);
+    if (save.state.shop) save.state.shop.acquisition = refreshCard(save.state.shop.acquisition);
     return save.state;
   } catch {
     return null;

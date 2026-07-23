@@ -34,6 +34,22 @@ describe('versioned local persistence', () => {
     expect(loadSave()?.companion).toBe('azah');
   });
 
+  it('refreshes saved cards to the current asset ladder without losing renovations', () => {
+    const run = createRun('trader', 42);
+    const savedCard = run.player.drawPile[0];
+    savedCard.name = 'Outdated asset';
+    savedCard.artId = 'outdated-art';
+    savedCard.chips = 999;
+    savedCard.bonus = 15;
+    localStorage.setItem(SAVE_KEY, JSON.stringify({ version: 2, savedAt: 1, state: run }));
+    const loaded = loadSave()!;
+    const refreshed = loaded.player.drawPile.find((card) => card.instanceId === savedCard.instanceId)!;
+    expect(refreshed.name).not.toBe('Outdated asset');
+    expect(refreshed.artId).not.toBe('outdated-art');
+    expect(refreshed.chips).not.toBe(999);
+    expect(refreshed.bonus).toBe(15);
+  });
+
   it('retires an incompatible prototype save', () => {
     localStorage.setItem(LEGACY_SAVE_KEY, '{}');
     expect(migrateLegacySave()).toBe(true);

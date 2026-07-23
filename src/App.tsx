@@ -7,11 +7,11 @@ import {
   getVolume, isBgmEnabled, playCompanionSfx, playSound, pulseHaptic, setBgmEnabled, setVolume,
   startBgm, stopBgm, unlockAudio,
 } from './game/audio';
-import { CARD_TEMPLATES, GROUPS, HANDS } from './game/data';
+import { CARD_TEMPLATES, GROUPS, HANDS, rankLabel } from './game/data';
 import { allCards, deckSize, MARKET_DIFFICULTY, marketTarget, MAX_TYCOONS, MIN_DECK_SIZE, priceFor, scoreHand } from './game/engine';
 import { clearSave, loadSave, migrateLegacySave, recordHighScore, saveGame } from './game/persistence';
 import { gameReducer, initialState } from './game/reducer';
-import type { Card, Consumable, GameState, ScoreBreakdown, Tycoon } from './game/types';
+import type { Card, Consumable, GameState, GroupKey, ScoreBreakdown, Tycoon } from './game/types';
 
 type Dispatch = React.Dispatch<Parameters<typeof gameReducer>[1]>;
 type Locale = 'id' | 'en';
@@ -187,8 +187,8 @@ function ScoreCascade({ sequence }: { sequence: ScoreSequence }) {
   </div>;
 }
 
-function AssetCard({ card, selected = false, compact = false, departing = false, onClick, onInspect, index }: {
-  card: Card; selected?: boolean; compact?: boolean; departing?: boolean; onClick?: () => void; onInspect?: () => void; index?: number;
+function AssetCard({ card, selected = false, compact = false, departing = false, onClick, onInspect, index, eager = false }: {
+  card: Card; selected?: boolean; compact?: boolean; departing?: boolean; onClick?: () => void; onInspect?: () => void; index?: number; eager?: boolean;
 }) {
   const locale = useLocale();
   const group = GROUPS[card.group];
@@ -237,11 +237,11 @@ function AssetCard({ card, selected = false, compact = false, departing = false,
       aria-label={`${onClick && index !== undefined ? `${index + 1}. ` : ''}${card.name}, ${card.chips + card.bonus} chips`}
       type="button"
     >
-      <img className="card-art" src={cardArt(card)} alt={onInspect ? `Inspect ${card.name} artwork` : ''} loading="lazy" />
-      <span className="card-rank" aria-label={`Rank ${card.rank}`}>{card.rank}</span>
+      <img className="card-art" src={cardArt(card)} alt={onInspect ? `Inspect ${card.name} artwork` : ''} loading={eager ? 'eager' : 'lazy'} />
+      <span className="card-rank" aria-label={`Rank ${rankLabel(card.rank)}`}>{rankLabel(card.rank)}</span>
       {onInspect && <span className="inspect-hint" aria-hidden="true"><Eye /></span>}
       <span className="card-stripe">{localizedGroup(card.group, locale)}</span>
-      <strong>{card.name}</strong>
+      <strong className="card-name">{card.name}</strong>
       {card.bonus > 0 && <span className="upgrade">+{card.bonus}</span>}
     </button>
   );
@@ -253,7 +253,7 @@ function CardPreview({ card, onClose }: { card: Card; onClose: () => void }) {
   return <div className="card-preview-backdrop" role="presentation" onMouseDown={onClose}>
     <section className="card-preview" role="dialog" aria-modal="true" aria-label={`${card.name} card preview`} onMouseDown={(event) => event.stopPropagation()}>
       <button className="icon-button preview-close" onClick={onClose} aria-label="Close card preview"><X /></button>
-      <span className="preview-rank" aria-label={`Rank ${card.rank}`}>{card.rank}</span>
+      <span className="preview-rank" aria-label={`Rank ${rankLabel(card.rank)}`}>{rankLabel(card.rank)}</span>
       <img src={cardArt(card)} alt={`${card.name} optimistic prosperity illustration`} />
       <div className="preview-vignette" />
       <div className="preview-details">
@@ -352,7 +352,7 @@ function PortfolioRecipe({ hand }: { hand: keyof typeof HANDS }) {
         {groups.map(({ group, rank }, index) => {
           const visual = GROUPS[group];
           return <span key={`${group}-${rank}-${index}`} style={{ '--recipe-color': visual.color, '--recipe-ink': visual.ink } as React.CSSProperties}>
-            <b>{rank}</b><small>{localizedGroup(group, locale).slice(0, 1)}</small>
+            <b>{rankLabel(rank)}</b><small>{localizedGroup(group, locale).slice(0, 1)}</small>
           </span>;
         })}
       </div>
@@ -371,17 +371,17 @@ function ScoringExample() {
   return (
     <figure className="scoring-example">
       <div className="example-cards">
-        <span style={swatch}>3<b>15</b></span><span style={swatch}>4<b>20</b></span><span style={swatch}>5<b>25</b></span><span style={swatch}>6<b>30</b></span><span style={swatch}>7<b>35</b></span>
+        <span style={swatch}>3<b>10</b></span><span style={swatch}>4<b>15</b></span><span style={swatch}>5<b>20</b></span><span style={swatch}>6<b>25</b></span><span style={swatch}>7<b>30</b></span>
       </div>
       <figcaption>{tr(locale, 'Five consecutive ranks make a Straight. Five in the same category make a Flush. Do both and it is a Straight Flush.', 'Lima rank berurutan membentuk Straight. Lima kartu satu kategori membentuk Flush. Dapatkan keduanya untuk Straight Flush.')}</figcaption>
       <div className="example-maths">
-        <span><small>{tr(locale, 'chips', 'chip')}</small><strong>125</strong></span>
+        <span><small>{tr(locale, 'chips', 'chip')}</small><strong>100</strong></span>
         <i>×</i>
         <span><small>mult</small><strong>16</strong></span>
         <i>=</i>
-        <span className="example-total"><small>{tr(locale, 'score', 'skor')}</small><strong>2,000</strong></span>
+        <span className="example-total"><small>{tr(locale, 'score', 'skor')}</small><strong>1,600</strong></span>
       </div>
-      <figcaption>{tr(locale, 'Ranks are 1–13 in every category. Build runs for Straights, categories for Flushes, or matching ranks for pairs and houses.', 'Setiap kategori punya rank 1–13. Susun rank untuk Straight, kumpulkan kategori untuk Flush, atau samakan rank untuk Pair dan Full House.')}</figcaption>
+      <figcaption>{tr(locale, 'Every category runs from 2 (lowest) to Ace (highest). Build runs for Straights, categories for Flushes, or matching ranks for pairs and houses.', 'Setiap kategori berurutan dari 2 (terendah) sampai As (tertinggi). Susun rank untuk Straight, kumpulkan kategori untuk Flush, atau samakan rank untuk Pair dan Full House.')}</figcaption>
     </figure>
   );
 }
@@ -402,7 +402,7 @@ function Guide({ onClose }: { onClose: () => void }) {
           </ol>
           <h3>{tr(locale, 'Words you will see', 'Istilah penting')}</h3>
           <dl className="glossary">
-            <div><dt>{tr(locale, 'Deed', 'Aset')}</dt><dd>{tr(locale, 'One property card. Its number is its chip value.', 'Satu kartu properti. Angkanya adalah nilai chip.')}</dd></div>
+            <div><dt>{tr(locale, 'Deed', 'Aset')}</dt><dd>{tr(locale, 'One property card. Its 2–Ace rank builds poker patterns; inspect it to see its chips.', 'Satu kartu properti. Rank 2–As membentuk pola poker; zoom untuk melihat chipnya.')}</dd></div>
             <div><dt>{tr(locale, 'Group', 'Grup')}</dt><dd>{tr(locale, 'Deeds sharing a colour. Matching groups makes multipliers grow.', 'Aset yang berbagi warna. Menyamakan grup membuat multiplier naik.')}</dd></div>
             <div><dt>{tr(locale, 'Partner', 'Rekan')}</dt><dd>{tr(locale, 'A recruited community partner that adds chips or multiplier whenever its condition is met.', 'Rekan komunitas yang menambah chip atau pengali saat syaratnya terpenuhi.')}</dd></div>
             <div><dt>{tr(locale, 'Renovate', 'Renovasi')}</dt><dd>{tr(locale, 'Pay to give one deed +5 chips, permanently.', 'Bayar untuk memberi satu aset +5 chip secara permanen.')}</dd></div>
@@ -411,7 +411,7 @@ function Guide({ onClose }: { onClose: () => void }) {
         </section>
         <section>
           <h3>{tr(locale, 'Portfolio patterns', 'Pola portofolio')}</h3>
-          <p className="guide-note">{tr(locale, 'Every category holds ranks 1–13. Higher poker hands are rarer and multiply much harder; the mini-cards show exact example ranks.', 'Setiap kategori memiliki rank 1–13. Poker hand tinggi lebih langka dan pengalinya lebih besar; kartu mini menunjukkan contoh rank yang tepat.')}</p>
+          <p className="guide-note">{tr(locale, 'Every category holds the same 2–Ace ladder. Higher poker hands are rarer and multiply much harder; the mini-cards show exact example ranks.', 'Setiap kategori punya urutan 2–As yang sama. Poker hand tinggi lebih langka dan pengalinya lebih besar; kartu mini menunjukkan contoh rank yang tepat.')}</p>
           <div className="rank-list">
             {Object.entries(HANDS).map(([key, hand]) => (
               <div key={key} className="rank-row"><PortfolioRecipe hand={key as keyof typeof HANDS} /><span><strong>{localizedHand(key as keyof typeof HANDS, locale)}</strong><small>{locale === 'en' ? ({ HIGH_ASSET: 'No pattern; highest rank leads.', PAIR: 'Two matching ranks.', TWO_PAIRS: 'Two different matching ranks.', THREE_KIND: 'Three matching ranks.', STRAIGHT: 'Five consecutive ranks.', FLUSH: 'Five cards in one class.', FULL_HOUSE: 'Three matching ranks plus a pair.', FOUR_KIND: 'Four matching ranks.', STRAIGHT_FLUSH: 'Five consecutive ranks in one class.' } as Record<string, string>)[key] : hand.description}</small></span><b>×{hand.multiplier}</b></div>
@@ -428,14 +428,22 @@ function Guide({ onClose }: { onClose: () => void }) {
 function Compendium({ onClose }: { onClose: () => void }) {
   const locale = useLocale();
   const [inspectedCard, setInspectedCard] = useState<Card | null>(null);
+  const collectionGroups: GroupKey[] = ['COMMERCIAL', 'INNOVATION', 'RESIDENTIAL', 'INFRASTRUCTURE'];
   return (
     <Modal title={tr(locale, 'Property Compendium', 'Koleksi Aset')} onClose={onClose}>
-      <p className="compendium-hint">{tr(locale, 'Click a deed illustration to inspect it full size.', 'Klik ilustrasi aset untuk melihatnya dalam ukuran penuh.')}</p>
+      <p className="compendium-hint">{tr(locale, 'Four category columns, Ace on top and 2 at the bottom. Click any deed for its full detail.', 'Empat kolom kategori, As paling atas dan 2 paling bawah. Klik aset untuk melihat detail penuh.')}</p>
       <div className="compendium">
-        {CARD_TEMPLATES.map((template, index) => {
-          const card = { ...template, instanceId: `catalog-${index}`, bonus: 0 };
-          return <AssetCard key={template.id} card={card} compact onInspect={() => setInspectedCard(card)} />;
-        })}
+        {collectionGroups.map((group) => (
+          <section className="collection-column" key={group} style={{ '--collection-color': GROUPS[group].color } as React.CSSProperties}>
+            <header><strong>{localizedGroup(group, locale)}</strong><small>A → 2</small></header>
+            <div className="collection-stack">
+              {CARD_TEMPLATES.filter((template) => template.group === group).sort((a, b) => b.rank - a.rank).map((template, index) => {
+                const card = { ...template, instanceId: `catalog-${group}-${index}`, bonus: 0 };
+                return <AssetCard key={template.id} card={card} compact eager onInspect={() => setInspectedCard(card)} />;
+              })}
+            </div>
+          </section>
+        ))}
       </div>
       {inspectedCard && <CardPreview card={inspectedCard} onClose={() => setInspectedCard(null)} />}
     </Modal>

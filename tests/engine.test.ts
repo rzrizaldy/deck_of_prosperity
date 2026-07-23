@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { CARD_TEMPLATES, MARKET_MODIFIERS, TYCOONS } from '../src/game/data';
+import { CARD_TEMPLATES, MARKET_MODIFIERS, TYCOONS, rankLabel } from '../src/game/data';
 import { createStartingDeck, drawToHand, identifyHand, marketTarget, prepareMarket, scoreHand } from '../src/game/engine';
 import type { Card, PlayerState, GroupKey } from '../src/game/types';
 
@@ -38,6 +38,22 @@ describe('authoritative scoring engine', () => {
     for (const asset of CARD_TEMPLATES) {
       expect(existsSync(resolve(process.cwd(), `public/assets/cards/${asset.artId}.png`))).toBe(true);
     }
+  });
+
+  it('publishes the internal 1–13 ladder as poker ranks 2 through Ace', () => {
+    expect(Array.from({ length: 13 }, (_, index) => rankLabel(index + 1))).toEqual([
+      '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A',
+    ]);
+  });
+
+  it('orders every asset class from modest local assets to its strongest landmarks', () => {
+    const names = (group: GroupKey) => CARD_TEMPLATES.filter((item) => item.group === group).map((item) => item.name);
+    expect(names('COMMERCIAL').slice(0, 3)).toEqual(['Warung Tegal', 'Pasar Terapung', 'Kafe Kota Tua']);
+    expect(names('COMMERCIAL').slice(-3)).toEqual(['Kuningan', 'PIK', 'SCBD']);
+    expect(names('RESIDENTIAL').slice(0, 3)).toEqual(['Kampung Code', 'Kampung Naga', 'Kampung Pelangi Semarang']);
+    expect(names('RESIDENTIAL').slice(-3)).toEqual(['Pantai Indah Kapuk', 'Pondok Indah', 'Menteng']);
+    expect(names('INFRASTRUCTURE').slice(0, 3)).toEqual(['Sumur Kampung', 'Gardu PLN', 'Menara BTS']);
+    expect(names('INFRASTRUCTURE').slice(-3)).toEqual(['Whoosh', 'Bandara Soekarno-Hatta', 'Trans-Sumatra']);
   });
 
   it('places UI, UGM, and ITB at the top of the innovation value ladder', () => {

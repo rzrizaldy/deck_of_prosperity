@@ -206,7 +206,8 @@ test('the hand can be sorted by rank or asset class', async ({ page }) => {
   const sort = page.getByRole('group', { name: /Sort your hand/i });
   await sort.getByRole('button', { name: /^Rank$/i }).click();
   const ranks = await page.locator('.hand-cards .card-rank').allTextContents();
-  expect(ranks.map(Number)).toEqual([...ranks.map(Number)].sort((a, b) => a - b));
+  const pokerOrder = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+  expect(ranks.map((rank) => pokerOrder.indexOf(rank))).toEqual([...ranks.map((rank) => pokerOrder.indexOf(rank))].sort((a, b) => a - b));
 
   await sort.getByRole('button', { name: /^Class$/i }).click();
   await expect(sort.getByRole('button', { name: /^Class$/i })).toHaveClass(/active/);
@@ -351,7 +352,7 @@ test('the guide states each rule once and shows a worked score', async ({ page }
   const example = guide.locator('.scoring-example');
   await expect(example).toContainText('chips');
   await expect(example).toContainText('mult');
-  await expect(example).toContainText('125');
+  await expect(example).toContainText('100');
 
   // The 4×13 ruleset publishes each legal poker hand exactly once.
   const rows = guide.locator('.guide-grid .rank-row');
@@ -361,7 +362,7 @@ test('the guide states each rule once and shows a worked score', async ({ page }
     'Flush', 'Full House', 'Four of a Kind', 'Straight Flush',
   ]);
   const fullHouse = rows.filter({ hasText: 'Full House' });
-  await expect(fullHouse.locator('.recipe-cards b')).toHaveText(['7', '7', '7', '3', '3']);
+  await expect(fullHouse.locator('.recipe-cards b')).toHaveText(['8', '8', '8', '4', '4']);
 });
 
 test('one word for one concept across briefing and table', async ({ page }) => {
@@ -377,6 +378,13 @@ test('one word for one concept across briefing and table', async ({ page }) => {
 test('compendium cards open a full-size artwork preview', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /^Cards$/i }).click();
-  await page.getByRole('button', { name: /^Kampung Naga, 5 chips/i }).click();
+  const columns = page.locator('.collection-column');
+  await expect(columns).toHaveCount(4);
+  for (const column of await columns.all()) {
+    await expect(column.locator('.asset-card')).toHaveCount(13);
+    await expect(column.locator('.card-rank')).toHaveText(['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2']);
+  }
+  // In the solitaire stack, the exposed rank tab is the card's click target.
+  await page.getByRole('button', { name: /^Kampung Naga,/i }).locator('.card-rank').click();
   await expect(page.getByRole('dialog', { name: /Kampung Naga card preview/i })).toBeVisible();
 });

@@ -19,6 +19,10 @@ export const HANDS: Record<HandKey, { name: string; multiplier: number; descript
   STRAIGHT_FLUSH: { name: 'Straight Flush', multiplier: 16, description: 'Lima rank berurutan dalam satu kategori.' },
 };
 
+/** Internal ranks stay 1–13 for scoring; the published deck reads like poker, 2 through Ace. */
+export const CARD_RANK_LABELS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] as const;
+export const rankLabel = (rank: number) => CARD_RANK_LABELS[rank - 1] ?? String(rank);
+
 /** Market events are public constraints, not surprise punishments. */
 export const MARKET_MODIFIERS: MarketModifier[] = [
   { id: 'BANJIR', name: 'Musim Hujan', summary: 'Aset Hunian beristirahat satu pasar ini.', art: 'banjir' },
@@ -40,20 +44,20 @@ export const CONSUMABLES: Consumable[] = [
 
 const ASSET_CLASSES: Array<{ group: GroupKey; assets: Array<{ name: string; artId?: string }> }> = [
   { group: 'COMMERCIAL', assets: [
-    { name: 'Pasar Beringharjo', artId: '01-pasar-beringharjo' }, { name: 'Warung Tegal', artId: '02-warung-tegal' }, { name: 'Kafe Kota Tua', artId: '03-kafe-kota-tua' }, { name: 'Ruko Cibubur', artId: '04-ruko-cibubur' }, { name: 'Pasar Atas Bukittinggi', artId: '05-pasar-atas-bukittinggi' },
-    { name: 'Malioboro', artId: '06-malioboro' }, { name: 'Blok M', artId: '07-blok-m' }, { name: 'Braga Bandung', artId: '08-braga-bandung' }, { name: 'Pasar Terapung', artId: '09-pasar-terapung' }, { name: 'Kuningan', artId: '10-kuningan' }, { name: 'Senopati', artId: '11-senopati' }, { name: 'SCBD', artId: '12-scbd' }, { name: 'PIK', artId: '13-pik' },
+    { name: 'Warung Tegal', artId: '02-warung-tegal' }, { name: 'Pasar Terapung', artId: '09-pasar-terapung' }, { name: 'Kafe Kota Tua', artId: '03-kafe-kota-tua' }, { name: 'Pasar Beringharjo', artId: '01-pasar-beringharjo' }, { name: 'Pasar Atas Bukittinggi', artId: '05-pasar-atas-bukittinggi' },
+    { name: 'Ruko Cibubur', artId: '04-ruko-cibubur' }, { name: 'Malioboro', artId: '06-malioboro' }, { name: 'Braga Bandung', artId: '08-braga-bandung' }, { name: 'Blok M', artId: '07-blok-m' }, { name: 'Senopati', artId: '11-senopati' }, { name: 'Kuningan', artId: '10-kuningan' }, { name: 'PIK', artId: '13-pik' }, { name: 'SCBD', artId: '12-scbd' },
   ] },
   { group: 'INNOVATION', assets: [
-    { name: 'Pabrik Cikarang', artId: '14-pabrik-cikarang' }, { name: 'Kawasan Karawang', artId: '15-kawasan-karawang' }, { name: 'Batam Tech Hub', artId: '16-batam-tech-hub' }, { name: 'Kawasan Industri Kendal', artId: '17-kawasan-kendal' }, { name: 'Morowali', artId: '18-morowali' }, { name: 'Bandung Tech Hub', artId: '19-bandung-tech-hub' }, { name: 'BRIN Serpong', artId: '20-brin-serpong' },
+    { name: 'Kawasan Industri Kendal', artId: '17-kawasan-kendal' }, { name: 'Pabrik Cikarang', artId: '14-pabrik-cikarang' }, { name: 'Kawasan Karawang', artId: '15-kawasan-karawang' }, { name: 'Morowali', artId: '18-morowali' }, { name: 'Batam Tech Hub', artId: '16-batam-tech-hub' }, { name: 'Bandung Tech Hub', artId: '19-bandung-tech-hub' }, { name: 'BRIN Serpong', artId: '20-brin-serpong' },
     { name: 'PENS Surabaya', artId: '24-pens' }, { name: 'Universitas Airlangga', artId: '25-unair' }, { name: 'Universitas Hasanuddin', artId: '26-unhas' }, { name: 'Universitas Indonesia', artId: '23-ui' }, { name: 'Universitas Gadjah Mada', artId: '21-ugm' }, { name: 'Institut Teknologi Bandung', artId: '22-itb' },
   ] },
   { group: 'RESIDENTIAL', assets: [
-    { name: 'Kampung Naga', artId: '27-kampung-naga' }, { name: 'Rusun Tanah Abang', artId: '28-rusun-tanah-abang' }, { name: 'Kontrakan Cipinang', artId: '29-kontrakan-cipinang' }, { name: 'Perumahan Bekasi', artId: '30-perumahan-bekasi' }, { name: 'Komplek Cibubur', artId: '31-komplek-cibubur' }, { name: 'Kampung Pelangi Semarang', artId: '32-kampung-pelangi' }, { name: 'Kemang Townhouse', artId: '33-kemang-townhouse' },
-    { name: 'Pondok Indah', artId: '34-pondok-indah' }, { name: 'Menteng', artId: '35-menteng' }, { name: 'Kota Baru Parahyangan', artId: '36-kota-baru-parahyangan' }, { name: 'Pantai Indah Kapuk', artId: '37-pik-residential' }, { name: 'Rusun Pasar Rumput', artId: '38-rusun-pasar-rumput' }, { name: 'Kampung Code', artId: '39-kampung-code' },
+    { name: 'Kampung Code', artId: '39-kampung-code' }, { name: 'Kampung Naga', artId: '27-kampung-naga' }, { name: 'Kampung Pelangi Semarang', artId: '32-kampung-pelangi' }, { name: 'Rusun Tanah Abang', artId: '28-rusun-tanah-abang' }, { name: 'Rusun Pasar Rumput', artId: '38-rusun-pasar-rumput' }, { name: 'Kontrakan Cipinang', artId: '29-kontrakan-cipinang' }, { name: 'Perumahan Bekasi', artId: '30-perumahan-bekasi' },
+    { name: 'Komplek Cibubur', artId: '31-komplek-cibubur' }, { name: 'Kota Baru Parahyangan', artId: '36-kota-baru-parahyangan' }, { name: 'Kemang Townhouse', artId: '33-kemang-townhouse' }, { name: 'Pantai Indah Kapuk', artId: '37-pik-residential' }, { name: 'Pondok Indah', artId: '34-pondok-indah' }, { name: 'Menteng', artId: '35-menteng' },
   ] },
   { group: 'INFRASTRUCTURE', assets: [
-    { name: 'Sumur Kampung', artId: '40-sumur-kampung' }, { name: 'PDAM Jatiluhur', artId: '41-pdam-jatiluhur' }, { name: 'Gardu PLN', artId: '42-gardu-pln' }, { name: 'Menara BTS', artId: '43-menara-bts' }, { name: 'IPAL Kota', artId: '44-ipal-kota' }, { name: 'PLTA Cirata', artId: '45-plta-cirata' }, { name: 'Jaringan Serat Nusantara', artId: '46-jaringan-serat' },
-    { name: 'MRT Jakarta', artId: '47-mrt-jakarta' }, { name: 'Stasiun Gambir', artId: '48-stasiun-gambir' }, { name: 'Pelabuhan Merak', artId: '49-pelabuhan-merak' }, { name: 'Bandara Soekarno-Hatta', artId: '50-bandara-soetta' }, { name: 'Whoosh', artId: '51-whoosh' }, { name: 'Trans-Sumatra', artId: '52-trans-sumatra' },
+    { name: 'Sumur Kampung', artId: '40-sumur-kampung' }, { name: 'Gardu PLN', artId: '42-gardu-pln' }, { name: 'Menara BTS', artId: '43-menara-bts' }, { name: 'PDAM Jatiluhur', artId: '41-pdam-jatiluhur' }, { name: 'IPAL Kota', artId: '44-ipal-kota' }, { name: 'Stasiun Gambir', artId: '48-stasiun-gambir' }, { name: 'Pelabuhan Merak', artId: '49-pelabuhan-merak' },
+    { name: 'PLTA Cirata', artId: '45-plta-cirata' }, { name: 'Jaringan Serat Nusantara', artId: '46-jaringan-serat' }, { name: 'MRT Jakarta', artId: '47-mrt-jakarta' }, { name: 'Whoosh', artId: '51-whoosh' }, { name: 'Bandara Soekarno-Hatta', artId: '50-bandara-soetta' }, { name: 'Trans-Sumatra', artId: '52-trans-sumatra' },
   ] },
 ];
 
