@@ -57,7 +57,7 @@ function completeRound(state: GameState, playerScore: GameState['lastPlayerScore
     return {
       ...state, phase: 'victory', runScore, lastPlayerScore: playerScore,
       selectedIds: [],
-      events: event(state, 'system', 'Pasar terakhir tembus. Kota naik bareng kamu.'),
+      events: event(state, 'system', 'Pasar terakhir tembus. Negara naik bareng kamu.'),
     };
   }
   const player = awardRound(state.player);

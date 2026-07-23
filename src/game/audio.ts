@@ -18,26 +18,31 @@ interface Voice {
   gain: number;
 }
 
+/**
+ * Harvest Moon / cozy-farming palette: soft sines, longer decays, major
+ * pentatonic steps. Deliberately calmer than the dystopian capitalist twin.
+ */
 const VOICES: Record<SoundName, Voice> = {
-  draw: { notes: [300, 420], wave: 'triangle', step: 0.06, hold: 0.12, gain: 0.05 },
-  select: { notes: [520], wave: 'triangle', step: 0.07, hold: 0.1, gain: 0.05 },
-  deselect: { notes: [400], wave: 'triangle', step: 0.07, hold: 0.08, gain: 0.035 },
-  discard: { notes: [330, 392], wave: 'sine', step: 0.06, hold: 0.11, gain: 0.04 },
-  shuffle: { notes: [220, 300, 260, 340], wave: 'triangle', step: 0.045, hold: 0.07, gain: 0.04 },
-  play: { notes: [340], wave: 'triangle', step: 0.07, hold: 0.13, gain: 0.055 },
-  chips: { notes: [390, 470], wave: 'triangle', step: 0.07, hold: 0.12, gain: 0.055 },
-  multiplier: { notes: [560, 690], wave: 'triangle', step: 0.07, hold: 0.12, gain: 0.055 },
-  score: { notes: [440, 660, 880], wave: 'triangle', step: 0.075, hold: 0.14, gain: 0.06 },
-  purchase: { notes: [520, 780], wave: 'triangle', step: 0.07, hold: 0.13, gain: 0.055 },
-  victory: { notes: [440, 554, 660, 880], wave: 'triangle', step: 0.1, hold: 0.24, gain: 0.06 },
-  defeat: { notes: [392, 440, 494], wave: 'sine', step: 0.11, hold: 0.22, gain: 0.045 },
+  draw: { notes: [262, 330], wave: 'sine', step: 0.1, hold: 0.26, gain: 0.032 },
+  select: { notes: [392], wave: 'sine', step: 0.08, hold: 0.18, gain: 0.028 },
+  deselect: { notes: [294], wave: 'sine', step: 0.08, hold: 0.14, gain: 0.02 },
+  discard: { notes: [247, 196], wave: 'triangle', step: 0.09, hold: 0.2, gain: 0.024 },
+  shuffle: { notes: [220, 247, 262, 294], wave: 'sine', step: 0.06, hold: 0.12, gain: 0.022 },
+  // Soft ascending kalimba when a hand hits the table.
+  play: { notes: [330, 392, 523], wave: 'sine', step: 0.11, hold: 0.34, gain: 0.038 },
+  chips: { notes: [349, 440], wave: 'sine', step: 0.1, hold: 0.26, gain: 0.032 },
+  multiplier: { notes: [392, 494], wave: 'triangle', step: 0.11, hold: 0.28, gain: 0.03 },
+  score: { notes: [330, 392, 523, 659], wave: 'sine', step: 0.12, hold: 0.36, gain: 0.04 },
+  purchase: { notes: [349, 440, 523], wave: 'sine', step: 0.1, hold: 0.28, gain: 0.034 },
+  victory: { notes: [262, 330, 392, 523, 659], wave: 'sine', step: 0.15, hold: 0.42, gain: 0.042 },
+  defeat: { notes: [294, 262, 220], wave: 'sine', step: 0.17, hold: 0.4, gain: 0.028 },
 };
 
-/** A gentle acoustic-morning loop: guitar-like plucks, kalimba and bamboo-flute air. */
-const BGM_METAL = [261.63, 293.66, 329.63, 392, 440, 493.88];
-const BGM_MELODY = [0, 2, 4, 2, 1, 3, 4, 2, 0, 2, 3, 5, 4, 2, 1, 3];
+/** Unhurried morning loop: C–D–E–G–A pentatonic, soft plucks over a warm bass. */
+const BGM_METAL = [261.63, 293.66, 329.63, 392, 440, 523.25];
+const BGM_MELODY = [0, 2, 4, 2, 3, 4, 2, 0, 1, 2, 4, 5, 4, 2, 1, 0];
 const BGM_BASS = [65.41, 73.42, 82.41, 98];
-const BGM_BEAT = 0.42;
+const BGM_BEAT = 0.58;
 
 function readNumber(key: string, fallback: number): number {
   if (typeof localStorage === 'undefined') return fallback;
@@ -58,7 +63,7 @@ let bgmEnabled = readFlag(BGM_KEY, true);
 
 /**
  * Companion callouts use the same warm procedural palette as the game. There
- * are no inherited character voice clips in the published prosperity edition.
+ * are no inherited dystopian voice clips in the published prosperity edition.
  */
 
 /* ---------------------------------------------------------------- context */
@@ -120,6 +125,32 @@ export function setBgmEnabled(next: boolean): boolean {
 
 /* ----------------------------------------------------------------- sounds */
 
+function pluck(ctx: AudioContext, bus: GainNode, frequency: number, at: number, hold: number, wave: OscillatorType, level: number): void {
+  const oscillator = ctx.createOscillator();
+  const overtone = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const overtoneGain = ctx.createGain();
+  oscillator.type = wave;
+  oscillator.frequency.value = frequency;
+  overtone.type = 'sine';
+  overtone.frequency.value = frequency * 2;
+  // Soft attack + long decay reads as kalimba / wood-chime, not arcade beep.
+  gain.gain.setValueAtTime(0.0001, at);
+  gain.gain.exponentialRampToValueAtTime(level, at + 0.018);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + hold);
+  overtoneGain.gain.setValueAtTime(0.0001, at);
+  overtoneGain.gain.exponentialRampToValueAtTime(level * 0.22, at + 0.012);
+  overtoneGain.gain.exponentialRampToValueAtTime(0.0001, at + hold * 0.72);
+  oscillator.connect(gain).connect(bus);
+  overtone.connect(overtoneGain).connect(bus);
+  oscillator.start(at);
+  overtone.start(at);
+  oscillator.stop(at + hold + 0.04);
+  overtone.stop(at + hold * 0.72 + 0.04);
+  oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+  overtone.onended = () => { overtone.disconnect(); overtoneGain.disconnect(); };
+}
+
 export function playSound(name: SoundName, muted: boolean): void {
   if (muted || volume <= 0) return;
   const ctx = ensureContext();
@@ -128,18 +159,7 @@ export function playSound(name: SoundName, muted: boolean): void {
   const voice = VOICES[name];
   const now = ctx.currentTime;
   voice.notes.forEach((frequency, index) => {
-    const at = now + index * voice.step;
-    const oscillator = ctx.createOscillator();
-    const gain = ctx.createGain();
-    oscillator.type = voice.wave;
-    oscillator.frequency.value = frequency;
-    gain.gain.setValueAtTime(0.0001, at);
-    gain.gain.exponentialRampToValueAtTime(voice.gain, at + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, at + voice.hold);
-    oscillator.connect(gain).connect(bus);
-    oscillator.start(at);
-    oscillator.stop(at + voice.hold + 0.02);
-    oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+    pluck(ctx, bus, frequency, now + index * voice.step, voice.hold, voice.wave, voice.gain);
   });
 }
 
@@ -162,11 +182,11 @@ function scheduleTone(ctx: AudioContext, bus: GainNode, frequency: number, at: n
   oscillator.type = wave;
   oscillator.frequency.value = frequency;
   gain.gain.setValueAtTime(0.0001, at);
-  gain.gain.exponentialRampToValueAtTime(level, at + 0.008);
+  gain.gain.exponentialRampToValueAtTime(level, at + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, at + duration);
   oscillator.connect(gain).connect(bus);
   oscillator.start(at);
-  oscillator.stop(at + duration + 0.03);
+  oscillator.stop(at + duration + 0.04);
   oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
 }
 
@@ -177,16 +197,16 @@ function scheduleBgmStep(): void {
   const now = ctx.currentTime;
   const step = bgmStep % 16;
   const metal = BGM_METAL[BGM_MELODY[step]];
-  // Short triangle plucks give a soft acoustic-guitar/kecapi gesture.
-  scheduleTone(ctx, bus, metal, now, BGM_BEAT * 1.32, 'triangle', step % 4 === 0 ? 0.16 : 0.11);
-  scheduleTone(ctx, bus, metal * 2, now + 0.008, BGM_BEAT * 0.72, 'sine', 0.027);
-  // Soft bass grounds the unhurried morning pulse.
-  if (step % 4 === 0 || step === 6 || step === 14) {
-    scheduleTone(ctx, bus, BGM_BASS[Math.floor(step / 4) % BGM_BASS.length], now, BGM_BEAT * 1.65, 'sine', 0.21);
+  // Soft sine pluck + quiet octave = pastoral morning guitar/kecapi feel.
+  scheduleTone(ctx, bus, metal, now, BGM_BEAT * 1.55, 'sine', step % 4 === 0 ? 0.12 : 0.08);
+  scheduleTone(ctx, bus, metal * 2, now + 0.012, BGM_BEAT * 0.9, 'sine', 0.018);
+  // Warm bass under every bar, never punchy.
+  if (step % 4 === 0 || step === 8) {
+    scheduleTone(ctx, bus, BGM_BASS[Math.floor(step / 4) % BGM_BASS.length], now, BGM_BEAT * 2.1, 'sine', 0.14);
   }
-  // A soft high pulse is a browser-friendly hand-percussion accent.
-  if (step % 4 === 2 || step === 7 || step === 15) {
-    scheduleTone(ctx, bus, step % 4 === 2 ? 180 : 235, now, 0.06, 'sine', 0.014);
+  // Barely-there high pulse keeps time without sounding like a drum kit.
+  if (step === 4 || step === 12) {
+    scheduleTone(ctx, bus, 523.25, now, 0.08, 'sine', 0.01);
   }
   bgmStep += 1;
 }
@@ -197,7 +217,7 @@ export function startBgm(muted: boolean): void {
   const ctx = ensureContext();
   if (!ctx || ctx.state !== 'running' || !master) return;
   bgmGain = ctx.createGain();
-  bgmGain.gain.value = 0.11;
+  bgmGain.gain.value = 0.1;
   bgmGain.connect(master);
   bgmStep = 0;
   scheduleBgmStep();
@@ -209,8 +229,8 @@ export function stopBgm(): void {
   const node = bgmGain;
   bgmGain = null;
   if (!node) return;
-  if (context) node.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.4);
-  window.setTimeout(() => node.disconnect(), 600);
+  if (context) node.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.5);
+  window.setTimeout(() => node.disconnect(), 700);
 }
 
 export function isBgmPlaying(): boolean {

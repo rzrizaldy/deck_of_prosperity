@@ -476,9 +476,9 @@ function Menu({ state, saved, highScore, legacyCleared, dispatch, locale, setLoc
       <section className="menu-brand">
         <LanguageSwitch locale={locale} setLocale={setLocale} />
         <div className="title-lockup"><img src="/assets/title-prosperity.png" alt="Deck of Prosperity" /></div>
-        <p className="eyebrow">{tr(locale, 'Build value across the archipelago', 'Bangun nilai dari Sabang sampai Merauke')}</p>
-        <h1>{tr(locale, 'Make progress together.', 'Bareng-bareng naik kelas.')}</h1>
-        <p className="menu-copy">{tr(locale, 'Build a resilient portfolio that helps the city thrive.', 'Susun dek yang kuat. Kota ikut naik.')}</p>
+        <p className="eyebrow">{tr(locale, 'Growing across the archipelago', 'Dari Sabang sampai Merauke')}</p>
+        <h1>{tr(locale, 'Rise together.', 'Naik kelas bareng.')}</h1>
+        <p className="menu-copy">{tr(locale, 'Build a strong deck — the country rises with you.', 'Susun dek yang kuat. Negara ikut naik.')}</p>
         <div className="high-score"><Trophy /> {tr(locale, 'Best run', 'Rekor terbaik')} <strong>{money(highScore)}</strong></div>
       </section>
       <section className="menu-panel">
@@ -971,7 +971,7 @@ function Ending({ state, dispatch }: { state: GameState; dispatch: Dispatch }) {
       <section>
         {won ? <Trophy /> : <Coins />}
         <span>{won ? tr(locale, 'Eight markets conquered', 'Delapan pasar lolos') : tr(locale, `Run ended in round ${state.round}`, `Habis di ronde ${state.round}`)}</span>
-        <h1>{won ? tr(locale, 'The city thrives with you.', 'Kota naik bareng kamu.') : tr(locale, 'The next market can be brighter.', 'Lain kali bisa lebih oke.')}</h1>
+        <h1>{won ? tr(locale, 'The country thrives with you.', 'Negara naik bareng kamu.') : tr(locale, 'The next market can be brighter.', 'Lain kali bisa lebih oke.')}</h1>
         <p>{won
           ? tr(locale, 'The final market has cleared.', 'Pasar terakhir tembus.')
           : tr(locale, `You needed ${money(marketTarget(state.round, state.difficulty, state.modifier))} and closed at ${money(state.player.score)}.`, `Butuh ${money(marketTarget(state.round, state.difficulty, state.modifier))}, tapi cuma ${money(state.player.score)}.`)}</p>

@@ -242,7 +242,7 @@ test('both endings fit the canvas', async ({ page }) => {
     await seedFinalHand(page, 1_000_000);
     await page.locator('.hand-cards').getByRole('button', { name: /^1\./ }).click();
     await page.getByRole('button', { name: /Commit portfolio/i }).click();
-    await expect(page.getByRole('heading', { name: /The city thrives with you/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /The country thrives with you/i })).toBeVisible({ timeout: 15_000 });
     await expectNoDocumentOverflow(page, `victory ${at}`);
     await expectFrameFits(page, `victory ${at}`);
     await expect(page.getByRole('button', { name: /Run it back/i })).toBeVisible();

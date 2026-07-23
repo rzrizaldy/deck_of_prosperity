@@ -664,7 +664,17 @@ body { background: #fff8e8; }
   border-radius: calc(5 * var(--u)); padding: calc(2.8 * var(--u)) calc(5 * var(--u)); font: 700 calc(12 * var(--u)) 'DM Mono', monospace;
 }
 .card-value svg { width: calc(12.6 * var(--u)); height: calc(12.6 * var(--u)); }
-.card-rank { position: absolute; z-index: 2; top: calc(5 * var(--u)); left: calc(6 * var(--u)); display: grid; place-items: center; min-width: calc(22 * var(--u)); height: calc(22 * var(--u)); border: 1px solid rgba(255,234,164,.78); border-radius: calc(5 * var(--u)); background: rgba(3,12,15,.82); color: #fff0b5; font: 800 calc(14 * var(--u)) 'DM Mono', monospace; box-shadow: 0 2px 8px rgba(0,0,0,.55); }
+.card-rank {
+  position: absolute; z-index: 2; top: calc(5 * var(--u)); left: calc(6 * var(--u));
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: calc(22 * var(--u)); height: calc(22 * var(--u));
+  padding: 0.14em 0.15em 0.02em; box-sizing: border-box;
+  border: 1px solid rgba(255,234,164,.78); border-radius: calc(5 * var(--u));
+  background: rgba(3,12,15,.82); color: #fff0b5;
+  font: 800 calc(13 * var(--u))/1 'DM Mono', monospace;
+  letter-spacing: 0; text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.55);
+}
 .upgrade {
   position: absolute; right: calc(4 * var(--u)); top: calc(28 * var(--u)); background: #2aaf7d; color: #03140e;
   border-radius: 4px; padding: calc(1.5 * var(--u)) calc(3 * var(--u)); font: 700 calc(9.4 * var(--u)) 'DM Mono', monospace;
@@ -952,6 +962,14 @@ kbd { border: 1px solid #3b4852; background: #121b23; border-radius: 4px; paddin
 .compendium .asset-card:nth-child(13) { z-index: 13; }
 .compendium .asset-card.inspectable { cursor: zoom-in; }
 .compendium .asset-card.inspectable .inspect-hint { opacity: .86; }
+/* Catalog strips only show the crown of each card, so center the rank in that band. */
+.compendium .asset-card > .card-rank {
+  left: 50%; top: calc(3.5 * var(--collection-u));
+  transform: translateX(-50%);
+  min-width: calc(22 * var(--collection-u)); height: calc(18 * var(--collection-u));
+  padding: 0.16em 0.18em 0.02em;
+  font-size: calc(10.5 * var(--collection-u));
+}
 @media (max-height: 500px) and (orientation: landscape) {
   .compendium { --collection-u: min(.55px, var(--u, 1px)); }
 }
@@ -967,9 +985,13 @@ kbd { border: 1px solid #3b4852; background: #121b23; border-radius: 4px; paddin
 .preview-close { position: absolute; z-index: 2; top: calc(8 * var(--u, 1px)); right: calc(8 * var(--u, 1px)); background: rgba(3, 8, 12, .72); border-color: rgba(255, 255, 255, .28); }
 .preview-rank {
   position: absolute; z-index: 2; top: calc(8 * var(--u, 1px)); left: calc(8 * var(--u, 1px));
-  display: grid; place-items: center; min-width: calc(34 * var(--u, 1px)); height: calc(34 * var(--u, 1px));
-  padding: 0 calc(7 * var(--u, 1px)); border: 1px solid rgba(255,234,164,.82); border-radius: calc(7 * var(--u, 1px));
-  background: rgba(3,12,10,.88); color: #fff0b5; font: 800 var(--t-lg, 1.35rem) 'DM Mono', monospace;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: calc(34 * var(--u, 1px)); height: calc(34 * var(--u, 1px));
+  padding: 0.14em 0.2em 0.02em; box-sizing: border-box;
+  border: 1px solid rgba(255,234,164,.82); border-radius: calc(7 * var(--u, 1px));
+  background: rgba(3,12,10,.88); color: #fff0b5;
+  font: 800 var(--t-lg, 1.35rem)/1 'DM Mono', monospace;
+  letter-spacing: 0; text-align: center;
   box-shadow: 0 3px 10px rgba(0,0,0,.48);
 }
 .preview-details { position: absolute; z-index: 1; right: 0; bottom: 0; left: 0; padding: calc(14 * var(--u, 1px)); }
